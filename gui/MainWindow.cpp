@@ -10,8 +10,10 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QByteArray>
 #include <QCloseEvent>
 #include <QKeySequence>
+#include <QSettings>
 #include <QLabel>
 #include <QMenu>
 #include <QMenuBar>
@@ -40,6 +42,35 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     createMenus();
     createStatusBar();
     rebuildSessionsMenu();
+    loadSettings();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    saveSettings();
+    QMainWindow::closeEvent(event);
+}
+
+void MainWindow::saveSettings()
+{
+    QSettings s;
+    s.beginGroup(QStringLiteral("MainWindow"));
+    s.setValue(QStringLiteral("geometry"),  saveGeometry());
+    s.setValue(QStringLiteral("state"),     saveState());
+    s.endGroup();
+}
+
+void MainWindow::loadSettings()
+{
+    QSettings s;
+    s.beginGroup(QStringLiteral("MainWindow"));
+    const auto geom = s.value(QStringLiteral("geometry")).toByteArray();
+    if (!geom.isEmpty())
+        restoreGeometry(geom);
+    const auto state = s.value(QStringLiteral("state")).toByteArray();
+    if (!state.isEmpty())
+        restoreState(state);
+    s.endGroup();
 }
 
 MainWindow::~MainWindow() = default;

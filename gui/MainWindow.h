@@ -24,6 +24,9 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
 
+protected:
+    void closeEvent(QCloseEvent *event) override;
+
 public slots:
     void openSessionByIndex(int profileIndex);
     void closeCurrentTab();
@@ -38,6 +41,8 @@ private:
     void createMenus();
     void createStatusBar();
     void loadProfile();
+    void saveSettings();
+    void loadSettings();
 
     profile_t      m_profile{};
     QTabWidget    *m_tabs       = nullptr;
