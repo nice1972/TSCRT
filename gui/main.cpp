@@ -1,7 +1,10 @@
 #include <QApplication>
 #include <QFileInfo>
 #include <QIcon>
+#include <QLibraryInfo>
+#include <QLocale>
 #include <QMessageBox>
+#include <QTranslator>
 
 #include "CrashHandler.h"
 #include "Logging.h"
@@ -14,6 +17,31 @@ int main(int argc, char *argv[])
     app.setOrganizationName(QStringLiteral("tscrt"));
     app.setApplicationVersion(QStringLiteral("1.0.0"));
     app.setWindowIcon(QIcon(QStringLiteral(":/icons/app.png")));
+
+    // Localization. Pick the bundled translation that best matches the
+    // user's system locale; fall back to the source language otherwise.
+    QTranslator appTranslator;
+    const QLocale sysLocale = QLocale::system();
+    const QStringList uiLangs = sysLocale.uiLanguages();
+    bool loaded = false;
+    for (const QString &lang : uiLangs) {
+        QString tag = lang;
+        tag.replace(QLatin1Char('-'), QLatin1Char('_'));
+        if (appTranslator.load(QStringLiteral(":/i18n/tscrt_win_%1.qm").arg(tag))
+            || appTranslator.load(QStringLiteral(":/i18n/tscrt_win_%1.qm")
+                                      .arg(tag.section('_', 0, 0)))) {
+            QCoreApplication::installTranslator(&appTranslator);
+            loaded = true;
+            break;
+        }
+    }
+    QTranslator qtTranslator;
+    if (qtTranslator.load(sysLocale,
+                          QStringLiteral("qt"), QStringLiteral("_"),
+                          QLibraryInfo::path(QLibraryInfo::TranslationsPath))) {
+        QCoreApplication::installTranslator(&qtTranslator);
+    }
+    Q_UNUSED(loaded);
 
     tscrt::installLogging();
     tscrt::installCrashHandler();

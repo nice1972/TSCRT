@@ -14,7 +14,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # Qt6 (MSYS2 UCRT64)
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Gui Widgets LinguistTools)
 
 # pkg-config for libssh2 / libvterm
 find_package(PkgConfig REQUIRED)
@@ -64,11 +64,21 @@ set(WIN_RESOURCES
     resources/tscrt_win.qrc
 )
 
+# ---- Translations --------------------------------------------------------
+set(TS_FILES
+    translations/tscrt_win_ko.ts
+    translations/tscrt_win_en.ts
+)
+
 add_executable(tscrt_win WIN32
     ${GUI_SOURCES}
     ${CORE_SOURCES}
     ${WIN_RESOURCES}
 )
+
+qt_add_translations(tscrt_win
+    TS_FILES        ${TS_FILES}
+    RESOURCE_PREFIX "/i18n")
 
 # Make sure CMake hands the .rc file to windres correctly.
 set_source_files_properties(resources/tscrt_win.rc
