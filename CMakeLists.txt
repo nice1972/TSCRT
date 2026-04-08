@@ -45,6 +45,8 @@ set(GUI_SOURCES
     gui/SettingsDialog.cpp
     gui/Logging.h
     gui/Logging.cpp
+    gui/CrashHandler.h
+    gui/CrashHandler.cpp
 )
 
 add_executable(tscrt_win WIN32
@@ -65,6 +67,8 @@ target_link_libraries(tscrt_win PRIVATE
     PkgConfig::LIBSSH2
     PkgConfig::LIBVTERM
     ws2_32
+    dbghelp
+    crypt32
 )
 
 target_compile_definitions(tscrt_win PRIVATE
