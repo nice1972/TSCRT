@@ -1,0 +1,105 @@
+/*
+ * TerminalWidget - VT100/xterm terminal widget backed by libvterm.
+ *
+ * Owns a VTerm instance and renders its screen with QPainter. Forwards
+ * Qt key/mouse/resize events to the libvterm input layer and emits
+ * outputBytes() whenever libvterm produces bytes that should be sent to
+ * the remote end.
+ *
+ * Designed for commercial-quality use:
+ *   - All user-visible strings go through tr()
+ *   - No naked new/delete (RAII)
+ *   - HiDPI safe (devicePixelRatioF used for metrics)
+ *   - Keyboard focus + accessibility hints exposed
+ */
+#pragma once
+
+#include <QAbstractScrollArea>
+#include <QByteArray>
+#include <QColor>
+#include <QFont>
+#include <QHash>
+#include <QSize>
+#include <QString>
+#include <QTimer>
+
+#include <vterm.h>
+
+class TerminalWidget : public QAbstractScrollArea {
+    Q_OBJECT
+public:
+    explicit TerminalWidget(QWidget *parent = nullptr);
+    ~TerminalWidget() override;
+
+    /// Configure the monospace font and recompute cell metrics.
+    void setTerminalFont(const QFont &font);
+
+    /// Reset internal state and resize the libvterm grid to (cols, rows).
+    void resizeGrid(int cols, int rows);
+
+    int cols() const { return m_cols; }
+    int rows() const { return m_rows; }
+
+public slots:
+    /// Feed bytes coming from the remote session into the VT parser.
+    void feedBytes(const QByteArray &data);
+
+    /// Clear the on-screen contents (does not touch the connection).
+    void clearScreen();
+
+signals:
+    /// Bytes that the terminal wants to send back to the host (key input,
+    /// mouse reports, status responses).
+    void outputBytes(const QByteArray &data);
+
+    /// Emitted whenever the displayed grid size changes (so the session can
+    /// request a matching PTY/window size on the remote end).
+    void gridResized(int cols, int rows);
+
+protected:
+    void paintEvent(QPaintEvent *event)        override;
+    void resizeEvent(QResizeEvent *event)      override;
+    void keyPressEvent(QKeyEvent *event)       override;
+    void inputMethodEvent(QInputMethodEvent *) override;
+    void mousePressEvent(QMouseEvent *e)       override;
+    void mouseMoveEvent(QMouseEvent *e)        override;
+    void mouseReleaseEvent(QMouseEvent *e)     override;
+    void focusInEvent(QFocusEvent *e)          override;
+    void focusOutEvent(QFocusEvent *e)         override;
+
+public:
+    // libvterm callback trampolines (public so the static callback table
+    // in the .cpp can take their addresses; not part of the public API).
+    static int  s_damage(VTermRect rect, void *user);
+    static int  s_moveCursor(VTermPos pos, VTermPos oldpos,
+                             int visible, void *user);
+    static int  s_settermprop(VTermProp prop, VTermValue *val, void *user);
+    static int  s_bell(void *user);
+    static void s_outputCallback(const char *s, size_t len, void *user);
+
+private:
+    void recomputeMetrics();
+    void resizeGridFromPixels();
+    void writeOut(const char *buf, size_t len);
+    void scheduleRepaint();
+
+    // State
+    VTerm        *m_vt        = nullptr;
+    VTermScreen  *m_screen    = nullptr;
+    int           m_cols      = 80;
+    int           m_rows      = 24;
+
+    QFont         m_font;
+    int           m_cellW     = 8;
+    int           m_cellH     = 16;
+    int           m_baseline  = 12;
+
+    bool          m_cursorVisible = true;
+    int           m_cursorRow     = 0;
+    int           m_cursorCol     = 0;
+    bool          m_blinkOn       = true;
+    QTimer        m_blinkTimer;
+
+    QColor        m_bg{ 0x10, 0x10, 0x10 };
+    QColor        m_fg{ 0xE0, 0xE0, 0xE0 };
+};
