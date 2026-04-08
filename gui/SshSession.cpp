@@ -1,5 +1,7 @@
 #include "SshSession.h"
 
+#include "Credentials.h"
+
 #include <QtGlobal>
 #include <ws2tcpip.h>
 
@@ -14,6 +16,17 @@ SshSession::SshSession(const ssh_config_t &cfg, const QString &name,
                        QObject *parent)
     : ISession(parent), m_cfg(cfg), m_name(name)
 {
+    // Decrypt DPAPI-protected password at session-construction time so
+    // the worker thread sees the plaintext libssh2 expects.
+    if (m_cfg.password[0]) {
+        const QString plain = tscrt::decryptSecret(
+            QString::fromLocal8Bit(m_cfg.password));
+        const QByteArray b = plain.toLocal8Bit();
+        const int n = qMin<int>(int(sizeof(m_cfg.password)) - 1, b.size());
+        memcpy(m_cfg.password, b.constData(), n);
+        m_cfg.password[n] = '\0';
+    }
+
     // Move ourselves to the worker thread; queued slots execute there.
     moveToThread(&m_thread);
     connect(&m_thread, &QThread::started, this, &SshSession::runLoop);

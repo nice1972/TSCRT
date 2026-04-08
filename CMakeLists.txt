@@ -47,6 +47,8 @@ set(GUI_SOURCES
     gui/Logging.cpp
     gui/CrashHandler.h
     gui/CrashHandler.cpp
+    gui/Credentials.h
+    gui/Credentials.cpp
 )
 
 add_executable(tscrt_win WIN32

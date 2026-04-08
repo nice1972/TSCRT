@@ -1,4 +1,5 @@
 #include "SettingsDialog.h"
+#include "Credentials.h"
 #include "SessionEditDialog.h"
 
 #include <QComboBox>
@@ -159,6 +160,15 @@ void SettingsDialog::addSession()
             QMessageBox::warning(this, tr("Invalid"), tr("Session name is required."));
             return;
         }
+        // Encrypt password before persisting (DPAPI)
+        if (s.type == SESSION_TYPE_SSH && s.ssh.password[0]) {
+            const QString enc = tscrt::encryptSecret(
+                QString::fromLocal8Bit(s.ssh.password));
+            const QByteArray b = enc.toLocal8Bit();
+            const int n = qMin<int>(int(sizeof(s.ssh.password)) - 1, b.size());
+            memcpy(s.ssh.password, b.constData(), n);
+            s.ssh.password[n] = '\0';
+        }
         m_p.sessions[m_p.session_count++] = s;
         refreshSessionList();
         // Refresh per-session combos
@@ -173,9 +183,31 @@ void SettingsDialog::editSession()
     int idx = m_sessionList->currentRow();
     if (idx < 0 || idx >= m_p.session_count) return;
     SessionEditDialog dlg(this);
-    dlg.setSession(m_p.sessions[idx]);
+
+    // Decrypt for editing
+    session_entry_t edit = m_p.sessions[idx];
+    if (edit.type == SESSION_TYPE_SSH && edit.ssh.password[0]) {
+        const QString plain = tscrt::decryptSecret(
+            QString::fromLocal8Bit(edit.ssh.password));
+        const QByteArray b = plain.toLocal8Bit();
+        const int n = qMin<int>(int(sizeof(edit.ssh.password)) - 1, b.size());
+        memcpy(edit.ssh.password, b.constData(), n);
+        edit.ssh.password[n] = '\0';
+    }
+    dlg.setSession(edit);
+
     if (dlg.exec() == QDialog::Accepted) {
-        m_p.sessions[idx] = dlg.session();
+        session_entry_t s = dlg.session();
+        // Re-encrypt
+        if (s.type == SESSION_TYPE_SSH && s.ssh.password[0]) {
+            const QString enc = tscrt::encryptSecret(
+                QString::fromLocal8Bit(s.ssh.password));
+            const QByteArray b = enc.toLocal8Bit();
+            const int n = qMin<int>(int(sizeof(s.ssh.password)) - 1, b.size());
+            memcpy(s.ssh.password, b.constData(), n);
+            s.ssh.password[n] = '\0';
+        }
+        m_p.sessions[idx] = s;
         refreshSessionList();
     }
 }
