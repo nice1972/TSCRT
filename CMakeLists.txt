@@ -199,7 +199,7 @@ set(CPACK_PACKAGE_VENDOR            "TePSEG Co., Ltd.")
 set(CPACK_PACKAGE_VERSION           "1.0.0")
 set(CPACK_PACKAGE_FILE_NAME         "tscrt_win-${CPACK_PACKAGE_VERSION}-win64")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
-    "tscrt for Windows - SSH and serial console terminal emulator")
+    "TSCRT - SSH and serial console terminal emulator")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "tscrt_win")
 set(CPACK_RESOURCE_FILE_LICENSE
     "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
@@ -208,16 +208,16 @@ set(CPACK_RESOURCE_FILE_LICENSE
 # the install root (.) — see install(TARGETS ... DESTINATION .) above.
 # Use CPACK_NSIS_MENU_LINKS to create the correct shortcut directly.
 set(CPACK_NSIS_MENU_LINKS
-    "tscrt_win.exe"  "tscrt for Windows"
-    "Uninstall.exe"  "Uninstall tscrt for Windows")
+    "tscrt_win.exe"  "TSCRT"
+    "Uninstall.exe"  "Uninstall TSCRT")
 set(CPACK_NSIS_CREATE_ICONS_EXTRA
-    "CreateShortCut '$DESKTOP\\\\tscrt for Windows.lnk' '$INSTDIR\\\\tscrt_win.exe'")
+    "CreateShortCut '$DESKTOP\\\\TSCRT.lnk' '$INSTDIR\\\\tscrt_win.exe'")
 set(CPACK_NSIS_DELETE_ICONS_EXTRA
-    "Delete '$DESKTOP\\\\tscrt for Windows.lnk'")
+    "Delete '$DESKTOP\\\\TSCRT.lnk'")
 
 set(CPACK_GENERATOR "NSIS")
-set(CPACK_NSIS_DISPLAY_NAME           "tscrt for Windows")
-set(CPACK_NSIS_PACKAGE_NAME           "tscrt for Windows")
+set(CPACK_NSIS_DISPLAY_NAME           "TSCRT")
+set(CPACK_NSIS_PACKAGE_NAME           "TSCRT")
 set(CPACK_NSIS_HELP_LINK              "mailto:ygjeon@tepseg.com")
 set(CPACK_NSIS_URL_INFO_ABOUT         "mailto:ygjeon@tepseg.com")
 set(CPACK_NSIS_CONTACT                "ygjeon@tepseg.com")

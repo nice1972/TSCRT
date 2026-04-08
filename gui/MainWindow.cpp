@@ -31,7 +31,7 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
-    setWindowTitle(tr("tscrt for Windows"));
+    setWindowTitle(QStringLiteral("TSCRT"));
     resize(1100, 720);
 
     m_tabs = new QTabWidget(this);
@@ -366,8 +366,8 @@ void MainWindow::setUiLanguage(const QString &langCode)
 {
     QSettings prefs;
     prefs.setValue(QStringLiteral("ui/language"), langCode);
-    QMessageBox::information(this, tr("Language"),
-        tr("Language preference saved. Restart TSCRT for the change to take effect."));
+    QMessageBox::information(this, QStringLiteral("Language"),
+        QStringLiteral("Language preference saved. Restart TSCRT for the change to take effect."));
 }
 
 void MainWindow::showAboutDialog()
@@ -375,12 +375,12 @@ void MainWindow::showAboutDialog()
     const QString buildStamp = QStringLiteral(__DATE__ " " __TIME__);
 
     QMessageBox box(this);
-    box.setWindowTitle(tr("About tscrt for Windows"));
+    box.setWindowTitle(tr("About TSCRT"));
     box.setIconPixmap(QIcon(QStringLiteral(":/icons/app.png"))
                           .pixmap(96, 96));
     box.setTextFormat(Qt::RichText);
     box.setText(tr(
-        "<h2>tscrt for Windows</h2>"
+        "<h2>TSCRT</h2>"
         "<p><b>Version %1</b><br/>"
         "Built %2</p>"
         "<p>A SecureCRT-style terminal emulator for SSH2 and serial "

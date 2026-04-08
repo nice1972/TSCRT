@@ -3,7 +3,7 @@
 <TS version="2.1" language="ko_KR" sourcelanguage="en">
 <context>
     <name>MainWindow</name>
-    <message><source>tscrt for Windows</source><translation>tscrt for Windows</translation></message>
+    <message><source>TSCRT</source><translation>TSCRT</translation></message>
     <message><source>&amp;File</source><translation>파일(&amp;F)</translation></message>
     <message><source>&amp;Close tab</source><translation>탭 닫기(&amp;C)</translation></message>
     <message><source>E&amp;xit</source><translation>종료(&amp;X)</translation></message>
@@ -13,7 +13,7 @@
     <message><source>&amp;Reload profile</source><translation>프로파일 다시 읽기(&amp;R)</translation></message>
     <message><source>&amp;Help</source><translation>도움말(&amp;H)</translation></message>
     <message><source>&amp;About tscrt...</source><translation>tscrt 정보(&amp;A)...</translation></message>
-    <message><source>About tscrt for Windows</source><translation>tscrt for Windows 정보</translation></message>
+    <message><source>About TSCRT</source><translation>TSCRT 정보</translation></message>
     <message><source>(no sessions defined)</source><translation>(정의된 세션 없음)</translation></message>
     <message><source>Profile reloaded.</source><translation>프로파일을 다시 읽었습니다.</translation></message>
     <message><source>Profile error</source><translation>프로파일 오류</translation></message>

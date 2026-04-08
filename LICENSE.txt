@@ -1,5 +1,5 @@
-tscrt for Windows
-=================
+TSCRT
+=====
 
 Copyright (c) 2026 TePSEG Co., Ltd. (Republic of Korea)
 Developer: ygjeon@tepseg.com
