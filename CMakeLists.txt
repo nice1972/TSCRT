@@ -80,6 +80,31 @@ qt_add_translations(tscrt_win
     TS_FILES        ${TS_FILES}
     RESOURCE_PREFIX "/i18n")
 
+# ---- Tests --------------------------------------------------------------
+option(TSCRT_WIN_BUILD_TESTS "Build unit tests" ON)
+if(TSCRT_WIN_BUILD_TESTS)
+    enable_testing()
+    find_package(Qt6 REQUIRED COMPONENTS Test)
+
+    add_executable(test_action_parser
+        tests/test_action_parser.cpp
+        gui/ActionParser.cpp
+        gui/ActionParser.h)
+    target_include_directories(test_action_parser PRIVATE gui include)
+    target_link_libraries(test_action_parser PRIVATE Qt6::Core Qt6::Test)
+    add_test(NAME action_parser COMMAND test_action_parser)
+
+    add_executable(test_profile
+        tests/test_profile.cpp
+        core/profile.c
+        core/platform_win.c
+        include/tscrt.h
+        include/profile.h)
+    target_include_directories(test_profile PRIVATE include core)
+    target_link_libraries(test_profile PRIVATE Qt6::Core Qt6::Test)
+    add_test(NAME profile COMMAND test_profile)
+endif()
+
 # Make sure CMake hands the .rc file to windres correctly.
 set_source_files_properties(resources/tscrt_win.rc
     PROPERTIES LANGUAGE RC)
