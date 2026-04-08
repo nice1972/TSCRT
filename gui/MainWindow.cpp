@@ -1,8 +1,8 @@
 #include "MainWindow.h"
 
-#include "AutomationEngine.h"
 #include "ISession.h"
 #include "SerialSession.h"
+#include "SessionTab.h"
 #include "SettingsDialog.h"
 #include "SshSession.h"
 #include "TerminalWidget.h"
@@ -180,25 +180,14 @@ void MainWindow::openSessionByIndex(int profileIndex)
 
     const session_entry_t &s = m_profile.sessions[profileIndex];
 
-    auto *term = new TerminalWidget(m_tabs);
-
     ISession *session = nullptr;
     if (s.type == SESSION_TYPE_SSH) {
-        session = new SshSession(s.ssh, QString::fromLocal8Bit(s.name), term);
+        session = new SshSession(s.ssh, QString::fromLocal8Bit(s.name));
     } else {
-        session = new SerialSession(s.serial, QString::fromLocal8Bit(s.name), term);
+        session = new SerialSession(s.serial, QString::fromLocal8Bit(s.name));
     }
 
-    // Wire data flow:
-    //   session -> terminal (incoming bytes)
-    //   terminal -> session (user input + key reports)
-    //   terminal -> session (PTY size on resize)
-    connect(session, &ISession::bytesReceived,
-            term, &TerminalWidget::feedBytes);
-    connect(term, &TerminalWidget::outputBytes,
-            session, &ISession::sendBytes);
-    connect(term, &TerminalWidget::gridResized,
-            session, &ISession::resize);
+    auto *tab = new tscrt::SessionTab(session, m_profile, s, m_tabs);
 
     connect(session, &ISession::connecting, this, [this, name = QString::fromLocal8Bit(s.name)] {
         statusBar()->showMessage(tr("Connecting to %1...").arg(name));
@@ -214,17 +203,11 @@ void MainWindow::openSessionByIndex(int profileIndex)
         statusBar()->showMessage(tr("Disconnected: %1 (%2)").arg(name, reason), 5000);
     });
 
-    // Automation engine: startup, triggers, periodic
-    auto *engine = new tscrt::AutomationEngine(
-        session, m_profile, QString::fromLocal8Bit(s.name), term);
-    Q_UNUSED(engine);
-
-    const int idx = m_tabs->addTab(term, QString::fromLocal8Bit(s.name));
+    const int idx = m_tabs->addTab(tab, QString::fromLocal8Bit(s.name));
     m_tabs->setCurrentIndex(idx);
-    term->setFocus(Qt::OtherFocusReason);
 
     // Tell session to start once the terminal has computed its grid.
-    session->resize(term->cols(), term->rows());
+    session->resize(tab->terminal()->cols(), tab->terminal()->rows());
     session->start();
 }
 

@@ -53,6 +53,10 @@ set(GUI_SOURCES
     gui/ActionParser.cpp
     gui/AutomationEngine.h
     gui/AutomationEngine.cpp
+    gui/ButtonBar.h
+    gui/ButtonBar.cpp
+    gui/SessionTab.h
+    gui/SessionTab.cpp
 )
 
 add_executable(tscrt_win WIN32
