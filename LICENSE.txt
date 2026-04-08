@@ -1,0 +1,56 @@
+tscrt for Windows
+=================
+
+Copyright (c) 2026 TePSEG Co., Ltd. (Republic of Korea)
+Developer: ygjeon@tepseg.com
+
+This software is published and distributed by TePSEG Co., Ltd.,
+Republic of Korea, and is licensed under the terms of the
+GNU General Public License (GPL).
+
+LICENSE TERMS
+-------------
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+By installing this software you confirm that you understand and
+accept the terms of the GNU General Public License.
+
+
+THIRD-PARTY COMPONENTS
+----------------------
+
+This product bundles the following open-source components, each of
+which is distributed under its own license. The original license
+texts are preserved in their respective upstream source repositories.
+
+  * Qt 6              - LGPL v3 / GPL v3       https://www.qt.io
+  * libssh2           - BSD-3-Clause           https://libssh2.org
+  * libvterm          - MIT                    https://www.leonerd.org.uk/code/libvterm/
+  * OpenSSL 3         - Apache 2.0             https://www.openssl.org
+  * zlib              - zlib license           https://zlib.net
+  * MinGW-w64 runtime - various permissive     https://www.mingw-w64.org
+  * ICU               - Unicode license        https://icu.unicode.org
+  * HarfBuzz          - MIT                    https://harfbuzz.github.io
+  * FreeType          - FTL / GPL v2           https://freetype.org
+  * libpng / libjpeg  - permissive             https://libpng.org / https://www.ijg.org
+
+
+CONTACT
+-------
+
+For support, bug reports, and source code requests, contact:
+
+    TePSEG Co., Ltd.
+    Developer:  ygjeon@tepseg.com

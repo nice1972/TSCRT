@@ -27,11 +27,11 @@ BEGIN
     BEGIN
         BLOCK "040904b0"   /* English (US), Unicode */
         BEGIN
-            VALUE "CompanyName",      "tscrt project"
+            VALUE "CompanyName",      "TePSEG Co., Ltd."
             VALUE "FileDescription",  "tscrt for Windows - SSH/Serial console"
             VALUE "FileVersion",      TSCRT_VERSION_STR
             VALUE "InternalName",     "tscrt_win"
-            VALUE "LegalCopyright",   "Copyright (c) 2026 tscrt project"
+            VALUE "LegalCopyright",   "Copyright (c) 2026 TePSEG Co., Ltd. - GPL licensed"
             VALUE "OriginalFilename", "tscrt_win.exe"
             VALUE "ProductName",      "tscrt for Windows"
             VALUE "ProductVersion",   TSCRT_VERSION_STR
@@ -42,7 +42,7 @@ BEGIN
             VALUE "FileDescription",  "tscrt for Windows - SSH/시리얼 콘솔"
             VALUE "FileVersion",      TSCRT_VERSION_STR
             VALUE "InternalName",     "tscrt_win"
-            VALUE "LegalCopyright",   "Copyright (c) 2026 tscrt project"
+            VALUE "LegalCopyright",   "Copyright (c) 2026 TePSEG Co., Ltd. - GPL licensed"
             VALUE "OriginalFilename", "tscrt_win.exe"
             VALUE "ProductName",      "tscrt for Windows"
             VALUE "ProductVersion",   TSCRT_VERSION_STR

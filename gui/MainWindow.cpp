@@ -368,8 +368,9 @@ void MainWindow::showAboutDialog()
         .arg(VTERM_VERSION_MAJOR)
         .arg(VTERM_VERSION_MINOR));
     box.setInformativeText(tr(
-        "Copyright &copy; 2026 tscrt project<br/>"
-        "Released under the original tscrt license."));
+        "Copyright &copy; 2026 TePSEG Co., Ltd. (Republic of Korea)<br/>"
+        "Developer: <a href=\"mailto:ygjeon@tepseg.com\">ygjeon@tepseg.com</a><br/>"
+        "Released under the GNU General Public License (GPL)."));
     box.setStandardButtons(QMessageBox::Ok);
     box.exec();
 }
