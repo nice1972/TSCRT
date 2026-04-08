@@ -138,6 +138,9 @@ install(CODE "
 ")
 
 # Bundle the third-party DLLs that windeployqt does not handle.
+# We resolve them relative to the Qt bin dir (which is the MSYS2 ucrt64
+# bin dir in our setup) — that avoids depending on CMAKE_PREFIX_PATH
+# being populated at configure time.
 set(_TP_DLLS
     libssh2-1.dll
     libvterm-0.dll
@@ -149,8 +152,14 @@ set(_TP_DLLS
     libstdc++-6.dll
 )
 foreach(_dll ${_TP_DLLS})
-    if(EXISTS "${CMAKE_PREFIX_PATH}/bin/${_dll}")
-        install(FILES "${CMAKE_PREFIX_PATH}/bin/${_dll}" DESTINATION .)
+    set(_path "${_qt_bin_dir}/${_dll}")
+    if(EXISTS "${_path}")
+        install(FILES "${_path}" DESTINATION .)
+        message(STATUS "Bundling DLL: ${_dll}")
+    else()
+        message(FATAL_ERROR
+            "Required runtime DLL not found: ${_path}\n"
+            "Install it with: pacman -S mingw-w64-ucrt-x86_64-<package>")
     endif()
 endforeach()
 
