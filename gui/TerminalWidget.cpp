@@ -1,9 +1,13 @@
 #include "TerminalWidget.h"
 
+#include <QAction>
 #include <QApplication>
+#include <QClipboard>
+#include <QContextMenuEvent>
 #include <QFontDatabase>
 #include <QFontMetricsF>
 #include <QKeyEvent>
+#include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPaintEvent>
@@ -205,6 +209,113 @@ void TerminalWidget::scheduleRepaint()
     viewport()->update();
 }
 
+// ---- Selection helpers ----------------------------------------------------
+
+TerminalWidget::GridPos TerminalWidget::cellAt(QPoint pos) const
+{
+    GridPos g;
+    g.col = pos.x() / m_cellW;
+    g.row = pos.y() / m_cellH;
+    if (g.col < 0) g.col = 0;
+    if (g.row < 0) g.row = 0;
+    if (g.col >= m_cols) g.col = m_cols - 1;
+    if (g.row >= m_rows) g.row = m_rows - 1;
+    return g;
+}
+
+bool TerminalWidget::cellInSelection(int row, int col) const
+{
+    if (!m_selAnchor.valid() || !m_selCursor.valid())
+        return false;
+    GridPos a = m_selAnchor;
+    GridPos b = m_selCursor;
+    if (b < a) std::swap(a, b);
+    GridPos here{ row, col };
+    return !(here < a) && (here < b || here == b);
+}
+
+bool TerminalWidget::cellInHighlight(int row, int col) const
+{
+    if (m_highlight.isEmpty() || !m_screen)
+        return false;
+    // Build the row text and find substring offsets that cover this column.
+    QString line;
+    line.reserve(m_cols);
+    for (int c = 0; c < m_cols; ++c) {
+        VTermPos p{ row, c };
+        VTermScreenCell cell;
+        if (!vterm_screen_get_cell(m_screen, p, &cell)) {
+            line.append(QLatin1Char(' '));
+            continue;
+        }
+        if (cell.chars[0])
+            line.append(QChar::fromUcs4(cell.chars[0]));
+        else
+            line.append(QLatin1Char(' '));
+    }
+    int from = 0;
+    while (true) {
+        const int idx = line.indexOf(m_highlight, from);
+        if (idx < 0) return false;
+        if (col >= idx && col < idx + m_highlight.length()) return true;
+        from = idx + 1;
+    }
+}
+
+QString TerminalWidget::selectionText() const
+{
+    if (!m_selAnchor.valid() || !m_selCursor.valid() || !m_screen)
+        return {};
+    GridPos a = m_selAnchor;
+    GridPos b = m_selCursor;
+    if (b < a) std::swap(a, b);
+
+    QString out;
+    for (int row = a.row; row <= b.row; ++row) {
+        const int cStart = (row == a.row) ? a.col : 0;
+        const int cEnd   = (row == b.row) ? b.col : (m_cols - 1);
+        QString line;
+        for (int col = cStart; col <= cEnd; ++col) {
+            VTermPos p{ row, col };
+            VTermScreenCell cell;
+            if (!vterm_screen_get_cell(m_screen, p, &cell))
+                continue;
+            if (cell.chars[0])
+                line.append(QChar::fromUcs4(cell.chars[0]));
+            else
+                line.append(QLatin1Char(' '));
+        }
+        // Trim trailing spaces (terminal cells are space-padded).
+        int end = line.length();
+        while (end > 0 && line.at(end - 1) == QLatin1Char(' ')) --end;
+        out.append(line.left(end));
+        if (row < b.row)
+            out.append(QLatin1Char('\n'));
+    }
+    return out;
+}
+
+void TerminalWidget::copySelection()
+{
+    const QString text = selectionText();
+    if (!text.isEmpty())
+        QGuiApplication::clipboard()->setText(text);
+}
+
+void TerminalWidget::pasteFromClipboard()
+{
+    const QString text = QGuiApplication::clipboard()->text();
+    if (text.isEmpty())
+        return;
+    emit outputBytes(text.toUtf8());
+}
+
+void TerminalWidget::setHighlightPattern(const QString &pattern)
+{
+    m_highlight = pattern;
+    viewport()->update();
+}
+
 // ---- Painting -------------------------------------------------------------
 
 void TerminalWidget::paintEvent(QPaintEvent * /*event*/)
@@ -226,13 +337,22 @@ void TerminalWidget::paintEvent(QPaintEvent * /*event*/)
             const int x = col * m_cellW;
             const int y = row * m_cellH;
 
-            const QColor bg = cellColor(cell.bg, m_bg);
-            const QColor fg = cellColor(cell.fg, m_fg);
+            QColor bg = cellColor(cell.bg, m_bg);
+            QColor fg = cellColor(cell.fg, m_fg);
+
+            // Selection takes precedence over the cell background
+            if (cellInSelection(row, col)) {
+                bg = QColor(70, 110, 200);
+                fg = QColor(0xff, 0xff, 0xff);
+            } else if (cellInHighlight(row, col)) {
+                // Mark highlight: amber background
+                bg = QColor(0xc0, 0x70, 0x00);
+                fg = QColor(0x00, 0x00, 0x00);
+            }
 
             p.fillRect(x, y, m_cellW, m_cellH, bg);
 
             if (cell.chars[0] != 0 && cell.chars[0] != 0x20) {
-                // libvterm exposes up to VTERM_MAX_CHARS_PER_CELL UCS4 chars.
                 QString glyph;
                 glyph.reserve(2);
                 for (int k = 0; k < VTERM_MAX_CHARS_PER_CELL && cell.chars[k]; ++k)
@@ -295,6 +415,14 @@ void TerminalWidget::keyPressEvent(QKeyEvent *event)
         return;
     }
 
+    // Ctrl-Shift-C / Ctrl-Shift-V: clipboard. Plain Ctrl-C/V remain
+    // available as terminal-side keystrokes (sigint, etc.).
+    if ((event->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier))
+        == (Qt::ControlModifier | Qt::ShiftModifier)) {
+        if (event->key() == Qt::Key_C) { copySelection();      event->accept(); return; }
+        if (event->key() == Qt::Key_V) { pasteFromClipboard(); event->accept(); return; }
+    }
+
     VTermModifier mod = VTERM_MOD_NONE;
     const auto qtMod  = event->modifiers();
     if (qtMod & Qt::ShiftModifier)   mod = (VTermModifier)(mod | VTERM_MOD_SHIFT);
@@ -355,13 +483,94 @@ void TerminalWidget::inputMethodEvent(QInputMethodEvent *event)
     event->accept();
 }
 
-// ---- Mouse (placeholders for now) -----------------------------------------
+// ---- Mouse: text selection ------------------------------------------------
 
 void TerminalWidget::mousePressEvent(QMouseEvent *e)
 {
     setFocus(Qt::MouseFocusReason);
+    if (e->button() == Qt::LeftButton) {
+        m_selecting = true;
+        m_selAnchor = cellAt(e->pos());
+        m_selCursor = m_selAnchor;
+        viewport()->update();
+    } else if (e->button() == Qt::MiddleButton) {
+        // Middle-click paste (X11 convention, also handy on Windows)
+        pasteFromClipboard();
+    }
     e->accept();
 }
 
-void TerminalWidget::mouseMoveEvent(QMouseEvent *e)      { e->accept(); }
-void TerminalWidget::mouseReleaseEvent(QMouseEvent *e)   { e->accept(); }
+void TerminalWidget::mouseMoveEvent(QMouseEvent *e)
+{
+    if (m_selecting) {
+        m_selCursor = cellAt(e->pos());
+        viewport()->update();
+    }
+    e->accept();
+}
+
+void TerminalWidget::mouseReleaseEvent(QMouseEvent *e)
+{
+    if (e->button() == Qt::LeftButton && m_selecting) {
+        m_selecting = false;
+        // Auto-copy on selection completion (xterm-style)
+        if (m_selAnchor.valid() && m_selCursor.valid()
+            && !(m_selAnchor == m_selCursor)) {
+            copySelection();
+        } else {
+            // Clear single-click selection
+            m_selAnchor = {};
+            m_selCursor = {};
+            viewport()->update();
+        }
+    }
+    e->accept();
+}
+
+void TerminalWidget::mouseDoubleClickEvent(QMouseEvent *e)
+{
+    if (e->button() != Qt::LeftButton || !m_screen) {
+        QAbstractScrollArea::mouseDoubleClickEvent(e);
+        return;
+    }
+    // Word selection: walk left/right while non-space
+    const GridPos g = cellAt(e->pos());
+    auto isWordChar = [&](int r, int c) -> bool {
+        VTermPos p{ r, c };
+        VTermScreenCell cell;
+        if (!vterm_screen_get_cell(m_screen, p, &cell))
+            return false;
+        const uint32_t ch = cell.chars[0];
+        return ch != 0 && ch != ' ' && ch != '\t';
+    };
+    int left = g.col;
+    while (left > 0 && isWordChar(g.row, left - 1)) --left;
+    int right = g.col;
+    while (right < m_cols - 1 && isWordChar(g.row, right + 1)) ++right;
+
+    m_selAnchor = { g.row, left };
+    m_selCursor = { g.row, right };
+    copySelection();
+    viewport()->update();
+    e->accept();
+}
+
+void TerminalWidget::contextMenuEvent(QContextMenuEvent *e)
+{
+    QMenu menu(this);
+    auto *copyAct = menu.addAction(tr("&Copy"));
+    copyAct->setEnabled(m_selAnchor.valid() && m_selCursor.valid()
+                        && !(m_selAnchor == m_selCursor));
+    connect(copyAct, &QAction::triggered, this, &TerminalWidget::copySelection);
+
+    auto *pasteAct = menu.addAction(tr("&Paste"));
+    pasteAct->setEnabled(!QGuiApplication::clipboard()->text().isEmpty());
+    connect(pasteAct, &QAction::triggered, this, &TerminalWidget::pasteFromClipboard);
+
+    menu.addSeparator();
+    auto *clearAct = menu.addAction(tr("Clear &screen"));
+    connect(clearAct, &QAction::triggered, this, &TerminalWidget::clearScreen);
+
+    menu.exec(e->globalPos());
+    e->accept();
+}

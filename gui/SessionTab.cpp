@@ -77,8 +77,9 @@ void SessionTab::onMarkRequested()
     const QString cur = m_engine ? m_engine->highlightPattern() : QString();
     const QString p = QInputDialog::getText(this, tr("Mark"),
         tr("Highlight pattern (empty to clear):"), QLineEdit::Normal, cur, &ok);
-    if (!ok || !m_engine) return;
-    m_engine->setHighlightPattern(p);
+    if (!ok) return;
+    if (m_engine) m_engine->setHighlightPattern(p);
+    if (m_term)   m_term->setHighlightPattern(p);
 }
 
 void SessionTab::onLoopRequested()
