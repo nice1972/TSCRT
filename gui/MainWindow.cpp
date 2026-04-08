@@ -244,14 +244,31 @@ void MainWindow::showSettingsDialog()
 
 void MainWindow::showAboutDialog()
 {
-    QMessageBox::about(this, tr("About tscrt for Windows"),
-        tr("<h3>tscrt for Windows</h3>"
-           "<p>Version %1</p>"
-           "<p>SSH and serial console terminal emulator.</p>"
-           "<p>Built with Qt %2, libssh2 %3, libvterm %4.%5.</p>")
-            .arg(QString::fromLatin1(TSCRT_VERSION),
-                 QString::fromLatin1(qVersion()),
-                 QString::fromLatin1(LIBSSH2_VERSION))
-            .arg(VTERM_VERSION_MAJOR)
-            .arg(VTERM_VERSION_MINOR));
+    const QString buildStamp = QStringLiteral(__DATE__ " " __TIME__);
+
+    QMessageBox box(this);
+    box.setWindowTitle(tr("About tscrt for Windows"));
+    box.setIconPixmap(QIcon(QStringLiteral(":/icons/app.png"))
+                          .pixmap(96, 96));
+    box.setTextFormat(Qt::RichText);
+    box.setText(tr(
+        "<h2>tscrt for Windows</h2>"
+        "<p><b>Version %1</b><br/>"
+        "Built %2</p>"
+        "<p>A SecureCRT-style terminal emulator for SSH2 and serial "
+        "consoles, ported from the Linux <code>tscrt</code> project.</p>"
+        "<p style=\"color:#888;\">"
+        "Qt %3 &middot; libssh2 %4 &middot; libvterm %5.%6"
+        "</p>")
+        .arg(QString::fromLatin1(TSCRT_VERSION),
+             buildStamp,
+             QString::fromLatin1(qVersion()),
+             QString::fromLatin1(LIBSSH2_VERSION))
+        .arg(VTERM_VERSION_MAJOR)
+        .arg(VTERM_VERSION_MINOR));
+    box.setInformativeText(tr(
+        "Copyright &copy; 2026 tscrt project<br/>"
+        "Released under the original tscrt license."));
+    box.setStandardButtons(QMessageBox::Ok);
+    box.exec();
 }
