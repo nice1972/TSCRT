@@ -1,0 +1,40 @@
+# Build outputs
+build/
+build-*/
+out/
+cmake-build-*/
+
+# Object files
+*.o
+*.obj
+*.a
+*.lib
+*.exe
+*.dll
+*.exp
+*.pdb
+*.ilk
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+
+# IDE / editor
+.vs/
+.vscode/
+.idea/
+*.user
+*.user.*
+*.suo
+*.swp
+*~
+
+# Qt Linguist generated
+*_autogen/
+*.qm
+
+# Logs / dumps
+*.log
+*.dmp
