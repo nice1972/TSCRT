@@ -59,6 +59,8 @@ set(GUI_SOURCES
     gui/SessionTab.cpp
     gui/QuickConnectDialog.h
     gui/QuickConnectDialog.cpp
+    gui/BroadcastDialog.h
+    gui/BroadcastDialog.cpp
 )
 
 set(WIN_RESOURCES

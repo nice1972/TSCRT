@@ -1,5 +1,7 @@
 #include "MainWindow.h"
 
+#include "ActionParser.h"
+#include "BroadcastDialog.h"
 #include "ISession.h"
 #include "QuickConnectDialog.h"
 #include "SerialSession.h"
@@ -115,6 +117,12 @@ void MainWindow::createMenus()
 
     m_sessionsMenu = menuBar()->addMenu(tr("&Sessions"));
 
+    auto *toolsMenu = menuBar()->addMenu(tr("&Tools"));
+    auto *bcastAct = new QAction(tr("&Broadcast..."), this);
+    bcastAct->setShortcut(QKeySequence(tr("Ctrl+B")));
+    connect(bcastAct, &QAction::triggered, this, &MainWindow::openBroadcastDialog);
+    toolsMenu->addAction(bcastAct);
+
     auto *settingsMenu = menuBar()->addMenu(tr("Se&ttings"));
     m_actSettings = new QAction(tr("&Preferences..."), this);
     m_actSettings->setShortcut(QKeySequence(tr("Ctrl+,")));
@@ -179,6 +187,43 @@ void MainWindow::rebuildSessionsMenu()
         });
         m_sessionsMenu->addAction(act);
     }
+}
+
+void MainWindow::openBroadcastDialog()
+{
+    QVector<tscrt::BroadcastDialog::Target> targets;
+    for (int i = 0; i < m_tabs->count(); ++i) {
+        auto *tab = qobject_cast<tscrt::SessionTab *>(m_tabs->widget(i));
+        if (!tab || !tab->session()) continue;
+        targets.push_back({ i, tab->displayName() });
+    }
+    if (targets.isEmpty()) {
+        QMessageBox::information(this, tr("Broadcast"),
+            tr("No open session tabs to broadcast to."));
+        return;
+    }
+
+    tscrt::BroadcastDialog dlg(targets, this);
+    if (dlg.exec() != QDialog::Accepted) return;
+
+    const QString action = dlg.actionString();
+    if (action.isEmpty()) return;
+
+    const auto chunks = tscrt::parseAction(action);
+    int sentTo = 0;
+    for (int idx : dlg.selectedTabs()) {
+        auto *tab = qobject_cast<tscrt::SessionTab *>(m_tabs->widget(idx));
+        if (!tab || !tab->session()) continue;
+        for (const auto &c : chunks) {
+            if (!c.bytes.isEmpty())
+                QMetaObject::invokeMethod(tab->session(), "sendBytes",
+                                          Qt::QueuedConnection,
+                                          Q_ARG(QByteArray, c.bytes));
+        }
+        ++sentTo;
+    }
+    statusBar()->showMessage(
+        tr("Broadcast sent to %1 session(s).").arg(sentTo), 3000);
 }
 
 void MainWindow::openQuickConnect()

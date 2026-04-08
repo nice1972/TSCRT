@@ -30,6 +30,7 @@ protected:
 public slots:
     void openSessionByIndex(int profileIndex);
     void openQuickConnect();
+    void openBroadcastDialog();
     void closeCurrentTab();
     void showSettingsDialog();
     void showAboutDialog();
