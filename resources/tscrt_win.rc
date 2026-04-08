@@ -1,0 +1,55 @@
+/*
+ * tscrt_win.rc - Win32 resource file: app icon + VERSIONINFO.
+ * Compiled by windres (MinGW) at build time, linked into the exe.
+ */
+
+#include <winver.h>
+
+IDI_ICON1 ICON DISCARDABLE "tscrt_win.ico"
+
+#define TSCRT_VERSION_STR  "1.0.0.0"
+#define TSCRT_VERSION_NUM  1,0,0,0
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION    TSCRT_VERSION_NUM
+ PRODUCTVERSION TSCRT_VERSION_NUM
+ FILEFLAGSMASK  VS_FFI_FILEFLAGSMASK
+#ifdef _DEBUG
+ FILEFLAGS      VS_FF_DEBUG
+#else
+ FILEFLAGS      0
+#endif
+ FILEOS         VOS_NT_WINDOWS32
+ FILETYPE       VFT_APP
+ FILESUBTYPE    VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"   /* English (US), Unicode */
+        BEGIN
+            VALUE "CompanyName",      "tscrt project"
+            VALUE "FileDescription",  "tscrt for Windows - SSH/Serial console"
+            VALUE "FileVersion",      TSCRT_VERSION_STR
+            VALUE "InternalName",     "tscrt_win"
+            VALUE "LegalCopyright",   "Copyright (c) 2026 tscrt project"
+            VALUE "OriginalFilename", "tscrt_win.exe"
+            VALUE "ProductName",      "tscrt for Windows"
+            VALUE "ProductVersion",   TSCRT_VERSION_STR
+        END
+        BLOCK "041204b0"   /* Korean, Unicode */
+        BEGIN
+            VALUE "CompanyName",      "tscrt 프로젝트"
+            VALUE "FileDescription",  "tscrt for Windows - SSH/시리얼 콘솔"
+            VALUE "FileVersion",      TSCRT_VERSION_STR
+            VALUE "InternalName",     "tscrt_win"
+            VALUE "LegalCopyright",   "Copyright (c) 2026 tscrt project"
+            VALUE "OriginalFilename", "tscrt_win.exe"
+            VALUE "ProductName",      "tscrt for Windows"
+            VALUE "ProductVersion",   TSCRT_VERSION_STR
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 1200, 0x0412, 1200
+    END
+END

@@ -59,10 +59,20 @@ set(GUI_SOURCES
     gui/SessionTab.cpp
 )
 
+set(WIN_RESOURCES
+    resources/tscrt_win.rc
+    resources/tscrt_win.qrc
+)
+
 add_executable(tscrt_win WIN32
     ${GUI_SOURCES}
     ${CORE_SOURCES}
+    ${WIN_RESOURCES}
 )
+
+# Make sure CMake hands the .rc file to windres correctly.
+set_source_files_properties(resources/tscrt_win.rc
+    PROPERTIES LANGUAGE RC)
 
 target_include_directories(tscrt_win PRIVATE
     include
