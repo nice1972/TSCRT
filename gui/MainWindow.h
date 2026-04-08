@@ -29,9 +29,13 @@ protected:
 
 public slots:
     void openSessionByIndex(int profileIndex);
+    void openQuickConnect();
     void closeCurrentTab();
-    void showSettingsDialog();   // placeholder until task #21
+    void showSettingsDialog();
     void showAboutDialog();
+
+private:
+    void openSshAdHoc(const ssh_config_t &cfg, const QString &name);
 
 private slots:
     void onTabCloseRequested(int index);

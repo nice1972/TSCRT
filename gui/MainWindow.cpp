@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 
 #include "ISession.h"
+#include "QuickConnectDialog.h"
 #include "SerialSession.h"
 #include "SessionTab.h"
 #include "SettingsDialog.h"
@@ -93,6 +94,13 @@ void MainWindow::createMenus()
 {
     auto *fileMenu = menuBar()->addMenu(tr("&File"));
 
+    auto *quickAct = new QAction(tr("&Quick Connect..."), this);
+    quickAct->setShortcut(QKeySequence(tr("Ctrl+N")));
+    connect(quickAct, &QAction::triggered, this, &MainWindow::openQuickConnect);
+    fileMenu->addAction(quickAct);
+
+    fileMenu->addSeparator();
+
     m_actCloseTab = new QAction(tr("&Close tab"), this);
     m_actCloseTab->setShortcut(QKeySequence(tr("Ctrl+W")));
     connect(m_actCloseTab, &QAction::triggered, this, &MainWindow::closeCurrentTab);
@@ -171,6 +179,54 @@ void MainWindow::rebuildSessionsMenu()
         });
         m_sessionsMenu->addAction(act);
     }
+}
+
+void MainWindow::openQuickConnect()
+{
+    QuickConnectDialog dlg(this);
+    if (dlg.exec() != QDialog::Accepted) return;
+
+    const ssh_config_t cfg = dlg.cfg();
+    if (cfg.host[0] == '\0' || cfg.username[0] == '\0') {
+        QMessageBox::warning(this, tr("Quick Connect"),
+            tr("Host and username are required."));
+        return;
+    }
+    openSshAdHoc(cfg, dlg.sessionName());
+}
+
+void MainWindow::openSshAdHoc(const ssh_config_t &cfg, const QString &name)
+{
+    auto *session = new SshSession(cfg, name);
+
+    // Build a synthetic session_entry_t for the SessionTab automation/buttons.
+    session_entry_t entry{};
+    entry.type = SESSION_TYPE_SSH;
+    const QByteArray nb = name.toLocal8Bit();
+    const int nn = qMin<int>(int(sizeof(entry.name)) - 1, nb.size());
+    memcpy(entry.name, nb.constData(), nn);
+    entry.name[nn] = '\0';
+    entry.ssh = cfg;
+
+    auto *tab = new tscrt::SessionTab(session, m_profile, entry, m_tabs);
+
+    connect(session, &ISession::connecting, this, [this, name] {
+        statusBar()->showMessage(tr("Connecting to %1...").arg(name));
+    });
+    connect(session, &ISession::connected, this, [this, name] {
+        statusBar()->showMessage(tr("Connected: %1").arg(name), 3000);
+    });
+    connect(session, &ISession::errorOccurred, this, [this](const QString &msg) {
+        QMessageBox::warning(this, tr("Session error"), msg);
+    });
+    connect(session, &ISession::disconnected, this, [this, name](const QString &reason) {
+        statusBar()->showMessage(tr("Disconnected: %1 (%2)").arg(name, reason), 5000);
+    });
+
+    const int idx = m_tabs->addTab(tab, name);
+    m_tabs->setCurrentIndex(idx);
+    session->resize(tab->terminal()->cols(), tab->terminal()->rows());
+    session->start();
 }
 
 void MainWindow::openSessionByIndex(int profileIndex)
