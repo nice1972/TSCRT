@@ -43,6 +43,8 @@ set(GUI_SOURCES
     gui/SessionEditDialog.cpp
     gui/SettingsDialog.h
     gui/SettingsDialog.cpp
+    gui/Logging.h
+    gui/Logging.cpp
 )
 
 add_executable(tscrt_win WIN32
