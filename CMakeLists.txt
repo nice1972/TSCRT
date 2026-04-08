@@ -162,8 +162,17 @@ set(CPACK_PACKAGE_FILE_NAME         "tscrt_win-${CPACK_PACKAGE_VERSION}-win64")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
     "tscrt for Windows - SSH and serial console terminal emulator")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "tscrt_win")
-set(CPACK_PACKAGE_EXECUTABLES       "tscrt_win" "tscrt for Windows")
-set(CPACK_CREATE_DESKTOP_LINKS      "tscrt_win")
+# NOTE: CPACK_PACKAGE_EXECUTABLES hardcodes the shortcut target to
+# "$INSTDIR/bin/<exe>" which is wrong because we install the binary to
+# the install root (.) — see install(TARGETS ... DESTINATION .) above.
+# Use CPACK_NSIS_MENU_LINKS to create the correct shortcut directly.
+set(CPACK_NSIS_MENU_LINKS
+    "tscrt_win.exe"  "tscrt for Windows"
+    "Uninstall.exe"  "Uninstall tscrt for Windows")
+set(CPACK_NSIS_CREATE_ICONS_EXTRA
+    "CreateShortCut '$DESKTOP\\\\tscrt for Windows.lnk' '$INSTDIR\\\\tscrt_win.exe'")
+set(CPACK_NSIS_DELETE_ICONS_EXTRA
+    "Delete '$DESKTOP\\\\tscrt for Windows.lnk'")
 
 set(CPACK_GENERATOR "NSIS")
 set(CPACK_NSIS_DISPLAY_NAME           "tscrt for Windows")
