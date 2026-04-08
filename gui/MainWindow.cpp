@@ -129,6 +129,25 @@ void MainWindow::createMenus()
     connect(m_actSettings, &QAction::triggered, this, &MainWindow::showSettingsDialog);
     settingsMenu->addAction(m_actSettings);
 
+    auto *langMenu = settingsMenu->addMenu(tr("&Language"));
+    auto *enAct = langMenu->addAction(QStringLiteral("English"));
+    auto *koAct = langMenu->addAction(QStringLiteral("\355\225\234\352\265\255\354\226\264 (Korean)"));
+    enAct->setCheckable(true);
+    koAct->setCheckable(true);
+    {
+        QSettings prefs;
+        const QString cur = prefs.value(QStringLiteral("ui/language"),
+                                        QStringLiteral("en")).toString();
+        enAct->setChecked(cur == QLatin1String("en"));
+        koAct->setChecked(cur == QLatin1String("ko"));
+    }
+    connect(enAct, &QAction::triggered, this, [this] {
+        setUiLanguage(QStringLiteral("en"));
+    });
+    connect(koAct, &QAction::triggered, this, [this] {
+        setUiLanguage(QStringLiteral("ko"));
+    });
+
     m_actReload = new QAction(tr("&Reload profile"), this);
     m_actReload->setShortcut(QKeySequence(tr("F5")));
     connect(m_actReload, &QAction::triggered, this, [this] {
@@ -341,6 +360,14 @@ void MainWindow::showSettingsDialog()
         rebuildSessionsMenu();
         statusBar()->showMessage(tr("Preferences saved."), 2500);
     }
+}
+
+void MainWindow::setUiLanguage(const QString &langCode)
+{
+    QSettings prefs;
+    prefs.setValue(QStringLiteral("ui/language"), langCode);
+    QMessageBox::information(this, tr("Language"),
+        tr("Language preference saved. Restart TSCRT for the change to take effect."));
 }
 
 void MainWindow::showAboutDialog()

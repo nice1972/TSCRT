@@ -4,6 +4,7 @@
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QMessageBox>
+#include <QSettings>
 #include <QTranslator>
 
 #include "CrashHandler.h"
@@ -18,30 +19,18 @@ int main(int argc, char *argv[])
     app.setApplicationVersion(QStringLiteral("1.0.0"));
     app.setWindowIcon(QIcon(QStringLiteral(":/icons/app.png")));
 
-    // Localization. Pick the bundled translation that best matches the
-    // user's system locale; fall back to the source language otherwise.
+    // Localization policy: English by default, regardless of system
+    // locale. The user can opt in to a translation via Settings ->
+    // Language. Selection is persisted under HKCU\Software\tscrt.
     QTranslator appTranslator;
-    const QLocale sysLocale = QLocale::system();
-    const QStringList uiLangs = sysLocale.uiLanguages();
-    bool loaded = false;
-    for (const QString &lang : uiLangs) {
-        QString tag = lang;
-        tag.replace(QLatin1Char('-'), QLatin1Char('_'));
-        if (appTranslator.load(QStringLiteral(":/i18n/tscrt_win_%1.qm").arg(tag))
-            || appTranslator.load(QStringLiteral(":/i18n/tscrt_win_%1.qm")
-                                      .arg(tag.section('_', 0, 0)))) {
+    QSettings   prefs;
+    const QString lang = prefs.value(QStringLiteral("ui/language"),
+                                     QStringLiteral("en")).toString();
+    if (lang != QLatin1String("en")) {
+        if (appTranslator.load(QStringLiteral(":/i18n/tscrt_win_%1.qm").arg(lang))) {
             QCoreApplication::installTranslator(&appTranslator);
-            loaded = true;
-            break;
         }
     }
-    QTranslator qtTranslator;
-    if (qtTranslator.load(sysLocale,
-                          QStringLiteral("qt"), QStringLiteral("_"),
-                          QLibraryInfo::path(QLibraryInfo::TranslationsPath))) {
-        QCoreApplication::installTranslator(&qtTranslator);
-    }
-    Q_UNUSED(loaded);
 
     tscrt::installLogging();
     tscrt::installCrashHandler();

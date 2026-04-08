@@ -34,6 +34,7 @@ public slots:
     void closeCurrentTab();
     void showSettingsDialog();
     void showAboutDialog();
+    void setUiLanguage(const QString &langCode);
 
 private:
     void openSshAdHoc(const ssh_config_t &cfg, const QString &name);
