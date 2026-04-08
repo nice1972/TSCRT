@@ -49,6 +49,10 @@ set(GUI_SOURCES
     gui/CrashHandler.cpp
     gui/Credentials.h
     gui/Credentials.cpp
+    gui/ActionParser.h
+    gui/ActionParser.cpp
+    gui/AutomationEngine.h
+    gui/AutomationEngine.cpp
 )
 
 add_executable(tscrt_win WIN32

@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 
+#include "AutomationEngine.h"
 #include "ISession.h"
 #include "SerialSession.h"
 #include "SettingsDialog.h"
@@ -212,6 +213,11 @@ void MainWindow::openSessionByIndex(int profileIndex)
     connect(session, &ISession::disconnected, this, [this, name = QString::fromLocal8Bit(s.name)](const QString &reason) {
         statusBar()->showMessage(tr("Disconnected: %1 (%2)").arg(name, reason), 5000);
     });
+
+    // Automation engine: startup, triggers, periodic
+    auto *engine = new tscrt::AutomationEngine(
+        session, m_profile, QString::fromLocal8Bit(s.name), term);
+    Q_UNUSED(engine);
 
     const int idx = m_tabs->addTab(term, QString::fromLocal8Bit(s.name));
     m_tabs->setCurrentIndex(idx);
