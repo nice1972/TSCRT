@@ -105,6 +105,78 @@ if(TSCRT_WIN_BUILD_TESTS)
     add_test(NAME profile COMMAND test_profile)
 endif()
 
+# ---- Install + CPack (NSIS) ---------------------------------------------
+include(GNUInstallDirs)
+
+install(TARGETS tscrt_win
+        RUNTIME DESTINATION .)
+
+# Locate Qt's deployment helper.
+get_target_property(_qmake_loc Qt6::qmake IMPORTED_LOCATION)
+get_filename_component(_qt_bin_dir "${_qmake_loc}" DIRECTORY)
+find_program(WINDEPLOYQT_EXECUTABLE
+    NAMES windeployqt6 windeployqt
+    HINTS "${_qt_bin_dir}" "${CMAKE_PREFIX_PATH}/share/qt6/bin"
+    REQUIRED)
+
+# Stage Qt + plugins next to the exe at install time.
+install(CODE "
+    message(STATUS \"Running windeployqt: ${WINDEPLOYQT_EXECUTABLE}\")
+    execute_process(
+        COMMAND \"${WINDEPLOYQT_EXECUTABLE}\"
+                --release
+                --no-translations
+                --no-system-d3d-compiler
+                --no-opengl-sw
+                --no-compiler-runtime
+                --dir \"\${CMAKE_INSTALL_PREFIX}\"
+                \"\${CMAKE_INSTALL_PREFIX}/tscrt_win.exe\")
+")
+
+# Bundle the third-party DLLs that windeployqt does not handle.
+set(_TP_DLLS
+    libssh2-1.dll
+    libvterm-0.dll
+    libcrypto-3-x64.dll
+    libssl-3-x64.dll
+    zlib1.dll
+    libwinpthread-1.dll
+    libgcc_s_seh-1.dll
+    libstdc++-6.dll
+)
+foreach(_dll ${_TP_DLLS})
+    if(EXISTS "${CMAKE_PREFIX_PATH}/bin/${_dll}")
+        install(FILES "${CMAKE_PREFIX_PATH}/bin/${_dll}" DESTINATION .)
+    endif()
+endforeach()
+
+# Pack with CPack / NSIS.
+set(CPACK_PACKAGE_NAME              "tscrt_win")
+set(CPACK_PACKAGE_VENDOR            "tscrt project")
+set(CPACK_PACKAGE_VERSION           "1.0.0")
+set(CPACK_PACKAGE_FILE_NAME         "tscrt_win-${CPACK_PACKAGE_VERSION}-win64")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
+    "tscrt for Windows - SSH and serial console terminal emulator")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "tscrt_win")
+set(CPACK_PACKAGE_EXECUTABLES       "tscrt_win" "tscrt for Windows")
+set(CPACK_CREATE_DESKTOP_LINKS      "tscrt_win")
+
+set(CPACK_GENERATOR "NSIS")
+set(CPACK_NSIS_DISPLAY_NAME           "tscrt for Windows")
+set(CPACK_NSIS_PACKAGE_NAME           "tscrt for Windows")
+set(CPACK_NSIS_HELP_LINK              "https://github.com/")
+set(CPACK_NSIS_URL_INFO_ABOUT         "https://github.com/")
+set(CPACK_NSIS_CONTACT                "tscrt-project@example.com")
+set(CPACK_NSIS_MODIFY_PATH            OFF)
+set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
+set(CPACK_NSIS_INSTALLED_ICON_NAME    "tscrt_win.exe")
+set(CPACK_NSIS_MUI_ICON
+    "${CMAKE_CURRENT_SOURCE_DIR}/resources/tscrt_win.ico")
+set(CPACK_NSIS_MUI_UNIICON
+    "${CMAKE_CURRENT_SOURCE_DIR}/resources/tscrt_win.ico")
+
+include(CPack)
+
 # Make sure CMake hands the .rc file to windres correctly.
 set_source_files_properties(resources/tscrt_win.rc
     PROPERTIES LANGUAGE RC)
