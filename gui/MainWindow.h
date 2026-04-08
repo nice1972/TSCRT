@@ -37,11 +37,13 @@ public slots:
     void setUiLanguage(const QString &langCode);
 
 private:
-    void openSshAdHoc(const ssh_config_t &cfg, const QString &name);
+    void openAdHoc(const session_entry_t &entry);
 
 private slots:
     void onTabCloseRequested(int index);
     void rebuildSessionsMenu();
+    void toggleButtonBars(bool visible);
+    void toggleStatusBar(bool visible);
 
 private:
     void createMenus();
@@ -58,4 +60,6 @@ private:
     QAction       *m_actAbout    = nullptr;
     QAction       *m_actCloseTab = nullptr;
     QAction       *m_actReload   = nullptr;
+    QAction       *m_actViewButtons = nullptr;
+    QAction       *m_actViewStatus  = nullptr;
 };

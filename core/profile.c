@@ -50,12 +50,21 @@ int profile_init(profile_t *p)
     p->common.scrollback = 10000;
 
     static const char *btn_defaults[][2] = {
-        {"CR",    "\\r"},
-        {"LF",    "\\n"},
-        {"CR+LF", "\\r\\n"},
-        {"ESC",   "\\e"},
-        {"Tab",   "\\t"},
-        {"BS",    "\\b"},
+        /* Quick keys */
+        {"CR",       "\\r"},
+        {"LF",       "\\n"},
+        {"CR+LF",    "\\r\\n"},
+        {"ESC",      "\\e"},
+        {"Tab",      "\\t"},
+        /* Common shell commands - clicking sends them with CR */
+        {"ls",       "ls -al\\r"},
+        {"pwd",      "pwd\\r"},
+        {"who",      "who\\r"},
+        {"uname",    "uname -a\\r"},
+        {"date",     "date\\r"},
+        {"df",       "df -h\\r"},
+        {"top",      "top -bn1 | head -20\\r"},
+        {"clear",    "clear\\r"},
     };
     int ndefaults = (int)(sizeof(btn_defaults) / sizeof(btn_defaults[0]));
     for (int i = 0; i < MAX_BUTTONS; i++) {
@@ -71,11 +80,30 @@ int profile_init(profile_t *p)
     return 0;
 }
 
+/* Populate a fresh profile with one sample SSH session so the user has
+ * something to click after first launch. The host points at a public
+ * read-only SSH demo server (Rebex.NET) - replace via Preferences. */
+static void profile_seed_samples(profile_t *p)
+{
+    if (p->session_count > 0) return;
+    session_entry_t *s = &p->sessions[p->session_count++];
+    memset(s, 0, sizeof(*s));
+    s->type = SESSION_TYPE_SSH;
+    snprintf(s->name,         sizeof(s->name),         "demo (rebex.net)");
+    snprintf(s->ssh.host,     sizeof(s->ssh.host),     "test.rebex.net");
+    snprintf(s->ssh.username, sizeof(s->ssh.username), "demo");
+    snprintf(s->ssh.password, sizeof(s->ssh.password), "password");
+    s->ssh.port = 22;
+}
+
 int profile_load(profile_t *p)
 {
     FILE *fp = fopen(p->profile_path, "r");
-    if (!fp)
-        return profile_save(p);   /* Create default profile */
+    if (!fp) {
+        /* First run: seed a sample session before writing defaults. */
+        profile_seed_samples(p);
+        return profile_save(p);
+    }
 
     char line[MAX_LINE_LEN];
     int section = 0;

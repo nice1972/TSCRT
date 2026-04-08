@@ -30,6 +30,7 @@ public:
     QString displayName() const { return m_displayName; }
     TerminalWidget *terminal() const { return m_term; }
     ISession       *session()  const { return m_session; }
+    ButtonBar      *buttonBar() const { return m_buttons; }
 
 private slots:
     void onButtonAction(const QString &actionString);

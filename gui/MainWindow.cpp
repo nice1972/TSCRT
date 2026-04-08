@@ -2,6 +2,7 @@
 
 #include "ActionParser.h"
 #include "BroadcastDialog.h"
+#include "ButtonBar.h"
 #include "ISession.h"
 #include "QuickConnectDialog.h"
 #include "SerialSession.h"
@@ -47,6 +48,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     createStatusBar();
     rebuildSessionsMenu();
     loadSettings();
+
+    // Apply persisted view-toggle preferences after createStatusBar.
+    {
+        QSettings prefs;
+        const bool showStatus = prefs.value(QStringLiteral("ui/showStatusBar"), true).toBool();
+        statusBar()->setVisible(showStatus);
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -116,6 +124,25 @@ void MainWindow::createMenus()
     fileMenu->addAction(m_actQuit);
 
     m_sessionsMenu = menuBar()->addMenu(tr("&Sessions"));
+
+    auto *viewMenu = menuBar()->addMenu(tr("&View"));
+    m_actViewButtons = new QAction(tr("Show &Button Bar"), this);
+    m_actViewButtons->setCheckable(true);
+    m_actViewStatus  = new QAction(tr("Show &Status Bar"), this);
+    m_actViewStatus->setCheckable(true);
+    {
+        QSettings prefs;
+        m_actViewButtons->setChecked(
+            prefs.value(QStringLiteral("ui/showButtonBar"), true).toBool());
+        m_actViewStatus->setChecked(
+            prefs.value(QStringLiteral("ui/showStatusBar"), true).toBool());
+    }
+    connect(m_actViewButtons, &QAction::toggled,
+            this, &MainWindow::toggleButtonBars);
+    connect(m_actViewStatus, &QAction::toggled,
+            this, &MainWindow::toggleStatusBar);
+    viewMenu->addAction(m_actViewButtons);
+    viewMenu->addAction(m_actViewStatus);
 
     auto *toolsMenu = menuBar()->addMenu(tr("&Tools"));
     auto *bcastAct = new QAction(tr("&Broadcast..."), this);
@@ -250,27 +277,33 @@ void MainWindow::openQuickConnect()
     QuickConnectDialog dlg(this);
     if (dlg.exec() != QDialog::Accepted) return;
 
-    const ssh_config_t cfg = dlg.cfg();
-    if (cfg.host[0] == '\0' || cfg.username[0] == '\0') {
-        QMessageBox::warning(this, tr("Quick Connect"),
-            tr("Host and username are required."));
-        return;
+    const session_entry_t entry = dlg.entry();
+    if (entry.type == SESSION_TYPE_SSH) {
+        if (entry.ssh.host[0] == '\0' || entry.ssh.username[0] == '\0') {
+            QMessageBox::warning(this, tr("Quick Connect"),
+                tr("Host and username are required."));
+            return;
+        }
+    } else {
+        if (entry.serial.device[0] == '\0') {
+            QMessageBox::warning(this, tr("Quick Connect"),
+                tr("Device (e.g. COM3) is required."));
+            return;
+        }
     }
-    openSshAdHoc(cfg, dlg.sessionName());
+    openAdHoc(entry);
 }
 
-void MainWindow::openSshAdHoc(const ssh_config_t &cfg, const QString &name)
+void MainWindow::openAdHoc(const session_entry_t &entry)
 {
-    auto *session = new SshSession(cfg, name);
+    const QString name = QString::fromLocal8Bit(entry.name);
 
-    // Build a synthetic session_entry_t for the SessionTab automation/buttons.
-    session_entry_t entry{};
-    entry.type = SESSION_TYPE_SSH;
-    const QByteArray nb = name.toLocal8Bit();
-    const int nn = qMin<int>(int(sizeof(entry.name)) - 1, nb.size());
-    memcpy(entry.name, nb.constData(), nn);
-    entry.name[nn] = '\0';
-    entry.ssh = cfg;
+    ISession *session = nullptr;
+    if (entry.type == SESSION_TYPE_SSH) {
+        session = new SshSession(entry.ssh, name);
+    } else {
+        session = new SerialSession(entry.serial, name);
+    }
 
     auto *tab = new tscrt::SessionTab(session, m_profile, entry, m_tabs);
 
@@ -360,6 +393,22 @@ void MainWindow::showSettingsDialog()
         rebuildSessionsMenu();
         statusBar()->showMessage(tr("Preferences saved."), 2500);
     }
+}
+
+void MainWindow::toggleButtonBars(bool visible)
+{
+    QSettings().setValue(QStringLiteral("ui/showButtonBar"), visible);
+    for (int i = 0; i < m_tabs->count(); ++i) {
+        auto *tab = qobject_cast<tscrt::SessionTab *>(m_tabs->widget(i));
+        if (tab && tab->buttonBar())
+            tab->buttonBar()->setVisible(visible);
+    }
+}
+
+void MainWindow::toggleStatusBar(bool visible)
+{
+    QSettings().setValue(QStringLiteral("ui/showStatusBar"), visible);
+    statusBar()->setVisible(visible);
 }
 
 void MainWindow::setUiLanguage(const QString &langCode)

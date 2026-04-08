@@ -110,22 +110,24 @@ void TestProfile::buttonsPersist()
 {
     profile_t p;
     QCOMPARE(profile_init(&p), 0);
-    qstrncpy(p.buttons[7].label,  "ls",   sizeof(p.buttons[7].label));
-    qstrncpy(p.buttons[7].action, "ls\\r", sizeof(p.buttons[7].action));
+    // Use a label unlikely to collide with profile_init defaults so the
+    // round-trip check looks at exactly the slot we wrote.
+    qstrncpy(p.buttons[15].label,  "rt_unique",       sizeof(p.buttons[15].label));
+    qstrncpy(p.buttons[15].action, "echo unique\\r",  sizeof(p.buttons[15].action));
     QCOMPARE(profile_save(&p), 0);
 
     profile_t loaded;
     QCOMPARE(profile_init(&loaded), 0);
     QCOMPARE(profile_load(&loaded), 0);
-    bool foundLs = false;
+    bool found = false;
     for (int i = 0; i < MAX_BUTTONS; ++i) {
-        if (QString::fromLatin1(loaded.buttons[i].label) == QStringLiteral("ls")) {
+        if (QString::fromLatin1(loaded.buttons[i].label) == QStringLiteral("rt_unique")) {
             QCOMPARE(QString::fromLatin1(loaded.buttons[i].action),
-                     QStringLiteral("ls\\r"));
-            foundLs = true;
+                     QStringLiteral("echo unique\\r"));
+            found = true;
         }
     }
-    QVERIFY(foundLs);
+    QVERIFY(found);
 }
 
 void TestProfile::perSessionAutomation()
