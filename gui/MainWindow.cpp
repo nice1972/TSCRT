@@ -31,6 +31,8 @@
 #include <QMessageBox>
 #include <QStatusBar>
 #include <QStyle>
+#include <QShortcut>
+#include <QTabBar>
 #include <QTabWidget>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
@@ -48,11 +50,37 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_tabs->setTabsClosable(true);
     m_tabs->setMovable(true);
     m_tabs->setDocumentMode(true);
+    // Highlight the active tab in light blue. documentMode=true forwards
+    // styling to the embedded QTabBar.
+    m_tabs->tabBar()->setStyleSheet(QStringLiteral(
+        "QTabBar::tab:selected {"
+        "    background: #aed6f1;"
+        "    color: #1a1a1a;"
+        "}"
+        "QTabBar::tab {"
+        "    padding: 4px 10px;"
+        "}"));
     connect(m_tabs, &QTabWidget::tabCloseRequested,
             this, &MainWindow::onTabCloseRequested);
     connect(m_tabs, &QTabWidget::currentChanged,
             this, &MainWindow::onCurrentTabChanged);
     setCentralWidget(m_tabs);
+
+    // Ctrl+Alt+Left / Ctrl+Alt+Right: move between tabs without wrap-around.
+    auto *prevTab = new QShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_Left), this);
+    prevTab->setContext(Qt::ApplicationShortcut);
+    connect(prevTab, &QShortcut::activated, this, [this] {
+        const int i = m_tabs->currentIndex();
+        if (i > 0)
+            m_tabs->setCurrentIndex(i - 1);
+    });
+    auto *nextTab = new QShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_Right), this);
+    nextTab->setContext(Qt::ApplicationShortcut);
+    connect(nextTab, &QShortcut::activated, this, [this] {
+        const int i = m_tabs->currentIndex();
+        if (i >= 0 && i < m_tabs->count() - 1)
+            m_tabs->setCurrentIndex(i + 1);
+    });
 
     loadProfile();
     createMenus();
