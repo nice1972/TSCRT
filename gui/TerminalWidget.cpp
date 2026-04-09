@@ -559,6 +559,25 @@ void TerminalWidget::keyPressEvent(QKeyEvent *event)
         return;
     }
 
+    // Ctrl + letter / digit / symbol: Qt gives event->text() as the
+    // already-encoded control byte (e.g. "\x03" for Ctrl+C). Passing
+    // that to vterm_keyboard_unichar together with VTERM_MOD_CTRL would
+    // double-encode it and libvterm produces nothing. Instead send the
+    // unmodified key code as the unichar and let libvterm encode it.
+    if ((qtMod & Qt::ControlModifier) && !(qtMod & Qt::AltModifier)) {
+        const int k = event->key();
+        if (k >= Qt::Key_A && k <= Qt::Key_Z) {
+            vterm_keyboard_unichar(m_vt, uint32_t('a' + (k - Qt::Key_A)), mod);
+            event->accept();
+            return;
+        }
+        if (k >= Qt::Key_0 && k <= Qt::Key_9) {
+            vterm_keyboard_unichar(m_vt, uint32_t('0' + (k - Qt::Key_0)), mod);
+            event->accept();
+            return;
+        }
+    }
+
     // Plain text keys
     const QString text = event->text();
     if (!text.isEmpty()) {
