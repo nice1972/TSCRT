@@ -758,6 +758,13 @@ void MainWindow::openSessionByIndex(int profileIndex)
     const int idx = m_tabs->addTab(tab, QString::fromLocal8Bit(s.name));
     m_tabs->setCurrentIndex(idx);
 
+    // SessionTab's constructor sets focus on the terminal, but at that
+    // point the widget is not yet inside the QTabWidget so the call has
+    // no effect. Re-focus after the tab is actually visible — otherwise
+    // the very first tab opened in a fresh window swallows keystrokes.
+    if (auto *t = tab->terminal())
+        t->setFocus(Qt::OtherFocusReason);
+
     // Tell session to start once the terminal has computed its grid.
     session->resize(tab->terminal()->cols(), tab->terminal()->rows());
     session->start();

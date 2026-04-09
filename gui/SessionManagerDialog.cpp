@@ -4,12 +4,13 @@
 #include "SessionEditDialog.h"
 
 #include <QDialogButtonBox>
+#include <QFrame>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QTableWidget>
-#include <QTableWidgetItem>
+#include <QTreeWidget>
+#include <QTreeWidgetItem>
 #include <QVBoxLayout>
 
 #include <cstring>
@@ -54,17 +55,30 @@ SessionManagerDialog::SessionManagerDialog(const profile_t &initial, QWidget *pa
 
     auto *root = new QVBoxLayout(this);
 
-    m_table = new QTableWidget(0, 6, this);
-    m_table->setHorizontalHeaderLabels(
+    m_table = new QTreeWidget(this);
+    m_table->setColumnCount(6);
+    m_table->setHeaderLabels(
         { tr("Name"), tr("Type"), tr("Host / Device"),
           tr("Port / Baud"), tr("User"), tr("Key file") });
-    m_table->verticalHeader()->setVisible(false);
-    m_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-    m_table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
-    m_table->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Stretch);
+    m_table->setRootIsDecorated(false);
+    m_table->setUniformRowHeights(true);
+    m_table->setAllColumnsShowFocus(true);
     m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_table->setSelectionMode(QAbstractItemView::SingleSelection);
-    m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    m_table->setFrameShape(QFrame::NoFrame);
+    // NoFocus kills the dotted focus rectangle that the Windows style
+    // otherwise paints around the whole tree (visible even before any
+    // row is selected). Clicks still select rows.
+    m_table->setFocusPolicy(Qt::NoFocus);
+    // Light blue selection, matching the active-tab color.
+    // ":!active" keeps the highlight when the window loses focus.
+    m_table->setStyleSheet(QStringLiteral(
+        "QTreeView { outline: 0; border: 0; }"
+        "QTreeView::item:selected            { background:#aed6f1; color:#1a1a1a; }"
+        "QTreeView::item:selected:!active    { background:#aed6f1; color:#1a1a1a; }"));
+    m_table->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+    m_table->header()->setSectionResizeMode(2, QHeaderView::Stretch);
+    m_table->header()->setSectionResizeMode(5, QHeaderView::Stretch);
     root->addWidget(m_table, 1);
 
     auto *brow = new QHBoxLayout;
@@ -93,9 +107,9 @@ SessionManagerDialog::SessionManagerDialog(const profile_t &initial, QWidget *pa
     connect(m_btnDel,   &QPushButton::clicked, this, &SessionManagerDialog::deleteSession);
     connect(m_btnCopy,  &QPushButton::clicked, this, &SessionManagerDialog::copySession);
     connect(m_btnPaste, &QPushButton::clicked, this, &SessionManagerDialog::pasteSession);
-    connect(m_table, &QTableWidget::itemSelectionChanged,
+    connect(m_table, &QTreeWidget::itemSelectionChanged,
             this, &SessionManagerDialog::onSelectionChanged);
-    connect(m_table, &QTableWidget::itemDoubleClicked,
+    connect(m_table, &QTreeWidget::itemDoubleClicked,
             this, [this] { editSession(); });
 
     rebuildTable();
@@ -104,39 +118,41 @@ SessionManagerDialog::SessionManagerDialog(const profile_t &initial, QWidget *pa
 
 void SessionManagerDialog::rebuildTable()
 {
-    m_table->setRowCount(0);
+    m_table->clear();
     for (int i = 0; i < m_p.session_count; ++i) {
         const session_entry_t &s = m_p.sessions[i];
-        const int row = m_table->rowCount();
-        m_table->insertRow(row);
-
-        m_table->setItem(row, 0, new QTableWidgetItem(fromCStr(s.name)));
+        QStringList cols;
         if (s.type == SESSION_TYPE_SSH) {
-            m_table->setItem(row, 1, new QTableWidgetItem(QStringLiteral("SSH")));
-            m_table->setItem(row, 2, new QTableWidgetItem(fromCStr(s.ssh.host)));
-            m_table->setItem(row, 3, new QTableWidgetItem(QString::number(s.ssh.port)));
-            m_table->setItem(row, 4, new QTableWidgetItem(fromCStr(s.ssh.username)));
-            m_table->setItem(row, 5, new QTableWidgetItem(fromCStr(s.ssh.keyfile)));
+            cols << fromCStr(s.name)
+                 << QStringLiteral("SSH")
+                 << fromCStr(s.ssh.host)
+                 << QString::number(s.ssh.port)
+                 << fromCStr(s.ssh.username)
+                 << fromCStr(s.ssh.keyfile);
         } else {
-            m_table->setItem(row, 1, new QTableWidgetItem(QStringLiteral("Serial")));
-            m_table->setItem(row, 2, new QTableWidgetItem(fromCStr(s.serial.device)));
-            m_table->setItem(row, 3, new QTableWidgetItem(QString::number(s.serial.baudrate)));
-            m_table->setItem(row, 4, new QTableWidgetItem(QString()));
-            m_table->setItem(row, 5, new QTableWidgetItem(QString()));
+            cols << fromCStr(s.name)
+                 << QStringLiteral("Serial")
+                 << fromCStr(s.serial.device)
+                 << QString::number(s.serial.baudrate)
+                 << QString()
+                 << QString();
         }
+        new QTreeWidgetItem(m_table, cols);
     }
 }
 
 int SessionManagerDialog::currentRow() const
 {
-    return m_table ? m_table->currentRow() : -1;
+    if (!m_table) return -1;
+    QTreeWidgetItem *it = m_table->currentItem();
+    return it ? m_table->indexOfTopLevelItem(it) : -1;
 }
 
 void SessionManagerDialog::selectRow(int row)
 {
     if (!m_table) return;
-    if (row < 0 || row >= m_table->rowCount()) return;
-    m_table->setCurrentCell(row, 0);
+    if (row < 0 || row >= m_table->topLevelItemCount()) return;
+    m_table->setCurrentItem(m_table->topLevelItem(row));
 }
 
 void SessionManagerDialog::onSelectionChanged()

@@ -14,7 +14,7 @@
 #include <QDialog>
 
 class QPushButton;
-class QTableWidget;
+class QTreeWidget;
 
 class SessionManagerDialog : public QDialog {
     Q_OBJECT
@@ -37,7 +37,7 @@ private:
     int  currentRow() const;
 
     profile_t       m_p{};
-    QTableWidget   *m_table   = nullptr;
+    QTreeWidget    *m_table   = nullptr;
     QPushButton    *m_btnEdit = nullptr;
     QPushButton    *m_btnDel  = nullptr;
     QPushButton    *m_btnCopy = nullptr;
