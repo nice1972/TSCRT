@@ -24,10 +24,6 @@ SessionTab::SessionTab(ISession *session, const profile_t &profile,
     m_term = new TerminalWidget(this);
     root->addWidget(m_term, 1);
 
-    m_buttons = new ButtonBar(this);
-    m_buttons->setButtons(profile.buttons);
-    root->addWidget(m_buttons, 0);
-
     // Engine listens to the session backend
     m_engine = new AutomationEngine(session, profile, m_displayName, this);
 
@@ -35,22 +31,12 @@ SessionTab::SessionTab(ISession *session, const profile_t &profile,
     //   session -> terminal
     //   terminal -> session (input)
     //   terminal -> session (resize)
-    //   button   -> engine.executeAction
     connect(session, &ISession::bytesReceived,
             m_term, &TerminalWidget::feedBytes);
     connect(m_term, &TerminalWidget::outputBytes,
             session, &ISession::sendBytes);
     connect(m_term, &TerminalWidget::gridResized,
             session, &ISession::resize);
-
-    connect(m_buttons, &ButtonBar::actionRequested,
-            this, &SessionTab::onButtonAction);
-    connect(m_buttons, &ButtonBar::markRequested,
-            this, &SessionTab::onMarkRequested);
-    connect(m_buttons, &ButtonBar::loopRequested,
-            this, &SessionTab::onLoopRequested);
-    connect(m_buttons, &ButtonBar::helpRequested,
-            this, &SessionTab::onHelpRequested);
 
     // Take parent ownership of the session so it dies with the tab.
     if (session && session->parent() != this)

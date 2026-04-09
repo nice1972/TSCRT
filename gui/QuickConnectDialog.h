@@ -37,6 +37,7 @@ private:
     QSpinBox       *m_port      = nullptr;
     QLineEdit      *m_user      = nullptr;
     QLineEdit      *m_pass      = nullptr;
+    QLineEdit      *m_keyfile   = nullptr;
 
     // Serial page
     QLineEdit      *m_serDevice = nullptr;

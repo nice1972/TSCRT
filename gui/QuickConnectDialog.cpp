@@ -2,11 +2,16 @@
 
 #include <QComboBox>
 #include <QDialogButtonBox>
+#include <QDir>
+#include <QFileDialog>
 #include <QFormLayout>
+#include <QHBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QSpinBox>
 #include <QStackedWidget>
+#include <QStandardPaths>
+#include <QToolButton>
 #include <QVBoxLayout>
 
 #include <cstring>
@@ -60,7 +65,33 @@ QuickConnectDialog::QuickConnectDialog(QWidget *parent) : QDialog(parent)
     m_pass = new QLineEdit(sshPage);
     m_pass->setEchoMode(QLineEdit::Password);
     m_pass->setMaxLength(MAX_PASS_LEN - 1);
+    m_pass->setPlaceholderText(tr("password or key passphrase"));
     sshForm->addRow(tr("Pass&word:"), m_pass);
+
+    auto *keyRow    = new QWidget(sshPage);
+    auto *keyLayout = new QHBoxLayout(keyRow);
+    keyLayout->setContentsMargins(0, 0, 0, 0);
+    keyLayout->setSpacing(4);
+    m_keyfile = new QLineEdit(keyRow);
+    m_keyfile->setMaxLength(MAX_PATH_LEN - 1);
+    m_keyfile->setPlaceholderText(tr("private key file (optional)"));
+    auto *browseBtn = new QToolButton(keyRow);
+    browseBtn->setText(QStringLiteral("..."));
+    browseBtn->setToolTip(tr("Browse for private key file"));
+    keyLayout->addWidget(m_keyfile, 1);
+    keyLayout->addWidget(browseBtn, 0);
+    connect(browseBtn, &QToolButton::clicked, this, [this] {
+        const QString start = m_keyfile->text().isEmpty()
+            ? QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
+              + QStringLiteral("/.ssh")
+            : m_keyfile->text();
+        const QString f = QFileDialog::getOpenFileName(
+            this, tr("Select private key"), start,
+            tr("All files (*)"));
+        if (!f.isEmpty())
+            m_keyfile->setText(QDir::toNativeSeparators(f));
+    });
+    sshForm->addRow(tr("&Key file:"), keyRow);
 
     m_stack->addWidget(sshPage);
 
@@ -137,6 +168,7 @@ session_entry_t QuickConnectDialog::entry() const
         putStr(s.ssh.host,     sizeof(s.ssh.host),     m_host->text());
         putStr(s.ssh.username, sizeof(s.ssh.username), m_user->text());
         putStr(s.ssh.password, sizeof(s.ssh.password), m_pass->text());
+        putStr(s.ssh.keyfile,  sizeof(s.ssh.keyfile),  m_keyfile->text());
         s.ssh.port = m_port->value();
     } else {
         const QString name = QStringLiteral("%1 @ %2 baud")

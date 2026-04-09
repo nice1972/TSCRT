@@ -3,9 +3,11 @@
 #include "ActionParser.h"
 #include "BroadcastDialog.h"
 #include "ButtonBar.h"
+#include "Credentials.h"
 #include "ISession.h"
 #include "QuickConnectDialog.h"
 #include "SerialSession.h"
+#include "SessionEditDialog.h"
 #include "SessionTab.h"
 #include "SettingsDialog.h"
 #include "SshSession.h"
@@ -17,6 +19,10 @@
 #include <QApplication>
 #include <QByteArray>
 #include <QCloseEvent>
+#include <QDockWidget>
+#include <QFont>
+#include <QFrame>
+#include <QHeaderView>
 #include <QKeySequence>
 #include <QSettings>
 #include <QLabel>
@@ -24,7 +30,10 @@
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QStatusBar>
+#include <QStyle>
 #include <QTabWidget>
+#include <QTreeWidget>
+#include <QTreeWidgetItem>
 #include <QtGlobal>
 
 #include <libssh2.h>
@@ -41,12 +50,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_tabs->setDocumentMode(true);
     connect(m_tabs, &QTabWidget::tabCloseRequested,
             this, &MainWindow::onTabCloseRequested);
+    connect(m_tabs, &QTabWidget::currentChanged,
+            this, &MainWindow::onCurrentTabChanged);
     setCentralWidget(m_tabs);
 
     loadProfile();
     createMenus();
+    createSessionDock();
     createStatusBar();
     rebuildSessionsMenu();
+    rebuildSessionTree();
     loadSettings();
 
     // Apply persisted view-toggle preferences after createStatusBar.
@@ -125,23 +138,17 @@ void MainWindow::createMenus()
 
     m_sessionsMenu = menuBar()->addMenu(tr("&Sessions"));
 
-    auto *viewMenu = menuBar()->addMenu(tr("&View"));
-    m_actViewButtons = new QAction(tr("Show &Button Bar"), this);
-    m_actViewButtons->setCheckable(true);
+    m_viewMenu = menuBar()->addMenu(tr("&View"));
+    auto *viewMenu = m_viewMenu;
     m_actViewStatus  = new QAction(tr("Show &Status Bar"), this);
     m_actViewStatus->setCheckable(true);
     {
         QSettings prefs;
-        m_actViewButtons->setChecked(
-            prefs.value(QStringLiteral("ui/showButtonBar"), true).toBool());
         m_actViewStatus->setChecked(
             prefs.value(QStringLiteral("ui/showStatusBar"), true).toBool());
     }
-    connect(m_actViewButtons, &QAction::toggled,
-            this, &MainWindow::toggleButtonBars);
     connect(m_actViewStatus, &QAction::toggled,
             this, &MainWindow::toggleStatusBar);
-    viewMenu->addAction(m_actViewButtons);
     viewMenu->addAction(m_actViewStatus);
 
     auto *toolsMenu = menuBar()->addMenu(tr("&Tools"));
@@ -180,6 +187,7 @@ void MainWindow::createMenus()
     connect(m_actReload, &QAction::triggered, this, [this] {
         loadProfile();
         rebuildSessionsMenu();
+        rebuildSessionTree();
         statusBar()->showMessage(tr("Profile reloaded."), 2500);
     });
     settingsMenu->addAction(m_actReload);
@@ -190,13 +198,146 @@ void MainWindow::createMenus()
     helpMenu->addAction(m_actAbout);
 }
 
+void MainWindow::createSessionDock()
+{
+    m_sessionDock = new QDockWidget(tr("Session Manager"), this);
+    m_sessionDock->setObjectName(QStringLiteral("SessionDock"));
+    m_sessionDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    m_sessionDock->setFeatures(QDockWidget::DockWidgetMovable
+                               | QDockWidget::DockWidgetClosable);
+
+    m_sessionTree = new QTreeWidget(m_sessionDock);
+    m_sessionTree->setHeaderHidden(true);
+    m_sessionTree->setRootIsDecorated(true);
+    m_sessionTree->setUniformRowHeights(true);
+    m_sessionTree->setIndentation(14);
+    m_sessionTree->setStyleSheet(QStringLiteral(
+        "QTreeWidget { background:#1e1e1e; color:#e0e0e0;"
+        "              border:0; outline:0;"
+        "              selection-background-color:#3a5f8a;"
+        "              selection-color:#ffffff; }"
+        "QTreeWidget::item { padding:3px 2px; }"
+        "QTreeWidget::item:hover { background:#2a2a2a; }"));
+    connect(m_sessionTree, &QTreeWidget::itemActivated,
+            this, &MainWindow::onSessionTreeActivated);
+    connect(m_sessionTree, &QTreeWidget::itemDoubleClicked,
+            this, &MainWindow::onSessionTreeActivated);
+
+    m_sessionDock->setWidget(m_sessionTree);
+    addDockWidget(Qt::LeftDockWidgetArea, m_sessionDock);
+
+    if (m_viewMenu) {
+        m_viewMenu->addSeparator();
+        m_viewMenu->addAction(m_sessionDock->toggleViewAction());
+    }
+}
+
 void MainWindow::createStatusBar()
 {
+    auto makeSep = [this] {
+        auto *l = new QLabel(QStringLiteral("·"), this);
+        l->setStyleSheet(QStringLiteral("color:#666;"));
+        return l;
+    };
+
+    m_lblProto = new QLabel(this);
+    m_lblHost  = new QLabel(this);
+    m_lblGrid  = new QLabel(this);
+    m_lblProto->setStyleSheet(QStringLiteral("color:#9cdcfe;"));
+    m_lblHost ->setStyleSheet(QStringLiteral("color:#e0e0e0;"));
+    m_lblGrid ->setStyleSheet(QStringLiteral("color:#888;"));
+
+    statusBar()->addPermanentWidget(m_lblProto);
+    statusBar()->addPermanentWidget(makeSep());
+    statusBar()->addPermanentWidget(m_lblHost);
+    statusBar()->addPermanentWidget(makeSep());
+    statusBar()->addPermanentWidget(m_lblGrid);
+
     statusBar()->showMessage(
         tr("Ready · libssh2 %1 · libvterm %2.%3")
             .arg(QString::fromLatin1(LIBSSH2_VERSION))
             .arg(VTERM_VERSION_MAJOR)
             .arg(VTERM_VERSION_MINOR));
+
+    updateStatusForCurrentTab();
+}
+
+void MainWindow::updateStatusForCurrentTab()
+{
+    if (!m_lblProto) return;
+    auto *tab = qobject_cast<tscrt::SessionTab *>(m_tabs->currentWidget());
+    if (!tab) {
+        m_lblProto->setText(QString());
+        m_lblHost ->setText(QString());
+        m_lblGrid ->setText(QString());
+        return;
+    }
+    m_lblProto->setText(tab->property("tscrtProto").toString());
+    m_lblHost ->setText(tab->property("tscrtHost").toString());
+    if (tab->terminal()) {
+        m_lblGrid->setText(QStringLiteral("%1x%2")
+                               .arg(tab->terminal()->cols())
+                               .arg(tab->terminal()->rows()));
+    } else {
+        m_lblGrid->setText(QString());
+    }
+}
+
+void MainWindow::onCurrentTabChanged(int /*index*/)
+{
+    updateStatusForCurrentTab();
+}
+
+void MainWindow::onSessionTreeActivated(QTreeWidgetItem *item, int /*column*/)
+{
+    if (!item) return;
+    const QVariant v = item->data(0, Qt::UserRole);
+    if (!v.isValid()) return;
+    bool ok = false;
+    const int idx = v.toInt(&ok);
+    if (ok && idx >= 0)
+        openSessionByIndex(idx);
+}
+
+void MainWindow::rebuildSessionTree()
+{
+    if (!m_sessionTree) return;
+    m_sessionTree->clear();
+
+    QStyle *st = style();
+    auto *sshGroup = new QTreeWidgetItem(m_sessionTree);
+    sshGroup->setText(0, tr("SSH Sessions"));
+    sshGroup->setIcon(0, st->standardIcon(QStyle::SP_DriveNetIcon));
+    QFont gf = sshGroup->font(0); gf.setBold(true); sshGroup->setFont(0, gf);
+
+    auto *serGroup = new QTreeWidgetItem(m_sessionTree);
+    serGroup->setText(0, tr("Serial Sessions"));
+    serGroup->setIcon(0, st->standardIcon(QStyle::SP_DriveHDIcon));
+    serGroup->setFont(0, gf);
+
+    for (int i = 0; i < m_profile.session_count; ++i) {
+        const session_entry_t &s = m_profile.sessions[i];
+        auto *item = new QTreeWidgetItem();
+        item->setData(0, Qt::UserRole, i);
+        if (s.type == SESSION_TYPE_SSH) {
+            item->setText(0, QStringLiteral("%1  (%2@%3:%4)")
+                                 .arg(QString::fromLocal8Bit(s.name),
+                                      QString::fromLocal8Bit(s.ssh.username),
+                                      QString::fromLocal8Bit(s.ssh.host))
+                                 .arg(s.ssh.port));
+            item->setIcon(0, st->standardIcon(QStyle::SP_ComputerIcon));
+            sshGroup->addChild(item);
+        } else {
+            item->setText(0, QStringLiteral("%1  (%2 %3)")
+                                 .arg(QString::fromLocal8Bit(s.name),
+                                      QString::fromLocal8Bit(s.serial.device))
+                                 .arg(s.serial.baudrate));
+            item->setIcon(0, st->standardIcon(QStyle::SP_DriveFDIcon));
+            serGroup->addChild(item);
+        }
+    }
+    sshGroup->setExpanded(true);
+    serGroup->setExpanded(true);
 }
 
 void MainWindow::rebuildSessionsMenu()
@@ -204,6 +345,12 @@ void MainWindow::rebuildSessionsMenu()
     if (!m_sessionsMenu)
         return;
     m_sessionsMenu->clear();
+
+    auto *newAct = new QAction(tr("&New session..."), this);
+    newAct->setShortcut(QKeySequence(tr("Ctrl+Shift+N")));
+    connect(newAct, &QAction::triggered, this, &MainWindow::newSession);
+    m_sessionsMenu->addAction(newAct);
+    m_sessionsMenu->addSeparator();
 
     if (m_profile.session_count == 0) {
         auto *empty = new QAction(tr("(no sessions defined)"), this);
@@ -277,7 +424,7 @@ void MainWindow::openQuickConnect()
     QuickConnectDialog dlg(this);
     if (dlg.exec() != QDialog::Accepted) return;
 
-    const session_entry_t entry = dlg.entry();
+    session_entry_t entry = dlg.entry();
     if (entry.type == SESSION_TYPE_SSH) {
         if (entry.ssh.host[0] == '\0' || entry.ssh.username[0] == '\0') {
             QMessageBox::warning(this, tr("Quick Connect"),
@@ -291,7 +438,78 @@ void MainWindow::openQuickConnect()
             return;
         }
     }
+
+    // Persist to profile so the session is reusable from Session Manager,
+    // even if the connection later fails.
+    appendSessionToProfile(entry);
+
     openAdHoc(entry);
+}
+
+bool MainWindow::appendSessionToProfile(session_entry_t entry)
+{
+    if (m_profile.session_count >= MAX_SESSIONS) {
+        QMessageBox::warning(this, tr("Save session"),
+            tr("Cannot save: profile already holds %1 sessions (max).")
+                .arg(MAX_SESSIONS));
+        return false;
+    }
+
+    // Encrypt SSH password (DPAPI) before storing.
+    if (entry.type == SESSION_TYPE_SSH && entry.ssh.password[0]) {
+        const QString enc = tscrt::encryptSecret(
+            QString::fromLocal8Bit(entry.ssh.password));
+        const QByteArray b = enc.toLocal8Bit();
+        const int n = qMin<int>(int(sizeof(entry.ssh.password)) - 1, b.size());
+        memcpy(entry.ssh.password, b.constData(), n);
+        entry.ssh.password[n] = '\0';
+    }
+
+    m_profile.sessions[m_profile.session_count++] = entry;
+    if (profile_save(&m_profile) != 0) {
+        QMessageBox::warning(this, tr("Save failed"),
+            tr("Could not write profile to:\n%1")
+                .arg(QString::fromLocal8Bit(m_profile.profile_path)));
+        // Roll back the in-memory append on save failure.
+        --m_profile.session_count;
+        return false;
+    }
+    rebuildSessionsMenu();
+    rebuildSessionTree();
+    return true;
+}
+
+void MainWindow::newSession()
+{
+    SessionEditDialog dlg(this);
+    session_entry_t blank{};
+    blank.type = SESSION_TYPE_SSH;
+    snprintf(blank.name, sizeof(blank.name), "%s", "New Session");
+    blank.ssh.port = 22;
+    dlg.setSession(blank);
+    if (dlg.exec() != QDialog::Accepted) return;
+
+    session_entry_t s = dlg.session();
+    if (s.type == SESSION_TYPE_SSH) {
+        if (s.ssh.host[0] == '\0' || s.ssh.username[0] == '\0') {
+            QMessageBox::warning(this, tr("New session"),
+                tr("Host and username are required."));
+            return;
+        }
+    } else {
+        if (s.serial.device[0] == '\0') {
+            QMessageBox::warning(this, tr("New session"),
+                tr("Device (e.g. COM3) is required."));
+            return;
+        }
+    }
+    if (s.name[0] == '\0')
+        snprintf(s.name, sizeof(s.name), "%s", "Untitled");
+
+    if (appendSessionToProfile(s))
+        statusBar()->showMessage(
+            tr("Session \"%1\" saved.").arg(QString::fromLocal8Bit(s.name)),
+            2500);
 }
 
 void MainWindow::openAdHoc(const session_entry_t &entry)
@@ -306,6 +524,20 @@ void MainWindow::openAdHoc(const session_entry_t &entry)
     }
 
     auto *tab = new tscrt::SessionTab(session, m_profile, entry, m_tabs);
+    if (entry.type == SESSION_TYPE_SSH) {
+        tab->setProperty("tscrtProto", QStringLiteral("SSH"));
+        tab->setProperty("tscrtHost",
+            QStringLiteral("%1@%2:%3")
+                .arg(QString::fromLocal8Bit(entry.ssh.username),
+                     QString::fromLocal8Bit(entry.ssh.host))
+                .arg(entry.ssh.port));
+    } else {
+        tab->setProperty("tscrtProto", QStringLiteral("Serial"));
+        tab->setProperty("tscrtHost",
+            QStringLiteral("%1 %2")
+                .arg(QString::fromLocal8Bit(entry.serial.device))
+                .arg(entry.serial.baudrate));
+    }
 
     connect(session, &ISession::connecting, this, [this, name] {
         statusBar()->showMessage(tr("Connecting to %1...").arg(name));
@@ -341,6 +573,20 @@ void MainWindow::openSessionByIndex(int profileIndex)
     }
 
     auto *tab = new tscrt::SessionTab(session, m_profile, s, m_tabs);
+    if (s.type == SESSION_TYPE_SSH) {
+        tab->setProperty("tscrtProto", QStringLiteral("SSH"));
+        tab->setProperty("tscrtHost",
+            QStringLiteral("%1@%2:%3")
+                .arg(QString::fromLocal8Bit(s.ssh.username),
+                     QString::fromLocal8Bit(s.ssh.host))
+                .arg(s.ssh.port));
+    } else {
+        tab->setProperty("tscrtProto", QStringLiteral("Serial"));
+        tab->setProperty("tscrtHost",
+            QStringLiteral("%1 %2")
+                .arg(QString::fromLocal8Bit(s.serial.device))
+                .arg(s.serial.baudrate));
+    }
 
     connect(session, &ISession::connecting, this, [this, name = QString::fromLocal8Bit(s.name)] {
         statusBar()->showMessage(tr("Connecting to %1...").arg(name));
@@ -391,6 +637,7 @@ void MainWindow::showSettingsDialog()
             return;
         }
         rebuildSessionsMenu();
+        rebuildSessionTree();
         statusBar()->showMessage(tr("Preferences saved."), 2500);
     }
 }
