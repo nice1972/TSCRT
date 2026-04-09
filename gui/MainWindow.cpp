@@ -1,10 +1,12 @@
 #include "MainWindow.h"
 
 #include "ButtonBar.h"
+#include "CommandLineWidget.h"
 #include "Credentials.h"
 #include "ISession.h"
 #include "SerialSession.h"
 #include "SessionEditDialog.h"
+#include "SessionHistory.h"
 #include "SessionManagerDialog.h"
 #include "SessionTab.h"
 #include "SettingsDialog.h"
@@ -21,8 +23,12 @@
 #include <QFont>
 #include <QFrame>
 #include <QHeaderView>
+#include <QIcon>
 #include <QInputDialog>
 #include <QKeySequence>
+#include <QPainter>
+#include <QPixmap>
+#include <QPolygonF>
 #include <QSettings>
 #include <QLabel>
 #include <QMenu>
@@ -160,15 +166,30 @@ void MainWindow::createMenus()
 
     m_viewMenu = menuBar()->addMenu(tr("&View"));
     auto *viewMenu = m_viewMenu;
+
+    m_actViewCmdLine = new QAction(tr("Show &Command Line"), this);
+    m_actViewCmdLine->setCheckable(true);
+    m_actViewButtons = new QAction(tr("Show Action &Buttons"), this);
+    m_actViewButtons->setCheckable(true);
     m_actViewStatus  = new QAction(tr("Show &Status Bar"), this);
     m_actViewStatus->setCheckable(true);
     {
         QSettings prefs;
+        m_actViewCmdLine->setChecked(
+            prefs.value(QStringLiteral("ui/showCmdLine"),  true).toBool());
+        m_actViewButtons->setChecked(
+            prefs.value(QStringLiteral("ui/showButtonBar"), true).toBool());
         m_actViewStatus->setChecked(
             prefs.value(QStringLiteral("ui/showStatusBar"), true).toBool());
     }
+    connect(m_actViewCmdLine, &QAction::toggled,
+            this, &MainWindow::toggleCmdLines);
+    connect(m_actViewButtons, &QAction::toggled,
+            this, &MainWindow::toggleButtonBars);
     connect(m_actViewStatus, &QAction::toggled,
             this, &MainWindow::toggleStatusBar);
+    viewMenu->addAction(m_actViewCmdLine);
+    viewMenu->addAction(m_actViewButtons);
     viewMenu->addAction(m_actViewStatus);
 
     auto *settingsMenu = menuBar()->addMenu(tr("Se&ttings"));
@@ -259,9 +280,9 @@ void MainWindow::createStatusBar()
     m_lblProto = new QLabel(this);
     m_lblHost  = new QLabel(this);
     m_lblGrid  = new QLabel(this);
-    m_lblProto->setStyleSheet(QStringLiteral("color:#9cdcfe;"));
-    m_lblHost ->setStyleSheet(QStringLiteral("color:#e0e0e0;"));
-    m_lblGrid ->setStyleSheet(QStringLiteral("color:#888;"));
+    m_lblProto->setStyleSheet(QStringLiteral("color:#1a4d80; font-weight:bold;"));
+    m_lblHost ->setStyleSheet(QStringLiteral("color:#202020;"));
+    m_lblGrid ->setStyleSheet(QStringLiteral("color:#555;"));
 
     statusBar()->addPermanentWidget(m_lblProto);
     statusBar()->addPermanentWidget(makeSep());
@@ -454,6 +475,7 @@ void MainWindow::deleteSessionByIndex(int profileIndex)
             tr("Could not write profile."));
         return;
     }
+    tscrt::pruneOrphanHistoryFiles(m_profile);
     rebuildSessionsMenu();
     rebuildSessionTree();
 }
@@ -511,10 +533,43 @@ void MainWindow::pasteSessionFromClipboard()
     rebuildSessionTree();
 }
 
+/* Paint a small DB-9 (RS-232) connector icon programmatically so we
+ * don't need an extra resource file. Two rows of pin dots inside a
+ * trapezoid. */
+static QIcon makeSerialIcon()
+{
+    QPixmap pm(16, 16);
+    pm.fill(Qt::transparent);
+
+    QPainter p(&pm);
+    p.setRenderHint(QPainter::Antialiasing, true);
+
+    // Trapezoidal connector body.
+    QPolygonF body;
+    body << QPointF(2, 4) << QPointF(14, 4)
+         << QPointF(13, 12) << QPointF(3, 12);
+    p.setPen(QPen(QColor("#202020"), 1.2));
+    p.setBrush(QColor("#9e9e9e"));
+    p.drawPolygon(body);
+
+    // 5+4 pin dots.
+    p.setPen(Qt::NoPen);
+    p.setBrush(QColor("#1a1a1a"));
+    const qreal r = 0.9;
+    for (int i = 0; i < 5; ++i)
+        p.drawEllipse(QPointF(4 + i * 2, 6.5), r, r);
+    for (int i = 0; i < 4; ++i)
+        p.drawEllipse(QPointF(5 + i * 2, 9.5), r, r);
+
+    return QIcon(pm);
+}
+
 void MainWindow::rebuildSessionTree()
 {
     if (!m_sessionTree) return;
     m_sessionTree->clear();
+
+    static const QIcon serialIcon = makeSerialIcon();
 
     QStyle *st = style();
     auto *sshGroup = new QTreeWidgetItem(m_sessionTree);
@@ -524,7 +579,7 @@ void MainWindow::rebuildSessionTree()
 
     auto *serGroup = new QTreeWidgetItem(m_sessionTree);
     serGroup->setText(0, tr("Serial Sessions"));
-    serGroup->setIcon(0, st->standardIcon(QStyle::SP_DriveHDIcon));
+    serGroup->setIcon(0, serialIcon);
     serGroup->setFont(0, gf);
 
     for (int i = 0; i < m_profile.session_count; ++i) {
@@ -544,7 +599,7 @@ void MainWindow::rebuildSessionTree()
                                  .arg(QString::fromLocal8Bit(s.name),
                                       QString::fromLocal8Bit(s.serial.device))
                                  .arg(s.serial.baudrate));
-            item->setIcon(0, st->standardIcon(QStyle::SP_DriveFDIcon));
+            item->setIcon(0, serialIcon);
             serGroup->addChild(item);
         }
     }
@@ -707,6 +762,9 @@ void MainWindow::openSessionByIndex(int profileIndex)
         statusBar()->showMessage(tr("Disconnected: %1 (%2)").arg(name, reason), 5000);
     });
 
+    connect(tab, &tscrt::SessionTab::buttonEditRequested,
+            this, &MainWindow::editButtonSlot);
+
     const int idx = m_tabs->addTab(tab, QString::fromLocal8Bit(s.name));
     m_tabs->setCurrentIndex(idx);
 
@@ -765,6 +823,7 @@ void MainWindow::showSessionManagerDialog()
                     .arg(QString::fromLocal8Bit(m_profile.profile_path)));
             return;
         }
+        tscrt::pruneOrphanHistoryFiles(m_profile);
         rebuildSessionsMenu();
         rebuildSessionTree();
         statusBar()->showMessage(tr("Sessions saved."), 2500);
@@ -778,6 +837,59 @@ void MainWindow::toggleButtonBars(bool visible)
         auto *tab = qobject_cast<tscrt::SessionTab *>(m_tabs->widget(i));
         if (tab && tab->buttonBar())
             tab->buttonBar()->setVisible(visible);
+    }
+}
+
+void MainWindow::editButtonSlot(int slotIndex)
+{
+    if (slotIndex < 0 || slotIndex >= MAX_BUTTONS) return;
+    button_t &b = m_profile.buttons[slotIndex];
+
+    bool ok = false;
+    const QString label = QInputDialog::getText(this, tr("Edit button"),
+        tr("Label:"), QLineEdit::Normal,
+        QString::fromLocal8Bit(b.label), &ok);
+    if (!ok) return;
+    const QString action = QInputDialog::getText(this, tr("Edit button"),
+        tr("Action (escape: \\r \\n \\t \\b \\e \\p \\\\):"),
+        QLineEdit::Normal,
+        QString::fromLocal8Bit(b.action), &ok);
+    if (!ok) return;
+
+    {
+        const QByteArray lb = label.toLocal8Bit();
+        const int n = qMin<int>(int(sizeof(b.label)) - 1, lb.size());
+        memcpy(b.label, lb.constData(), n);
+        b.label[n] = '\0';
+    }
+    {
+        const QByteArray ab = action.toLocal8Bit();
+        const int n = qMin<int>(int(sizeof(b.action)) - 1, ab.size());
+        memcpy(b.action, ab.constData(), n);
+        b.action[n] = '\0';
+    }
+
+    if (profile_save(&m_profile) != 0) {
+        QMessageBox::warning(this, tr("Save failed"),
+            tr("Could not write profile."));
+        return;
+    }
+
+    // Push the new button layout to every open tab.
+    for (int i = 0; i < m_tabs->count(); ++i) {
+        auto *tab = qobject_cast<tscrt::SessionTab *>(m_tabs->widget(i));
+        if (tab && tab->buttonBar())
+            tab->buttonBar()->setButtons(m_profile.buttons);
+    }
+}
+
+void MainWindow::toggleCmdLines(bool visible)
+{
+    QSettings().setValue(QStringLiteral("ui/showCmdLine"), visible);
+    for (int i = 0; i < m_tabs->count(); ++i) {
+        auto *tab = qobject_cast<tscrt::SessionTab *>(m_tabs->widget(i));
+        if (tab && tab->commandLine())
+            tab->commandLine()->setVisible(visible);
     }
 }
 

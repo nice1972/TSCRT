@@ -48,9 +48,11 @@ private slots:
     void onCurrentTabChanged(int index);
     void onSessionTreeActivated(QTreeWidgetItem *item, int column);
     void onSessionTreeContextMenu(const QPoint &pos);
+    void editButtonSlot(int slotIndex);
     void rebuildSessionsMenu();
     void rebuildSessionTree();
     void toggleButtonBars(bool visible);
+    void toggleCmdLines(bool visible);
     void toggleStatusBar(bool visible);
 
 private:
@@ -84,6 +86,7 @@ private:
     QAction       *m_actCloseTab = nullptr;
     QAction       *m_actReload   = nullptr;
     QAction       *m_actViewButtons = nullptr;
+    QAction       *m_actViewCmdLine = nullptr;
     QAction       *m_actViewStatus  = nullptr;
 
     // Session clipboard for the tree's right-click "Copy"/"Paste".

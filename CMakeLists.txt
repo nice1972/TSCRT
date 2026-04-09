@@ -59,6 +59,10 @@ set(GUI_SOURCES
     gui/AutomationEngine.cpp
     gui/ButtonBar.h
     gui/ButtonBar.cpp
+    gui/CommandLineWidget.h
+    gui/CommandLineWidget.cpp
+    gui/SessionHistory.h
+    gui/SessionHistory.cpp
     gui/SessionTab.h
     gui/SessionTab.cpp
 )

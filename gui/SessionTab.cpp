@@ -2,12 +2,15 @@
 
 #include "AutomationEngine.h"
 #include "ButtonBar.h"
+#include "CommandLineWidget.h"
 #include "ISession.h"
+#include "SessionHistory.h"
 #include "SessionLogger.h"
 #include "TerminalWidget.h"
 
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QSettings>
 #include <QVBoxLayout>
 
 namespace tscrt {
@@ -24,6 +27,45 @@ SessionTab::SessionTab(ISession *session, const profile_t &profile,
 
     m_term = new TerminalWidget(this);
     root->addWidget(m_term, 1);
+
+    // Command line entry — keeps a per-session history file.
+    m_cmdLine = new ::CommandLineWidget(this);
+    m_cmdLine->setHistoryFile(tscrt::historyPathFor(profile, m_displayName));
+    root->addWidget(m_cmdLine);
+    connect(m_cmdLine, &::CommandLineWidget::commandEntered,
+            this, &SessionTab::onCommandEntered);
+
+    // Bottom shortcut buttons.
+    m_buttons = new ButtonBar(this);
+    m_buttons->setButtons(profile.buttons);
+    root->addWidget(m_buttons);
+    connect(m_buttons, &ButtonBar::actionRequested,
+            this, &SessionTab::onButtonAction);
+    connect(m_buttons, &ButtonBar::buttonEditRequested,
+            this, &SessionTab::buttonEditRequested);
+    connect(m_buttons, &ButtonBar::markClicked,
+            this, &SessionTab::onMarkClicked);
+    connect(m_buttons, &ButtonBar::markRightClicked,
+            this, &SessionTab::onMarkRightClicked);
+    connect(m_buttons, &ButtonBar::loopClicked,
+            this, &SessionTab::onLoopClicked);
+    connect(m_buttons, &ButtonBar::loopRightClicked,
+            this, &SessionTab::onLoopRightClicked);
+    connect(m_buttons, &ButtonBar::helpRequested,
+            this, &SessionTab::onHelpRequested);
+
+    m_loopTimer.setSingleShot(false);
+    connect(&m_loopTimer, &QTimer::timeout,
+            this, &SessionTab::onLoopTick);
+
+    // Honour persisted view-toggle preferences (default ON for both).
+    {
+        QSettings prefs;
+        m_cmdLine->setVisible(
+            prefs.value(QStringLiteral("ui/showCmdLine"), true).toBool());
+        m_buttons->setVisible(
+            prefs.value(QStringLiteral("ui/showButtonBar"), true).toBool());
+    }
 
     // Engine listens to the session backend
     m_engine = new AutomationEngine(session, profile, m_displayName, this);
@@ -76,32 +118,101 @@ void SessionTab::onButtonAction(const QString &actionString)
         m_engine->executeAction(actionString);
 }
 
-void SessionTab::onMarkRequested()
+void SessionTab::onCommandEntered(const QString &cmd)
+{
+    if (!m_session) return;
+    QByteArray bytes = cmd.toUtf8();
+    bytes.append('\r');
+    m_session->sendBytes(bytes);
+    // Keep focus in the command line; the user moves it elsewhere by
+    // clicking the terminal or another widget.
+}
+
+void SessionTab::configureMark()
 {
     bool ok = false;
-    const QString cur = m_engine ? m_engine->highlightPattern() : QString();
     const QString p = QInputDialog::getText(this, tr("Mark"),
-        tr("Highlight pattern (empty to clear):"), QLineEdit::Normal, cur, &ok);
+        tr("Highlight pattern (empty to clear):"), QLineEdit::Normal,
+        m_markPattern, &ok);
     if (!ok) return;
+    m_markPattern = p;
     if (m_engine) m_engine->setHighlightPattern(p);
     if (m_term)   m_term->setHighlightPattern(p);
 }
 
-void SessionTab::onLoopRequested()
+void SessionTab::onMarkClicked()
+{
+    // Left click: open the configuration dialog (set / change pattern).
+    configureMark();
+}
+
+void SessionTab::onMarkRightClicked()
+{
+    // Right click while a pattern is set → clear it. Otherwise open the
+    // dialog so the user can set one.
+    if (m_markPattern.isEmpty()) {
+        configureMark();
+    } else {
+        m_markPattern.clear();
+        if (m_engine) m_engine->setHighlightPattern(QString());
+        if (m_term)   m_term->setHighlightPattern(QString());
+    }
+}
+
+void SessionTab::configureLoop()
 {
     bool ok = false;
     const QString cmd = QInputDialog::getText(this, tr("Loop"),
-        tr("Command to repeat:"), QLineEdit::Normal, QString(), &ok);
+        tr("Command to repeat:"), QLineEdit::Normal, m_loopAction, &ok);
     if (!ok || cmd.isEmpty()) return;
     const int sec = QInputDialog::getInt(this, tr("Loop"),
-        tr("Interval (seconds):"), 60, 1, 86400, 1, &ok);
+        tr("Interval (seconds):"),
+        m_loopIntervalSec > 0 ? m_loopIntervalSec : 60,
+        1, 86400, 1, &ok);
     if (!ok) return;
-    // For now we fire once + queue another via QTimer. Simple implementation:
-    // run an action with embedded \r and rely on AutomationEngine periodic.
-    // Until full periodic-from-button support lands, just send once.
-    if (m_engine)
-        m_engine->executeAction(cmd + QStringLiteral("\\r"));
-    Q_UNUSED(sec);
+    m_loopAction      = cmd;
+    m_loopIntervalSec = sec;
+}
+
+void SessionTab::startLoop()
+{
+    if (m_loopAction.isEmpty() || m_loopIntervalSec <= 0) return;
+    if (m_loopTimer.isActive()) return;
+    m_loopTimer.start(m_loopIntervalSec * 1000);
+    if (m_buttons) m_buttons->setLoopRunning(true);
+    onLoopTick();   // fire immediately so the user sees feedback
+}
+
+void SessionTab::stopLoop()
+{
+    m_loopTimer.stop();
+    if (m_buttons) m_buttons->setLoopRunning(false);
+}
+
+void SessionTab::onLoopClicked()
+{
+    // Left click: start the loop. If nothing is configured yet, prompt
+    // first and then start.
+    if (m_loopTimer.isActive()) return;       // already running
+    if (m_loopAction.isEmpty() || m_loopIntervalSec <= 0)
+        configureLoop();
+    startLoop();
+}
+
+void SessionTab::onLoopRightClicked()
+{
+    // Right click while running → cancel.
+    // Right click while idle    → open the configuration dialog.
+    if (m_loopTimer.isActive())
+        stopLoop();
+    else
+        configureLoop();
+}
+
+void SessionTab::onLoopTick()
+{
+    if (m_engine && !m_loopAction.isEmpty())
+        m_engine->executeAction(m_loopAction + QStringLiteral("\\r"));
 }
 
 void SessionTab::onHelpRequested()

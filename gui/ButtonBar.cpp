@@ -3,6 +3,8 @@
 #include <QHBoxLayout>
 #include <QInputDialog>
 #include <QLabel>
+#include <QMenu>
+#include <QMouseEvent>
 #include <QPushButton>
 #include <QTimer>
 
@@ -30,10 +32,6 @@ constexpr const char *kCssHelp =
     "QPushButton { background:#1f4d7a; color:#fff; padding:4px 10px;"
     " border:1px solid #2f6ba8; border-radius:3px; }";
 
-constexpr const char *kCssCmd =
-    "QPushButton { background:#4a1f5a; color:#fff; padding:4px 10px;"
-    " border:1px solid #6b2d80; border-radius:3px; }";
-
 } // namespace
 
 ButtonBar::ButtonBar(QWidget *parent) : QWidget(parent)
@@ -58,13 +56,18 @@ void ButtonBar::clearLayout()
     }
 }
 
-QPushButton *ButtonBar::makeAction(const QString &label, const QString &action)
+QPushButton *ButtonBar::makeAction(int slot, const QString &label, const QString &action)
 {
     auto *btn = new QPushButton(label, this);
     btn->setStyleSheet(QString::fromLatin1(kCssNormal));
     btn->setProperty("action", action);
+    btn->setProperty("slotIndex", slot);
     btn->setFocusPolicy(Qt::NoFocus);
-    connect(btn, &QPushButton::clicked, this, &ButtonBar::onButtonClicked);
+    btn->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(btn, &QPushButton::clicked,
+            this, &ButtonBar::onButtonClicked);
+    connect(btn, &QPushButton::customContextMenuRequested,
+            this, &ButtonBar::onButtonContextMenu);
     return btn;
 }
 
@@ -80,37 +83,67 @@ void ButtonBar::setButtons(const button_t buttons[MAX_BUTTONS])
 {
     clearLayout();
 
-    // cmdwin (left)
-    auto *cmd = makeSpecial(tr("cmd"), QString::fromLatin1(kCssCmd));
-    connect(cmd, &QPushButton::clicked, this, &ButtonBar::cmdWindowRequested);
-    m_layout->addWidget(cmd);
-
-    // loop
-    auto *loop = makeSpecial(tr("loop"), QString::fromLatin1(kCssLoop));
-    connect(loop, &QPushButton::clicked, this, &ButtonBar::loopRequested);
-    m_layout->addWidget(loop);
-
-    // mark
-    auto *mark = makeSpecial(tr("mark"), QString::fromLatin1(kCssMark));
-    connect(mark, &QPushButton::clicked, this, &ButtonBar::markRequested);
-    m_layout->addWidget(mark);
-
-    // User-defined buttons
+    // User-defined buttons (left).
     for (int i = 0; i < MAX_BUTTONS; ++i) {
         const button_t &b = buttons[i];
         if (b.label[0] == '\0' && b.action[0] == '\0')
             continue;
-        auto *btn = makeAction(QString::fromLocal8Bit(b.label),
+        auto *btn = makeAction(i,
+                               QString::fromLocal8Bit(b.label),
                                QString::fromLocal8Bit(b.action));
         m_layout->addWidget(btn);
     }
 
     m_layout->addStretch();
 
-    // help (right)
+    // Special buttons + help (right).
+    m_loopBtn = makeSpecial(tr("loop"), QString::fromLatin1(kCssLoop));
+    m_loopBtn->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_loopBtn, &QPushButton::clicked,
+            this, &ButtonBar::loopClicked);
+    connect(m_loopBtn, &QPushButton::customContextMenuRequested,
+            this, [this](const QPoint &) { emit loopRightClicked(); });
+    m_layout->addWidget(m_loopBtn);
+
+    auto *mark = makeSpecial(tr("mark"), QString::fromLatin1(kCssMark));
+    mark->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(mark, &QPushButton::clicked,
+            this, &ButtonBar::markClicked);
+    connect(mark, &QPushButton::customContextMenuRequested,
+            this, [this](const QPoint &) { emit markRightClicked(); });
+    m_layout->addWidget(mark);
+
     auto *help = makeSpecial(tr("?"), QString::fromLatin1(kCssHelp));
     connect(help, &QPushButton::clicked, this, &ButtonBar::helpRequested);
     m_layout->addWidget(help);
+
+    setLoopRunning(m_loopRunning);
+}
+
+void ButtonBar::setLoopRunning(bool running)
+{
+    m_loopRunning = running;
+    if (!m_loopBtn) return;
+    if (running) {
+        m_loopBtn->setText(tr("loop ●"));
+        m_loopBtn->setStyleSheet(QStringLiteral(
+            "QPushButton { background:#a30000; color:#fff;"
+            " padding:4px 10px; border:1px solid #c00; border-radius:3px;"
+            " font-weight:bold; }"));
+    } else {
+        m_loopBtn->setText(tr("loop"));
+        m_loopBtn->setStyleSheet(QString::fromLatin1(kCssLoop));
+    }
+}
+
+void ButtonBar::onButtonContextMenu(const QPoint &pos)
+{
+    auto *btn = qobject_cast<QPushButton *>(sender());
+    if (!btn) return;
+    QMenu menu(this);
+    QAction *edit = menu.addAction(tr("Edit button..."));
+    if (menu.exec(btn->mapToGlobal(pos)) == edit)
+        emit buttonEditRequested(btn->property("slotIndex").toInt());
 }
 
 void ButtonBar::onButtonClicked()
@@ -122,12 +155,6 @@ void ButtonBar::onButtonClicked()
     if (action.isEmpty())
         return;
     emit actionRequested(action);
-}
-
-void ButtonBar::onButtonDoubleClicked()
-{
-    // Reserved for future per-button repeat toggle. The current MVP
-    // routes repeat through the "loop" special button instead.
 }
 
 void ButtonBar::onRepeatTick()

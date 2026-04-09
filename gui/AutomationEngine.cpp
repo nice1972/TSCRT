@@ -50,9 +50,10 @@ void AutomationEngine::executeAction(const QString &actionString)
     const auto chunks = parseAction(actionString);
     for (const auto &c : chunks) {
         if (!c.bytes.isEmpty())
-            QMetaObject::invokeMethod(m_session, "sendBytes",
-                                      Qt::QueuedConnection,
-                                      Q_ARG(QByteArray, c.bytes));
+            // Direct call: the worker thread is stuck in a tight read/write
+            // loop and never pumps its event loop, so a queued sendBytes
+            // would be delivered "never". sendBytes is mutex-protected.
+            m_session->sendBytes(c.bytes);
         if (c.pauseMs > 0)
             QThread::msleep(c.pauseMs);
     }

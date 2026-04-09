@@ -1,14 +1,13 @@
 /*
  * ButtonBar - bottom bar of clickable action buttons.
  *
- * Reads button definitions from profile_t.buttons[]. Empty slots are
- * skipped. Single click emits actionRequested(action_string). Double
- * click prompts for an interval and starts repeating that action until
- * the next double-click stops it.
+ * Layout: [user buttons...] [stretch] [loop] [mark] [?]
  *
- * Two special slots are also rendered: Mark (toggle highlight), Loop
- * (run an arbitrary command at an interval). They emit dedicated
- * signals so the host tab/window can update its state.
+ * - User-defined buttons come from profile_t.buttons[]; empty slots
+ *   are skipped. Click emits actionRequested(action_string).
+ *   Right-click emits buttonEditRequested(slot_index) so the host can
+ *   pop up an editor for that slot.
+ * - Loop / mark are special buttons that emit their own signals.
  */
 #pragma once
 
@@ -31,20 +30,27 @@ public:
 
     void setButtons(const button_t buttons[MAX_BUTTONS]);
 
+    /// Update the visual state of the "loop" button so the user can
+    /// tell at a glance whether a loop is currently ticking. Has no
+    /// effect on signal routing — that lives in SessionTab.
+    void setLoopRunning(bool running);
+
 signals:
     void actionRequested(const QString &actionString);
-    void markRequested();
-    void loopRequested();
+    void buttonEditRequested(int slotIndex);
+    void markClicked();           // left click
+    void markRightClicked();      // right click
+    void loopClicked();           // left click
+    void loopRightClicked();      // right click
     void helpRequested();
-    void cmdWindowRequested();
 
 private slots:
     void onButtonClicked();
-    void onButtonDoubleClicked();
+    void onButtonContextMenu(const QPoint &pos);
     void onRepeatTick();
 
 private:
-    QPushButton *makeAction(const QString &label, const QString &action);
+    QPushButton *makeAction(int slot, const QString &label, const QString &action);
     QPushButton *makeSpecial(const QString &label, const QString &css);
     void clearLayout();
 
@@ -53,6 +59,8 @@ private:
     QString            m_repeatAction;
     int                m_repeatInterval = 0;
     QPushButton       *m_repeatBtn = nullptr;
+    QPushButton       *m_loopBtn = nullptr;
+    bool               m_loopRunning = false;
 };
 
 } // namespace tscrt
