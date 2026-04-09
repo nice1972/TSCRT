@@ -52,9 +52,15 @@
 #define MAX_PATH_LEN         512
 #define MAX_HOST_LEN         256
 #define MAX_USER_LEN         128
-#define MAX_PASS_LEN         256
+/* Plaintext SSH passwords are short, but we also store them in DPAPI
+ * encrypted form as "dpapi:<base64>". DPAPI ciphertext for even an 8-byte
+ * plaintext is ~220 bytes (~300 base64 chars), so this buffer must hold
+ * the encrypted form, not just the plaintext. 256 truncates the base64
+ * mid-string and breaks decryption. */
+#define MAX_PASS_LEN         1024
 #define MAX_DEVICE_LEN       128
-#define MAX_LINE_LEN         1024
+/* Big enough for the longest "password = dpapi:<base64>" line. */
+#define MAX_LINE_LEN         2048
 #define IO_BUF_SIZE          65536
 
 #define ESCAPE_KEY           0x01    /* Ctrl-A */
