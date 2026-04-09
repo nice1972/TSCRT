@@ -5,9 +5,9 @@
 #include "ButtonBar.h"
 #include "Credentials.h"
 #include "ISession.h"
-#include "QuickConnectDialog.h"
 #include "SerialSession.h"
 #include "SessionEditDialog.h"
+#include "SessionManagerDialog.h"
 #include "SessionTab.h"
 #include "SettingsDialog.h"
 #include "SshSession.h"
@@ -145,13 +145,6 @@ void MainWindow::loadProfile()
 void MainWindow::createMenus()
 {
     auto *fileMenu = menuBar()->addMenu(tr("&File"));
-
-    auto *quickAct = new QAction(tr("&Quick Connect..."), this);
-    quickAct->setShortcut(QKeySequence(tr("Ctrl+N")));
-    connect(quickAct, &QAction::triggered, this, &MainWindow::openQuickConnect);
-    fileMenu->addAction(quickAct);
-
-    fileMenu->addSeparator();
 
     m_actCloseTab = new QAction(tr("&Close tab"), this);
     m_actCloseTab->setShortcut(QKeySequence(tr("Ctrl+W")));
@@ -573,10 +566,16 @@ void MainWindow::rebuildSessionsMenu()
         return;
     m_sessionsMenu->clear();
 
-    auto *newAct = new QAction(tr("&New session..."), this);
+    auto *newAct = new QAction(tr("&New"), this);
     newAct->setShortcut(QKeySequence(tr("Ctrl+Shift+N")));
     connect(newAct, &QAction::triggered, this, &MainWindow::newSession);
     m_sessionsMenu->addAction(newAct);
+
+    auto *mgrAct = new QAction(tr("&Sessions..."), this);
+    mgrAct->setShortcut(QKeySequence(tr("Ctrl+Shift+M")));
+    connect(mgrAct, &QAction::triggered, this, &MainWindow::showSessionManagerDialog);
+    m_sessionsMenu->addAction(mgrAct);
+
     m_sessionsMenu->addSeparator();
 
     if (m_profile.session_count == 0) {
@@ -646,33 +645,6 @@ void MainWindow::openBroadcastDialog()
         tr("Broadcast sent to %1 session(s).").arg(sentTo), 3000);
 }
 
-void MainWindow::openQuickConnect()
-{
-    QuickConnectDialog dlg(this);
-    if (dlg.exec() != QDialog::Accepted) return;
-
-    session_entry_t entry = dlg.entry();
-    if (entry.type == SESSION_TYPE_SSH) {
-        if (entry.ssh.host[0] == '\0' || entry.ssh.username[0] == '\0') {
-            QMessageBox::warning(this, tr("Quick Connect"),
-                tr("Host and username are required."));
-            return;
-        }
-    } else {
-        if (entry.serial.device[0] == '\0') {
-            QMessageBox::warning(this, tr("Quick Connect"),
-                tr("Device (e.g. COM3) is required."));
-            return;
-        }
-    }
-
-    // Persist to profile so the session is reusable from Session Manager,
-    // even if the connection later fails.
-    appendSessionToProfile(entry);
-
-    openAdHoc(entry);
-}
-
 bool MainWindow::appendSessionToProfile(session_entry_t entry)
 {
     if (m_profile.session_count >= MAX_SESSIONS) {
@@ -737,52 +709,6 @@ void MainWindow::newSession()
         statusBar()->showMessage(
             tr("Session \"%1\" saved.").arg(QString::fromLocal8Bit(s.name)),
             2500);
-}
-
-void MainWindow::openAdHoc(const session_entry_t &entry)
-{
-    const QString name = QString::fromLocal8Bit(entry.name);
-
-    ISession *session = nullptr;
-    if (entry.type == SESSION_TYPE_SSH) {
-        session = new SshSession(entry.ssh, name);
-    } else {
-        session = new SerialSession(entry.serial, name);
-    }
-
-    auto *tab = new tscrt::SessionTab(session, m_profile, entry, m_tabs);
-    if (entry.type == SESSION_TYPE_SSH) {
-        tab->setProperty("tscrtProto", QStringLiteral("SSH"));
-        tab->setProperty("tscrtHost",
-            QStringLiteral("%1@%2:%3")
-                .arg(QString::fromLocal8Bit(entry.ssh.username),
-                     QString::fromLocal8Bit(entry.ssh.host))
-                .arg(entry.ssh.port));
-    } else {
-        tab->setProperty("tscrtProto", QStringLiteral("Serial"));
-        tab->setProperty("tscrtHost",
-            QStringLiteral("%1 %2")
-                .arg(QString::fromLocal8Bit(entry.serial.device))
-                .arg(entry.serial.baudrate));
-    }
-
-    connect(session, &ISession::connecting, this, [this, name] {
-        statusBar()->showMessage(tr("Connecting to %1...").arg(name));
-    });
-    connect(session, &ISession::connected, this, [this, name] {
-        statusBar()->showMessage(tr("Connected: %1").arg(name), 3000);
-    });
-    connect(session, &ISession::errorOccurred, this, [this](const QString &msg) {
-        QMessageBox::warning(this, tr("Session error"), msg);
-    });
-    connect(session, &ISession::disconnected, this, [this, name](const QString &reason) {
-        statusBar()->showMessage(tr("Disconnected: %1 (%2)").arg(name, reason), 5000);
-    });
-
-    const int idx = m_tabs->addTab(tab, name);
-    m_tabs->setCurrentIndex(idx);
-    session->resize(tab->terminal()->cols(), tab->terminal()->rows());
-    session->start();
 }
 
 void MainWindow::openSessionByIndex(int profileIndex)
@@ -866,6 +792,23 @@ void MainWindow::showSettingsDialog()
         rebuildSessionsMenu();
         rebuildSessionTree();
         statusBar()->showMessage(tr("Preferences saved."), 2500);
+    }
+}
+
+void MainWindow::showSessionManagerDialog()
+{
+    SessionManagerDialog dlg(m_profile, this);
+    if (dlg.exec() == QDialog::Accepted) {
+        m_profile = dlg.profile();
+        if (profile_save(&m_profile) != 0) {
+            QMessageBox::warning(this, tr("Save failed"),
+                tr("Could not write profile to:\n%1")
+                    .arg(QString::fromLocal8Bit(m_profile.profile_path)));
+            return;
+        }
+        rebuildSessionsMenu();
+        rebuildSessionTree();
+        statusBar()->showMessage(tr("Sessions saved."), 2500);
     }
 }
 

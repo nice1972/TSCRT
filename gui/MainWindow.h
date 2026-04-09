@@ -33,16 +33,15 @@ protected:
 
 public slots:
     void openSessionByIndex(int profileIndex);
-    void openQuickConnect();
     void openBroadcastDialog();
     void closeCurrentTab();
     void newSession();
+    void showSessionManagerDialog();
     void showSettingsDialog();
     void showAboutDialog();
     void setUiLanguage(const QString &langCode);
 
 private:
-    void openAdHoc(const session_entry_t &entry);
     bool appendSessionToProfile(session_entry_t entry);
 
 private slots:

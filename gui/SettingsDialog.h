@@ -3,11 +3,12 @@
  *
  * Tabs:
  *   Common    : log_dir, terminal_type, encoding, scrollback
- *   Sessions  : list with Add/Edit/Delete (uses SessionEditDialog)
  *   Buttons   : 20 slots (label + action)
  *   Startup   : per-session startup commands
  *   Triggers  : per-session pattern -> action
  *   Periodic  : per-session interval task
+ *
+ * (Sessions live in their own SessionManagerDialog now.)
  *
  * Operates on a copy of profile_t. Caller calls profile() after exec()
  * returns Accepted, then writes via profile_save().
@@ -20,7 +21,6 @@
 
 class QComboBox;
 class QLineEdit;
-class QListWidget;
 class QSpinBox;
 class QTableWidget;
 class QTabWidget;
@@ -33,11 +33,6 @@ public:
     profile_t profile() const { return m_p; }
 
 private slots:
-    void addSession();
-    void editSession();
-    void deleteSession();
-    void refreshSessionList();
-
     void addStartup();
     void deleteStartup();
 
@@ -51,7 +46,6 @@ private slots:
 
 private:
     QWidget *buildCommonTab();
-    QWidget *buildSessionsTab();
     QWidget *buildButtonsTab();
     QWidget *buildStartupTab();
     QWidget *buildTriggersTab();
@@ -74,9 +68,6 @@ private:
     QLineEdit       *m_termType     = nullptr;
     QLineEdit       *m_encoding     = nullptr;
     QSpinBox        *m_scrollback   = nullptr;
-
-    // Sessions
-    QListWidget     *m_sessionList  = nullptr;
 
     // Buttons (20 rows)
     QTableWidget    *m_btnTable     = nullptr;

@@ -41,6 +41,8 @@ set(GUI_SOURCES
     gui/TerminalWidget.cpp
     gui/SessionEditDialog.h
     gui/SessionEditDialog.cpp
+    gui/SessionManagerDialog.h
+    gui/SessionManagerDialog.cpp
     gui/SettingsDialog.h
     gui/SettingsDialog.cpp
     gui/Logging.h
@@ -57,8 +59,6 @@ set(GUI_SOURCES
     gui/ButtonBar.cpp
     gui/SessionTab.h
     gui/SessionTab.cpp
-    gui/QuickConnectDialog.h
-    gui/QuickConnectDialog.cpp
     gui/BroadcastDialog.h
     gui/BroadcastDialog.cpp
 )

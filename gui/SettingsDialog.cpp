@@ -1,6 +1,4 @@
 #include "SettingsDialog.h"
-#include "Credentials.h"
-#include "SessionEditDialog.h"
 
 #include <QComboBox>
 #include <QDialogButtonBox>
@@ -10,7 +8,6 @@
 #include <QInputDialog>
 #include <QLabel>
 #include <QLineEdit>
-#include <QListWidget>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSpinBox>
@@ -48,7 +45,6 @@ SettingsDialog::SettingsDialog(const profile_t &initial, QWidget *parent)
     auto *root = new QVBoxLayout(this);
     auto *tabs = new QTabWidget(this);
     tabs->addTab(buildCommonTab(),   tr("Common"));
-    tabs->addTab(buildSessionsTab(), tr("Sessions"));
     tabs->addTab(buildButtonsTab(),  tr("Buttons"));
     tabs->addTab(buildStartupTab(),  tr("Startup"));
     tabs->addTab(buildTriggersTab(), tr("Triggers"));
@@ -89,143 +85,6 @@ void SettingsDialog::commitCommon()
     setStr(m_p.common.terminal_type, sizeof(m_p.common.terminal_type), m_termType->text());
     setStr(m_p.common.encoding,      sizeof(m_p.common.encoding),      m_encoding->text());
     m_p.common.scrollback = m_scrollback->value();
-}
-
-// ---- Sessions ------------------------------------------------------------
-
-QWidget *SettingsDialog::buildSessionsTab()
-{
-    auto *page = new QWidget(this);
-    auto *root = new QHBoxLayout(page);
-
-    m_sessionList = new QListWidget(page);
-    refreshSessionList();
-    root->addWidget(m_sessionList, 1);
-
-    auto *bcol = new QVBoxLayout;
-    auto *addBtn = new QPushButton(tr("&Add..."),    page);
-    auto *editBtn = new QPushButton(tr("&Edit..."),  page);
-    auto *delBtn = new QPushButton(tr("&Delete"),    page);
-    bcol->addWidget(addBtn);
-    bcol->addWidget(editBtn);
-    bcol->addWidget(delBtn);
-    bcol->addStretch();
-    root->addLayout(bcol);
-
-    connect(addBtn,  &QPushButton::clicked, this, &SettingsDialog::addSession);
-    connect(editBtn, &QPushButton::clicked, this, &SettingsDialog::editSession);
-    connect(delBtn,  &QPushButton::clicked, this, &SettingsDialog::deleteSession);
-    connect(m_sessionList, &QListWidget::itemDoubleClicked,
-            this, &SettingsDialog::editSession);
-    return page;
-}
-
-void SettingsDialog::refreshSessionList()
-{
-    if (!m_sessionList) return;
-    m_sessionList->clear();
-    for (int i = 0; i < m_p.session_count; ++i) {
-        const session_entry_t &s = m_p.sessions[i];
-        QString line;
-        if (s.type == SESSION_TYPE_SSH) {
-            line = tr("[SSH] %1  ·  %2@%3:%4")
-                       .arg(fromCStr(s.name), fromCStr(s.ssh.username),
-                            fromCStr(s.ssh.host))
-                       .arg(s.ssh.port);
-        } else {
-            line = tr("[Serial] %1  ·  %2 @ %3 baud")
-                       .arg(fromCStr(s.name), fromCStr(s.serial.device))
-                       .arg(s.serial.baudrate);
-        }
-        m_sessionList->addItem(line);
-    }
-}
-
-void SettingsDialog::addSession()
-{
-    if (m_p.session_count >= MAX_SESSIONS) {
-        QMessageBox::warning(this, tr("Limit reached"),
-            tr("Maximum number of sessions (%1) reached.").arg(MAX_SESSIONS));
-        return;
-    }
-    SessionEditDialog dlg(this);
-    session_entry_t blank;
-    memset(&blank, 0, sizeof(blank));
-    blank.type = SESSION_TYPE_SSH;
-    blank.ssh.port = 22;
-    dlg.setSession(blank);
-    if (dlg.exec() == QDialog::Accepted) {
-        session_entry_t s = dlg.session();
-        if (s.name[0] == '\0') {
-            QMessageBox::warning(this, tr("Invalid"), tr("Session name is required."));
-            return;
-        }
-        // Encrypt password before persisting (DPAPI)
-        if (s.type == SESSION_TYPE_SSH && s.ssh.password[0]) {
-            const QString enc = tscrt::encryptSecret(
-                QString::fromLocal8Bit(s.ssh.password));
-            const QByteArray b = enc.toLocal8Bit();
-            const int n = qMin<int>(int(sizeof(s.ssh.password)) - 1, b.size());
-            memcpy(s.ssh.password, b.constData(), n);
-            s.ssh.password[n] = '\0';
-        }
-        m_p.sessions[m_p.session_count++] = s;
-        refreshSessionList();
-        // Refresh per-session combos
-        if (m_startSess) m_startSess->addItem(fromCStr(s.name));
-        if (m_trigSess)  m_trigSess->addItem(fromCStr(s.name));
-        if (m_perSess)   m_perSess->addItem(fromCStr(s.name));
-    }
-}
-
-void SettingsDialog::editSession()
-{
-    int idx = m_sessionList->currentRow();
-    if (idx < 0 || idx >= m_p.session_count) return;
-    SessionEditDialog dlg(this);
-
-    // Decrypt for editing
-    session_entry_t edit = m_p.sessions[idx];
-    if (edit.type == SESSION_TYPE_SSH && edit.ssh.password[0]) {
-        const QString plain = tscrt::decryptSecret(
-            QString::fromLocal8Bit(edit.ssh.password));
-        const QByteArray b = plain.toLocal8Bit();
-        const int n = qMin<int>(int(sizeof(edit.ssh.password)) - 1, b.size());
-        memcpy(edit.ssh.password, b.constData(), n);
-        edit.ssh.password[n] = '\0';
-    }
-    dlg.setSession(edit);
-
-    if (dlg.exec() == QDialog::Accepted) {
-        session_entry_t s = dlg.session();
-        // Re-encrypt
-        if (s.type == SESSION_TYPE_SSH && s.ssh.password[0]) {
-            const QString enc = tscrt::encryptSecret(
-                QString::fromLocal8Bit(s.ssh.password));
-            const QByteArray b = enc.toLocal8Bit();
-            const int n = qMin<int>(int(sizeof(s.ssh.password)) - 1, b.size());
-            memcpy(s.ssh.password, b.constData(), n);
-            s.ssh.password[n] = '\0';
-        }
-        m_p.sessions[idx] = s;
-        refreshSessionList();
-    }
-}
-
-void SettingsDialog::deleteSession()
-{
-    int idx = m_sessionList->currentRow();
-    if (idx < 0 || idx >= m_p.session_count) return;
-    if (QMessageBox::question(this, tr("Delete session"),
-            tr("Delete session \"%1\"?")
-                .arg(fromCStr(m_p.sessions[idx].name))) != QMessageBox::Yes)
-        return;
-    if (idx < m_p.session_count - 1) {
-        memmove(&m_p.sessions[idx], &m_p.sessions[idx + 1],
-                (m_p.session_count - idx - 1) * sizeof(session_entry_t));
-    }
-    m_p.session_count--;
-    refreshSessionList();
 }
 
 // ---- Buttons -------------------------------------------------------------
