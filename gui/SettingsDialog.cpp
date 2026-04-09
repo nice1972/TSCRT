@@ -2,6 +2,8 @@
 
 #include <QComboBox>
 #include <QDialogButtonBox>
+#include <QDir>
+#include <QFileDialog>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
@@ -72,7 +74,17 @@ QWidget *SettingsDialog::buildCommonTab()
     m_scrollback->setRange(0, 10'000'000);
     m_scrollback->setValue(m_p.common.scrollback);
 
-    form->addRow(tr("Log directory:"), m_logDir);
+    auto *logRow = new QHBoxLayout;
+    logRow->addWidget(m_logDir, 1);
+    auto *logBrowse = new QPushButton(tr("Browse..."), page);
+    logRow->addWidget(logBrowse);
+    connect(logBrowse, &QPushButton::clicked, this, [this] {
+        const QString d = QFileDialog::getExistingDirectory(this,
+            tr("Session log directory"), m_logDir->text());
+        if (!d.isEmpty())
+            m_logDir->setText(QDir::toNativeSeparators(d));
+    });
+    form->addRow(tr("Session log directory:"), logRow);
     form->addRow(tr("Terminal type:"), m_termType);
     form->addRow(tr("Encoding:"),      m_encoding);
     form->addRow(tr("Scrollback:"),    m_scrollback);

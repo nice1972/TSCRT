@@ -11,6 +11,26 @@
 #include <shlobj.h>
 
 static char g_home_buf[MAX_PATH_LEN];
+static char g_docs_buf[MAX_PATH_LEN];
+
+const char *tscrt_get_documents_dir(void)
+{
+    if (g_docs_buf[0])
+        return g_docs_buf;
+
+    char path[MAX_PATH];
+    if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, path))) {
+        snprintf(g_docs_buf, sizeof(g_docs_buf), "%s", path);
+        return g_docs_buf;
+    }
+
+    const char *userprofile = getenv("USERPROFILE");
+    if (userprofile && *userprofile)
+        snprintf(g_docs_buf, sizeof(g_docs_buf), "%s\\Documents", userprofile);
+    else
+        snprintf(g_docs_buf, sizeof(g_docs_buf), "C:\\");
+    return g_docs_buf;
+}
 
 const char *tscrt_get_home(void)
 {

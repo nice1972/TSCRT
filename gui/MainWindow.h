@@ -33,7 +33,6 @@ protected:
 
 public slots:
     void openSessionByIndex(int profileIndex);
-    void openBroadcastDialog();
     void closeCurrentTab();
     void newSession();
     void showSessionManagerDialog();

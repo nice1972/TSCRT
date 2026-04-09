@@ -122,6 +122,7 @@ typedef struct {
 typedef struct {
     char            name[MAX_NAME_LEN];
     session_type_t  type;
+    int             log_enabled;        /* 1 = write per-session log file */
     union {
         ssh_config_t    ssh;
         serial_config_t serial;
@@ -175,6 +176,7 @@ extern "C" {
 
 /* Implemented in core/platform_win.c (or platform_posix.c). */
 const char *tscrt_get_home(void);
+const char *tscrt_get_documents_dir(void);               /* My Documents on Windows */
 int         tscrt_ensure_dir(const char *path);
 int         tscrt_set_private_perms(const char *path);   /* no-op on Windows */
 

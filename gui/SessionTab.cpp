@@ -3,6 +3,7 @@
 #include "AutomationEngine.h"
 #include "ButtonBar.h"
 #include "ISession.h"
+#include "SessionLogger.h"
 #include "TerminalWidget.h"
 
 #include <QInputDialog>
@@ -26,6 +27,18 @@ SessionTab::SessionTab(ISession *session, const profile_t &profile,
 
     // Engine listens to the session backend
     m_engine = new AutomationEngine(session, profile, m_displayName, this);
+
+    // Per-session output log (file in profile.common.log_dir).
+    if (entry.log_enabled) {
+        const QString host = (entry.type == SESSION_TYPE_SSH)
+            ? QString::fromLocal8Bit(entry.ssh.host)
+            : QString::fromLocal8Bit(entry.serial.device);
+        m_logger = new ::SessionLogger(
+            QString::fromLocal8Bit(profile.common.log_dir),
+            m_displayName, host, this);
+        connect(session, &ISession::bytesReceived,
+                m_logger, &::SessionLogger::onBytesReceived);
+    }
 
     // Wire data flow:
     //   session -> terminal     (queued: GUI thread runs the event loop)
@@ -93,11 +106,10 @@ void SessionTab::onLoopRequested()
 
 void SessionTab::onHelpRequested()
 {
-    QMessageBox::information(this, tr("tscrt help"),
+    QMessageBox::information(this, tr("TSCRT help"),
         tr("<h3>Quick reference</h3>"
            "<ul>"
            "<li>Bottom buttons send their action when clicked.</li>"
-           "<li><b>cmd</b> opens the broadcast command window.</li>"
            "<li><b>loop</b> repeats a command on an interval.</li>"
            "<li><b>mark</b> highlights a substring in incoming output.</li>"
            "<li>Resize the window to update the remote PTY size.</li>"

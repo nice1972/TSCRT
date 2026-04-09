@@ -10,6 +10,7 @@
 
 #include <QDialog>
 
+class QCheckBox;
 class QComboBox;
 class QLineEdit;
 class QSpinBox;
@@ -32,6 +33,7 @@ private:
 
     QLineEdit      *m_name      = nullptr;
     QComboBox      *m_type      = nullptr;
+    QCheckBox      *m_logEnable = nullptr;
     QStackedWidget *m_stack     = nullptr;
 
     // SSH fields

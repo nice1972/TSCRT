@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     const QString lastDump = tscrt::findLastCrashDump();
     if (!lastDump.isEmpty()) {
         const auto choice = QMessageBox::question(nullptr,
-            QObject::tr("tscrt - Crash report"),
+            QObject::tr("TSCRT - Crash report"),
             QObject::tr("A crash report from a previous run was found:\n%1\n\n"
                         "Would you like to keep it for inspection?")
                 .arg(QFileInfo(lastDump).fileName()),

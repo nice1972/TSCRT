@@ -13,6 +13,7 @@
 #include <QWidget>
 
 class ISession;
+class SessionLogger;
 class TerminalWidget;
 
 namespace tscrt {
@@ -43,6 +44,7 @@ private:
     ButtonBar        *m_buttons = nullptr;
     AutomationEngine *m_engine  = nullptr;
     ISession         *m_session = nullptr;
+    ::SessionLogger  *m_logger  = nullptr;
     QString           m_displayName;
 };
 

@@ -41,6 +41,8 @@ set(GUI_SOURCES
     gui/TerminalWidget.cpp
     gui/SessionEditDialog.h
     gui/SessionEditDialog.cpp
+    gui/SessionLogger.h
+    gui/SessionLogger.cpp
     gui/SessionManagerDialog.h
     gui/SessionManagerDialog.cpp
     gui/SettingsDialog.h
@@ -59,8 +61,6 @@ set(GUI_SOURCES
     gui/ButtonBar.cpp
     gui/SessionTab.h
     gui/SessionTab.cpp
-    gui/BroadcastDialog.h
-    gui/BroadcastDialog.cpp
 )
 
 set(WIN_RESOURCES

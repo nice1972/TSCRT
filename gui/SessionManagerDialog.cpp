@@ -56,10 +56,10 @@ SessionManagerDialog::SessionManagerDialog(const profile_t &initial, QWidget *pa
     auto *root = new QVBoxLayout(this);
 
     m_table = new QTreeWidget(this);
-    m_table->setColumnCount(6);
+    m_table->setColumnCount(7);
     m_table->setHeaderLabels(
         { tr("Name"), tr("Type"), tr("Host / Device"),
-          tr("Port / Baud"), tr("User"), tr("Key file") });
+          tr("Port / Baud"), tr("User"), tr("Key file"), tr("Log") });
     m_table->setRootIsDecorated(false);
     m_table->setUniformRowHeights(true);
     m_table->setAllColumnsShowFocus(true);
@@ -121,6 +121,7 @@ void SessionManagerDialog::rebuildTable()
     m_table->clear();
     for (int i = 0; i < m_p.session_count; ++i) {
         const session_entry_t &s = m_p.sessions[i];
+        const QString logCol = s.log_enabled ? tr("on") : tr("off");
         QStringList cols;
         if (s.type == SESSION_TYPE_SSH) {
             cols << fromCStr(s.name)
@@ -128,14 +129,16 @@ void SessionManagerDialog::rebuildTable()
                  << fromCStr(s.ssh.host)
                  << QString::number(s.ssh.port)
                  << fromCStr(s.ssh.username)
-                 << fromCStr(s.ssh.keyfile);
+                 << fromCStr(s.ssh.keyfile)
+                 << logCol;
         } else {
             cols << fromCStr(s.name)
                  << QStringLiteral("Serial")
                  << fromCStr(s.serial.device)
                  << QString::number(s.serial.baudrate)
                  << QString()
-                 << QString();
+                 << QString()
+                 << logCol;
         }
         new QTreeWidgetItem(m_table, cols);
     }
@@ -174,8 +177,9 @@ void SessionManagerDialog::addSession()
     SessionEditDialog dlg(this);
     session_entry_t blank;
     memset(&blank, 0, sizeof(blank));
-    blank.type = SESSION_TYPE_SSH;
-    blank.ssh.port = 22;
+    blank.type        = SESSION_TYPE_SSH;
+    blank.log_enabled = 1;
+    blank.ssh.port    = 22;
     dlg.setSession(blank);
     if (dlg.exec() != QDialog::Accepted) return;
 

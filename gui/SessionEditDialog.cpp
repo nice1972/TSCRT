@@ -1,5 +1,6 @@
 #include "SessionEditDialog.h"
 
+#include <QCheckBox>
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QFileDialog>
@@ -46,6 +47,11 @@ void SessionEditDialog::buildUi()
     m_type->addItem(tr("SSH"),    int(SESSION_TYPE_SSH));
     m_type->addItem(tr("Serial"), int(SESSION_TYPE_SERIAL));
     header->addRow(tr("&Type:"), m_type);
+
+    m_logEnable = new QCheckBox(tr("Save session log"), this);
+    m_logEnable->setChecked(true);
+    header->addRow(QString(), m_logEnable);
+
     root->addLayout(header);
 
     m_stack = new QStackedWidget(this);
@@ -152,6 +158,7 @@ void SessionEditDialog::setSession(const session_entry_t &s)
 {
     m_name->setText(QString::fromLocal8Bit(s.name));
     m_type->setCurrentIndex(m_type->findData(int(s.type)));
+    m_logEnable->setChecked(s.log_enabled != 0);
 
     if (s.type == SESSION_TYPE_SSH) {
         m_sshHost->setText(QString::fromLocal8Bit(s.ssh.host));
@@ -174,7 +181,8 @@ session_entry_t SessionEditDialog::session() const
     session_entry_t s;
     memset(&s, 0, sizeof(s));
     setStr(s.name, sizeof(s.name), m_name->text());
-    s.type = session_type_t(m_type->currentData().toInt());
+    s.type        = session_type_t(m_type->currentData().toInt());
+    s.log_enabled = m_logEnable->isChecked() ? 1 : 0;
 
     if (s.type == SESSION_TYPE_SSH) {
         setStr(s.ssh.host,     sizeof(s.ssh.host),     m_sshHost->text());

@@ -1,7 +1,5 @@
 #include "MainWindow.h"
 
-#include "ActionParser.h"
-#include "BroadcastDialog.h"
 #include "ButtonBar.h"
 #include "Credentials.h"
 #include "ISession.h"
@@ -173,12 +171,6 @@ void MainWindow::createMenus()
             this, &MainWindow::toggleStatusBar);
     viewMenu->addAction(m_actViewStatus);
 
-    auto *toolsMenu = menuBar()->addMenu(tr("&Tools"));
-    auto *bcastAct = new QAction(tr("&Broadcast..."), this);
-    bcastAct->setShortcut(QKeySequence(tr("Ctrl+B")));
-    connect(bcastAct, &QAction::triggered, this, &MainWindow::openBroadcastDialog);
-    toolsMenu->addAction(bcastAct);
-
     auto *settingsMenu = menuBar()->addMenu(tr("Se&ttings"));
     m_actSettings = new QAction(tr("&Preferences..."), this);
     m_actSettings->setShortcut(QKeySequence(tr("Ctrl+,")));
@@ -215,7 +207,7 @@ void MainWindow::createMenus()
     settingsMenu->addAction(m_actReload);
 
     auto *helpMenu = menuBar()->addMenu(tr("&Help"));
-    m_actAbout = new QAction(tr("&About tscrt..."), this);
+    m_actAbout = new QAction(tr("&About TSCRT..."), this);
     connect(m_actAbout, &QAction::triggered, this, &MainWindow::showAboutDialog);
     helpMenu->addAction(m_actAbout);
 }
@@ -608,43 +600,6 @@ void MainWindow::rebuildSessionsMenu()
     }
 }
 
-void MainWindow::openBroadcastDialog()
-{
-    QVector<tscrt::BroadcastDialog::Target> targets;
-    for (int i = 0; i < m_tabs->count(); ++i) {
-        auto *tab = qobject_cast<tscrt::SessionTab *>(m_tabs->widget(i));
-        if (!tab || !tab->session()) continue;
-        targets.push_back({ i, tab->displayName() });
-    }
-    if (targets.isEmpty()) {
-        QMessageBox::information(this, tr("Broadcast"),
-            tr("No open session tabs to broadcast to."));
-        return;
-    }
-
-    tscrt::BroadcastDialog dlg(targets, this);
-    if (dlg.exec() != QDialog::Accepted) return;
-
-    const QString action = dlg.actionString();
-    if (action.isEmpty()) return;
-
-    const auto chunks = tscrt::parseAction(action);
-    int sentTo = 0;
-    for (int idx : dlg.selectedTabs()) {
-        auto *tab = qobject_cast<tscrt::SessionTab *>(m_tabs->widget(idx));
-        if (!tab || !tab->session()) continue;
-        for (const auto &c : chunks) {
-            if (!c.bytes.isEmpty())
-                QMetaObject::invokeMethod(tab->session(), "sendBytes",
-                                          Qt::QueuedConnection,
-                                          Q_ARG(QByteArray, c.bytes));
-        }
-        ++sentTo;
-    }
-    statusBar()->showMessage(
-        tr("Broadcast sent to %1 session(s).").arg(sentTo), 3000);
-}
-
 bool MainWindow::appendSessionToProfile(session_entry_t entry)
 {
     if (m_profile.session_count >= MAX_SESSIONS) {
@@ -682,7 +637,8 @@ void MainWindow::newSession()
 {
     SessionEditDialog dlg(this);
     session_entry_t blank{};
-    blank.type = SESSION_TYPE_SSH;
+    blank.type        = SESSION_TYPE_SSH;
+    blank.log_enabled = 1;
     snprintf(blank.name, sizeof(blank.name), "%s", "New Session");
     blank.ssh.port = 22;
     dlg.setSession(blank);
@@ -857,7 +813,7 @@ void MainWindow::showAboutDialog()
         "<p><b>Version %1</b><br/>"
         "Built %2</p>"
         "<p>A SecureCRT-style terminal emulator for SSH2 and serial "
-        "consoles, ported from the Linux <code>tscrt</code> project.</p>"
+        "consoles.</p>"
         "<p style=\"color:#888;\">"
         "Qt %3 &middot; libssh2 %4 &middot; libvterm %5.%6"
         "</p>")
