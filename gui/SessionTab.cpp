@@ -28,15 +28,21 @@ SessionTab::SessionTab(ISession *session, const profile_t &profile,
     m_engine = new AutomationEngine(session, profile, m_displayName, this);
 
     // Wire data flow:
-    //   session -> terminal
-    //   terminal -> session (input)
-    //   terminal -> session (resize)
+    //   session -> terminal     (queued: GUI thread runs the event loop)
+    //   terminal -> session     (DIRECT: the worker thread is stuck in a
+    //                            tight read/write loop and never pumps its
+    //                            event loop, so a queued sendBytes/resize
+    //                            would never be delivered. Both target
+    //                            slots are mutex-protected, so calling them
+    //                            directly from the GUI thread is safe.)
     connect(session, &ISession::bytesReceived,
             m_term, &TerminalWidget::feedBytes);
     connect(m_term, &TerminalWidget::outputBytes,
-            session, &ISession::sendBytes);
+            session, &ISession::sendBytes,
+            Qt::DirectConnection);
     connect(m_term, &TerminalWidget::gridResized,
-            session, &ISession::resize);
+            session, &ISession::resize,
+            Qt::DirectConnection);
 
     // Take parent ownership of the session so it dies with the tab.
     if (session && session->parent() != this)
