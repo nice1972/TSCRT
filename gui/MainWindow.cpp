@@ -220,8 +220,6 @@ void MainWindow::createSessionDock()
         "QTreeWidget::item:hover { background:#2a2a2a; }"));
     connect(m_sessionTree, &QTreeWidget::itemActivated,
             this, &MainWindow::onSessionTreeActivated);
-    connect(m_sessionTree, &QTreeWidget::itemDoubleClicked,
-            this, &MainWindow::onSessionTreeActivated);
 
     m_sessionDock->setWidget(m_sessionTree);
     addDockWidget(Qt::LeftDockWidgetArea, m_sessionDock);
