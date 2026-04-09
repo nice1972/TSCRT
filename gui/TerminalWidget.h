@@ -22,6 +22,8 @@
 #include <QSize>
 #include <QString>
 #include <QTimer>
+#include <QVector>
+#include <vector>
 
 #include <vterm.h>
 
@@ -69,6 +71,8 @@ signals:
 protected:
     void paintEvent(QPaintEvent *event)        override;
     void resizeEvent(QResizeEvent *event)      override;
+    void wheelEvent(QWheelEvent *event)        override;
+    void scrollContentsBy(int dx, int dy)      override;
     void keyPressEvent(QKeyEvent *event)       override;
     void inputMethodEvent(QInputMethodEvent *) override;
     void mousePressEvent(QMouseEvent *e)       override;
@@ -88,6 +92,9 @@ public:
     static int  s_settermprop(VTermProp prop, VTermValue *val, void *user);
     static int  s_bell(void *user);
     static void s_outputCallback(const char *s, size_t len, void *user);
+    static int  s_sbPushline(int cols, const VTermScreenCell *cells, void *user);
+    static int  s_sbPopline (int cols,       VTermScreenCell *cells, void *user);
+    static int  s_sbClear   (void *user);
 
 private:
     struct GridPos {
@@ -137,4 +144,15 @@ private:
 
     // Highlight (mark) pattern
     QString       m_highlight;
+
+    // Scrollback. Each entry is one screen-wide line of cells; new lines
+    // (the most recent rolled-off content) are appended to the back.
+    // m_scrollOffset > 0 means the user has scrolled up by that many
+    // lines; 0 means follow the live screen.
+    std::vector<std::vector<VTermScreenCell>> m_scrollback;
+    int           m_scrollMax    = 10000;
+    int           m_scrollOffset = 0;
+
+    void updateScrollBarRange();
+    void scrollToBottom();
 };

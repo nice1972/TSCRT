@@ -45,9 +45,9 @@ const VTermScreenCallbacks kScreenCallbacks = {
     /* settermprop */ &TerminalWidget::s_settermprop,
     /* bell        */ &TerminalWidget::s_bell,
     /* resize      */ nullptr,
-    /* sb_pushline */ nullptr,
-    /* sb_popline  */ nullptr,
-    /* sb_clear    */ nullptr,
+    /* sb_pushline */ &TerminalWidget::s_sbPushline,
+    /* sb_popline  */ &TerminalWidget::s_sbPopline,
+    /* sb_clear    */ &TerminalWidget::s_sbClear,
 };
 
 } // namespace
@@ -62,6 +62,8 @@ TerminalWidget::TerminalWidget(QWidget *parent)
     setAccessibleDescription(tr("Interactive terminal session"));
 
     horizontalScrollBar()->setVisible(false);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    verticalScrollBar()->setSingleStep(1);
 
     m_font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     m_font.setPointSize(11);
@@ -199,6 +201,84 @@ void TerminalWidget::s_outputCallback(const char *s, size_t len, void *user)
     self->writeOut(s, len);
 }
 
+int TerminalWidget::s_sbPushline(int cols, const VTermScreenCell *cells, void *user)
+{
+    auto *self = static_cast<TerminalWidget *>(user);
+    const bool wasAtBottom = (self->m_scrollOffset == 0);
+    std::vector<VTermScreenCell> line(cells, cells + cols);
+    self->m_scrollback.push_back(std::move(line));
+    if (int(self->m_scrollback.size()) > self->m_scrollMax)
+        self->m_scrollback.erase(self->m_scrollback.begin());
+    self->updateScrollBarRange();
+    if (wasAtBottom) self->scrollToBottom();
+    self->scheduleRepaint();
+    return 1;
+}
+
+int TerminalWidget::s_sbPopline(int cols, VTermScreenCell *cells, void *user)
+{
+    auto *self = static_cast<TerminalWidget *>(user);
+    if (self->m_scrollback.empty()) return 0;
+    const auto &line = self->m_scrollback.back();
+    const int n = std::min(cols, int(line.size()));
+    for (int i = 0; i < n; ++i) cells[i] = line[i];
+    // Pad missing columns with the last cell's blank attributes.
+    for (int i = n; i < cols; ++i) {
+        VTermScreenCell blank{};
+        cells[i] = blank;
+    }
+    self->m_scrollback.pop_back();
+    self->updateScrollBarRange();
+    self->scheduleRepaint();
+    return 1;
+}
+
+int TerminalWidget::s_sbClear(void *user)
+{
+    auto *self = static_cast<TerminalWidget *>(user);
+    self->m_scrollback.clear();
+    self->m_scrollOffset = 0;
+    self->updateScrollBarRange();
+    self->scheduleRepaint();
+    return 1;
+}
+
+void TerminalWidget::updateScrollBarRange()
+{
+    auto *sb = verticalScrollBar();
+    const int max = int(m_scrollback.size());
+    sb->setRange(0, max);
+    sb->setPageStep(m_rows);
+    // Translate m_scrollOffset (lines above bottom) to scrollbar value.
+    // Convention: value 0 = top of scrollback, value max = bottom (live).
+    sb->blockSignals(true);
+    sb->setValue(max - m_scrollOffset);
+    sb->blockSignals(false);
+}
+
+void TerminalWidget::scrollToBottom()
+{
+    m_scrollOffset = 0;
+    auto *sb = verticalScrollBar();
+    sb->blockSignals(true);
+    sb->setValue(sb->maximum());
+    sb->blockSignals(false);
+}
+
+void TerminalWidget::wheelEvent(QWheelEvent *event)
+{
+    QAbstractScrollArea::wheelEvent(event);
+}
+
+void TerminalWidget::scrollContentsBy(int /*dx*/, int /*dy*/)
+{
+    const int max = int(m_scrollback.size());
+    m_scrollOffset = max - verticalScrollBar()->value();
+    if (m_scrollOffset < 0)        m_scrollOffset = 0;
+    if (m_scrollOffset > max)      m_scrollOffset = max;
+    viewport()->update();
+}
+
 void TerminalWidget::writeOut(const char *buf, size_t len)
 {
     emit outputBytes(QByteArray(buf, static_cast<int>(len)));
@@ -327,12 +407,30 @@ void TerminalWidget::paintEvent(QPaintEvent * /*event*/)
 
     p.setFont(m_font);
 
+    const int sbCount = int(m_scrollback.size());
+
     for (int row = 0; row < m_rows; ++row) {
         for (int col = 0; col < m_cols; ++col) {
-            VTermPos     pos { row, col };
-            VTermScreenCell cell;
-            if (!vterm_screen_get_cell(m_screen, pos, &cell))
+            // Map this visible row to either a scrollback line or a
+            // current-screen row, taking m_scrollOffset into account.
+            // logical_index runs from 0 (oldest scrollback) to
+            // sbCount + m_rows - 1 (bottom of live screen).
+            const int bottomLogical = sbCount + m_rows - 1 - m_scrollOffset;
+            const int logical       = bottomLogical - (m_rows - 1 - row);
+
+            VTermScreenCell cell{};
+            if (logical < 0) {
+                // Above the start of scrollback — leave background.
                 continue;
+            } else if (logical < sbCount) {
+                const auto &line = m_scrollback[logical];
+                if (col >= int(line.size())) continue;
+                cell = line[col];
+            } else {
+                VTermPos pos { logical - sbCount, col };
+                if (!vterm_screen_get_cell(m_screen, pos, &cell))
+                    continue;
+            }
 
             const int x = col * m_cellW;
             const int y = row * m_cellH;
@@ -371,17 +469,18 @@ void TerminalWidget::paintEvent(QPaintEvent * /*event*/)
         }
     }
 
-    // Cursor (block)
-    if (m_cursorVisible && hasFocus() && m_blinkOn) {
-        const int x = m_cursorCol * m_cellW;
-        const int y = m_cursorRow * m_cellH;
-        p.fillRect(x, y, m_cellW, m_cellH, QColor(255, 255, 255, 110));
-    } else if (m_cursorVisible) {
-        // Hollow cursor when unfocused
-        const int x = m_cursorCol * m_cellW;
-        const int y = m_cursorRow * m_cellH;
-        p.setPen(QColor(255, 255, 255, 160));
-        p.drawRect(x, y, m_cellW - 1, m_cellH - 1);
+    // Cursor (block) — only when looking at the live screen.
+    if (m_scrollOffset == 0) {
+        if (m_cursorVisible && hasFocus() && m_blinkOn) {
+            const int x = m_cursorCol * m_cellW;
+            const int y = m_cursorRow * m_cellH;
+            p.fillRect(x, y, m_cellW, m_cellH, QColor(255, 255, 255, 110));
+        } else if (m_cursorVisible) {
+            const int x = m_cursorCol * m_cellW;
+            const int y = m_cursorRow * m_cellH;
+            p.setPen(QColor(255, 255, 255, 160));
+            p.drawRect(x, y, m_cellW - 1, m_cellH - 1);
+        }
     }
 }
 
