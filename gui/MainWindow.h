@@ -49,10 +49,18 @@ private slots:
     void onTabCloseRequested(int index);
     void onCurrentTabChanged(int index);
     void onSessionTreeActivated(QTreeWidgetItem *item, int column);
+    void onSessionTreeContextMenu(const QPoint &pos);
     void rebuildSessionsMenu();
     void rebuildSessionTree();
     void toggleButtonBars(bool visible);
     void toggleStatusBar(bool visible);
+
+private:
+    void renameSessionByIndex(int profileIndex);
+    void editSessionByIndex(int profileIndex);
+    void deleteSessionByIndex(int profileIndex);
+    void copySessionByIndex(int profileIndex);
+    void pasteSessionFromClipboard();
 
 private:
     void createMenus();
@@ -79,4 +87,8 @@ private:
     QAction       *m_actReload   = nullptr;
     QAction       *m_actViewButtons = nullptr;
     QAction       *m_actViewStatus  = nullptr;
+
+    // Session clipboard for the tree's right-click "Copy"/"Paste".
+    session_entry_t m_sessionClipboard{};
+    bool            m_sessionClipboardValid = false;
 };

@@ -23,6 +23,7 @@
 #include <QFont>
 #include <QFrame>
 #include <QHeaderView>
+#include <QInputDialog>
 #include <QKeySequence>
 #include <QSettings>
 #include <QLabel>
@@ -249,6 +250,10 @@ void MainWindow::createSessionDock()
     connect(m_sessionTree, &QTreeWidget::itemActivated,
             this, &MainWindow::onSessionTreeActivated);
 
+    m_sessionTree->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_sessionTree, &QTreeWidget::customContextMenuRequested,
+            this, &MainWindow::onSessionTreeContextMenu);
+
     m_sessionDock->setWidget(m_sessionTree);
     addDockWidget(Qt::LeftDockWidgetArea, m_sessionDock);
 
@@ -323,6 +328,202 @@ void MainWindow::onSessionTreeActivated(QTreeWidgetItem *item, int /*column*/)
     const int idx = v.toInt(&ok);
     if (ok && idx >= 0)
         openSessionByIndex(idx);
+}
+
+void MainWindow::onSessionTreeContextMenu(const QPoint &pos)
+{
+    if (!m_sessionTree) return;
+    QTreeWidgetItem *item = m_sessionTree->itemAt(pos);
+    int profileIndex = -1;
+    if (item) {
+        const QVariant v = item->data(0, Qt::UserRole);
+        bool ok = false;
+        if (v.isValid()) {
+            const int idx = v.toInt(&ok);
+            if (ok && idx >= 0 && idx < m_profile.session_count)
+                profileIndex = idx;
+        }
+    }
+
+    QMenu menu(m_sessionTree);
+
+    QAction *actOpen   = menu.addAction(tr("Open"));
+    menu.addSeparator();
+    QAction *actRename = menu.addAction(tr("Rename..."));
+    QAction *actEdit   = menu.addAction(tr("Edit..."));
+    QAction *actDelete = menu.addAction(tr("Delete"));
+    menu.addSeparator();
+    QAction *actCopy   = menu.addAction(tr("Copy"));
+    QAction *actPaste  = menu.addAction(tr("Paste"));
+
+    const bool onSession = (profileIndex >= 0);
+    actOpen  ->setEnabled(onSession);
+    actRename->setEnabled(onSession);
+    actEdit  ->setEnabled(onSession);
+    actDelete->setEnabled(onSession);
+    actCopy  ->setEnabled(onSession);
+    actPaste ->setEnabled(m_sessionClipboardValid
+                          && m_profile.session_count < MAX_SESSIONS);
+
+    QAction *chosen = menu.exec(m_sessionTree->viewport()->mapToGlobal(pos));
+    if (!chosen) return;
+
+    if (chosen == actOpen)        openSessionByIndex(profileIndex);
+    else if (chosen == actRename) renameSessionByIndex(profileIndex);
+    else if (chosen == actEdit)   editSessionByIndex(profileIndex);
+    else if (chosen == actDelete) deleteSessionByIndex(profileIndex);
+    else if (chosen == actCopy)   copySessionByIndex(profileIndex);
+    else if (chosen == actPaste)  pasteSessionFromClipboard();
+}
+
+void MainWindow::renameSessionByIndex(int profileIndex)
+{
+    if (profileIndex < 0 || profileIndex >= m_profile.session_count) return;
+    session_entry_t &s = m_profile.sessions[profileIndex];
+
+    bool ok = false;
+    const QString cur = QString::fromLocal8Bit(s.name);
+    const QString next = QInputDialog::getText(this, tr("Rename session"),
+        tr("New name:"), QLineEdit::Normal, cur, &ok);
+    if (!ok) return;
+    const QString trimmed = next.trimmed();
+    if (trimmed.isEmpty()) {
+        QMessageBox::warning(this, tr("Rename"), tr("Name cannot be empty."));
+        return;
+    }
+
+    const QByteArray b = trimmed.toLocal8Bit();
+    const int n = qMin<int>(int(sizeof(s.name)) - 1, b.size());
+    memcpy(s.name, b.constData(), n);
+    s.name[n] = '\0';
+
+    if (profile_save(&m_profile) != 0) {
+        QMessageBox::warning(this, tr("Save failed"),
+            tr("Could not write profile."));
+        return;
+    }
+    rebuildSessionsMenu();
+    rebuildSessionTree();
+}
+
+void MainWindow::editSessionByIndex(int profileIndex)
+{
+    if (profileIndex < 0 || profileIndex >= m_profile.session_count) return;
+
+    // Decrypt password into a temporary copy for editing.
+    session_entry_t edit = m_profile.sessions[profileIndex];
+    if (edit.type == SESSION_TYPE_SSH && edit.ssh.password[0]) {
+        const QString plain = tscrt::decryptSecret(
+            QString::fromLocal8Bit(edit.ssh.password));
+        const QByteArray b = plain.toLocal8Bit();
+        const int n = qMin<int>(int(sizeof(edit.ssh.password)) - 1, b.size());
+        memcpy(edit.ssh.password, b.constData(), n);
+        edit.ssh.password[n] = '\0';
+    }
+
+    SessionEditDialog dlg(this);
+    dlg.setSession(edit);
+    if (dlg.exec() != QDialog::Accepted) return;
+
+    session_entry_t s = dlg.session();
+    if (s.name[0] == '\0') {
+        QMessageBox::warning(this, tr("Edit"), tr("Name cannot be empty."));
+        return;
+    }
+    if (s.type == SESSION_TYPE_SSH && s.ssh.password[0]) {
+        const QString enc = tscrt::encryptSecret(
+            QString::fromLocal8Bit(s.ssh.password));
+        const QByteArray b = enc.toLocal8Bit();
+        const int n = qMin<int>(int(sizeof(s.ssh.password)) - 1, b.size());
+        memcpy(s.ssh.password, b.constData(), n);
+        s.ssh.password[n] = '\0';
+    }
+
+    m_profile.sessions[profileIndex] = s;
+    if (profile_save(&m_profile) != 0) {
+        QMessageBox::warning(this, tr("Save failed"),
+            tr("Could not write profile."));
+        return;
+    }
+    rebuildSessionsMenu();
+    rebuildSessionTree();
+}
+
+void MainWindow::deleteSessionByIndex(int profileIndex)
+{
+    if (profileIndex < 0 || profileIndex >= m_profile.session_count) return;
+    const QString name = QString::fromLocal8Bit(m_profile.sessions[profileIndex].name);
+    const auto reply = QMessageBox::question(this, tr("Delete session"),
+        tr("Delete session \"%1\"?").arg(name),
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    if (reply != QMessageBox::Yes) return;
+
+    for (int i = profileIndex; i < m_profile.session_count - 1; ++i)
+        m_profile.sessions[i] = m_profile.sessions[i + 1];
+    --m_profile.session_count;
+    memset(&m_profile.sessions[m_profile.session_count], 0,
+           sizeof(m_profile.sessions[0]));
+
+    if (profile_save(&m_profile) != 0) {
+        QMessageBox::warning(this, tr("Save failed"),
+            tr("Could not write profile."));
+        return;
+    }
+    rebuildSessionsMenu();
+    rebuildSessionTree();
+}
+
+void MainWindow::copySessionByIndex(int profileIndex)
+{
+    if (profileIndex < 0 || profileIndex >= m_profile.session_count) return;
+    m_sessionClipboard      = m_profile.sessions[profileIndex];
+    m_sessionClipboardValid = true;
+    statusBar()->showMessage(
+        tr("Copied session \"%1\".")
+            .arg(QString::fromLocal8Bit(m_sessionClipboard.name)),
+        2500);
+}
+
+void MainWindow::pasteSessionFromClipboard()
+{
+    if (!m_sessionClipboardValid) return;
+    if (m_profile.session_count >= MAX_SESSIONS) {
+        QMessageBox::warning(this, tr("Paste"),
+            tr("Profile already holds the maximum number of sessions (%1).")
+                .arg(MAX_SESSIONS));
+        return;
+    }
+
+    session_entry_t s = m_sessionClipboard;
+
+    // Generate a unique name by appending " (copy)", " (copy 2)", ...
+    const QString base = QString::fromLocal8Bit(s.name);
+    auto nameInUse = [this](const QString &candidate) {
+        for (int i = 0; i < m_profile.session_count; ++i) {
+            if (candidate == QString::fromLocal8Bit(m_profile.sessions[i].name))
+                return true;
+        }
+        return false;
+    };
+    QString candidate = base + QStringLiteral(" (copy)");
+    int n = 2;
+    while (nameInUse(candidate)) {
+        candidate = base + QStringLiteral(" (copy %1)").arg(n++);
+    }
+    const QByteArray nb = candidate.toLocal8Bit();
+    const int nn = qMin<int>(int(sizeof(s.name)) - 1, nb.size());
+    memcpy(s.name, nb.constData(), nn);
+    s.name[nn] = '\0';
+
+    m_profile.sessions[m_profile.session_count++] = s;
+    if (profile_save(&m_profile) != 0) {
+        QMessageBox::warning(this, tr("Save failed"),
+            tr("Could not write profile."));
+        --m_profile.session_count;
+        return;
+    }
+    rebuildSessionsMenu();
+    rebuildSessionTree();
 }
 
 void MainWindow::rebuildSessionTree()
