@@ -645,26 +645,22 @@ void MainWindow::newSession()
     if (dlg.exec() != QDialog::Accepted) return;
 
     session_entry_t s = dlg.session();
-    if (s.type == SESSION_TYPE_SSH) {
-        if (s.ssh.host[0] == '\0' || s.ssh.username[0] == '\0') {
-            QMessageBox::warning(this, tr("New session"),
-                tr("Host and username are required."));
-            return;
-        }
-    } else {
-        if (s.serial.device[0] == '\0') {
-            QMessageBox::warning(this, tr("New session"),
-                tr("Device (e.g. COM3) is required."));
-            return;
-        }
-    }
     if (s.name[0] == '\0')
         snprintf(s.name, sizeof(s.name), "%s", "Untitled");
 
-    if (appendSessionToProfile(s))
-        statusBar()->showMessage(
-            tr("Session \"%1\" saved.").arg(QString::fromLocal8Bit(s.name)),
-            2500);
+    // Persist unconditionally — even if the host/device is missing or
+    // the connection later fails, the entry should remain in the profile
+    // so the user can edit it from Session Manager.
+    if (!appendSessionToProfile(s))
+        return;
+
+    statusBar()->showMessage(
+        tr("Session \"%1\" saved.").arg(QString::fromLocal8Bit(s.name)),
+        2500);
+
+    // Try to open the session immediately. A connection failure will
+    // show its own error dialog but does not affect the saved entry.
+    openSessionByIndex(m_profile.session_count - 1);
 }
 
 void MainWindow::openSessionByIndex(int profileIndex)
