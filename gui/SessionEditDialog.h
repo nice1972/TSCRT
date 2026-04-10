@@ -33,7 +33,9 @@ private:
 
     QLineEdit      *m_name      = nullptr;
     QComboBox      *m_type      = nullptr;
-    QCheckBox      *m_logEnable = nullptr;
+    QCheckBox      *m_logEnable    = nullptr;
+    QCheckBox      *m_fsCmdLine    = nullptr;
+    QCheckBox      *m_fsButtons    = nullptr;
     QStackedWidget *m_stack     = nullptr;
 
     // SSH fields

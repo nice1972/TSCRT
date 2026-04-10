@@ -217,7 +217,7 @@ void MainWindow::createMenus()
 
     auto *langMenu = settingsMenu->addMenu(tr("&Language"));
     auto *enAct = langMenu->addAction(QStringLiteral("English"));
-    auto *koAct = langMenu->addAction(QStringLiteral("\355\225\234\352\265\255\354\226\264 (Korean)"));
+    auto *koAct = langMenu->addAction(QStringLiteral("Korean"));
     enAct->setCheckable(true);
     koAct->setCheckable(true);
     {
@@ -950,8 +950,10 @@ void MainWindow::toggleFullScreen()
         for (int i = 0; i < m_tabs->count(); ++i) {
             auto *tab = qobject_cast<tscrt::SessionTab *>(m_tabs->widget(i));
             if (!tab) continue;
-            if (tab->commandLine()) tab->commandLine()->setVisible(false);
-            if (tab->buttonBar())   tab->buttonBar()->setVisible(false);
+            if (tab->commandLine())
+                tab->commandLine()->setVisible(tab->showCmdLineInFullscreen());
+            if (tab->buttonBar())
+                tab->buttonBar()->setVisible(tab->showButtonsInFullscreen());
         }
         showFullScreen();
     } else {

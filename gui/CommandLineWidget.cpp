@@ -80,6 +80,11 @@ void CommandLineWidget::keyPressEvent(QKeyEvent *event)
         return;
     }
 
+    if (event->key() == Qt::Key_Tab || event->key() == Qt::Key_Backtab) {
+        event->accept();
+        return;
+    }
+
     if (event->key() == Qt::Key_Up) {
         if (m_browseIdx == -1)
             m_browseIdx = m_history.size() - 1;

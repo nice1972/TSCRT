@@ -35,6 +35,8 @@ public:
     ISession          *session()  const { return m_session; }
     ButtonBar         *buttonBar() const { return m_buttons; }
     ::CommandLineWidget *commandLine() const { return m_cmdLine; }
+    bool showCmdLineInFullscreen() const { return m_showCmdLineFs; }
+    bool showButtonsInFullscreen() const { return m_showButtonsFs; }
 
 signals:
     void buttonEditRequested(int slotIndex);
@@ -75,6 +77,10 @@ private:
 
     // Mark state.
     QString              m_markPattern;
+
+    // Per-session fullscreen visibility.
+    bool                 m_showCmdLineFs = false;
+    bool                 m_showButtonsFs = false;
 };
 
 } // namespace tscrt

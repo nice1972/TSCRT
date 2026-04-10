@@ -52,6 +52,14 @@ void SessionEditDialog::buildUi()
     m_logEnable->setChecked(true);
     header->addRow(QString(), m_logEnable);
 
+    m_fsCmdLine = new QCheckBox(tr("Show command line in fullscreen"), this);
+    m_fsCmdLine->setChecked(false);
+    header->addRow(QString(), m_fsCmdLine);
+
+    m_fsButtons = new QCheckBox(tr("Show button bar in fullscreen"), this);
+    m_fsButtons->setChecked(false);
+    header->addRow(QString(), m_fsButtons);
+
     root->addLayout(header);
 
     m_stack = new QStackedWidget(this);
@@ -159,6 +167,8 @@ void SessionEditDialog::setSession(const session_entry_t &s)
     m_name->setText(QString::fromLocal8Bit(s.name));
     m_type->setCurrentIndex(m_type->findData(int(s.type)));
     m_logEnable->setChecked(s.log_enabled != 0);
+    m_fsCmdLine->setChecked(s.show_cmdline != 0);
+    m_fsButtons->setChecked(s.show_buttons != 0);
 
     if (s.type == SESSION_TYPE_SSH) {
         m_sshHost->setText(QString::fromLocal8Bit(s.ssh.host));
@@ -181,8 +191,10 @@ session_entry_t SessionEditDialog::session() const
     session_entry_t s;
     memset(&s, 0, sizeof(s));
     setStr(s.name, sizeof(s.name), m_name->text());
-    s.type        = session_type_t(m_type->currentData().toInt());
-    s.log_enabled = m_logEnable->isChecked() ? 1 : 0;
+    s.type         = session_type_t(m_type->currentData().toInt());
+    s.log_enabled  = m_logEnable->isChecked() ? 1 : 0;
+    s.show_cmdline = m_fsCmdLine->isChecked() ? 1 : 0;
+    s.show_buttons = m_fsButtons->isChecked() ? 1 : 0;
 
     if (s.type == SESSION_TYPE_SSH) {
         setStr(s.ssh.host,     sizeof(s.ssh.host),     m_sshHost->text());

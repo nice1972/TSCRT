@@ -19,7 +19,9 @@ SessionTab::SessionTab(ISession *session, const profile_t &profile,
                        const session_entry_t &entry, QWidget *parent)
     : QWidget(parent),
       m_session(session),
-      m_displayName(QString::fromLocal8Bit(entry.name))
+      m_displayName(QString::fromLocal8Bit(entry.name)),
+      m_showCmdLineFs(entry.show_cmdline != 0),
+      m_showButtonsFs(entry.show_buttons != 0)
 {
     auto *root = new QVBoxLayout(this);
     root->setContentsMargins(0, 0, 0, 0);

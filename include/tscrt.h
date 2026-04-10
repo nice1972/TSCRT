@@ -123,6 +123,8 @@ typedef struct {
     char            name[MAX_NAME_LEN];
     session_type_t  type;
     int             log_enabled;        /* 1 = write per-session log file */
+    int             show_cmdline;       /* 1 = show command line in fullscreen */
+    int             show_buttons;       /* 1 = show button bar in fullscreen */
     union {
         ssh_config_t    ssh;
         serial_config_t serial;

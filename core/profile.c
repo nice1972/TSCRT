@@ -169,6 +169,12 @@ int profile_load(profile_t *p)
             else if (strcmp(key, "log_enabled") == 0) {
                 cur->log_enabled = (atoi(val) != 0) ? 1 : 0;
             }
+            else if (strcmp(key, "show_cmdline") == 0) {
+                cur->show_cmdline = (atoi(val) != 0) ? 1 : 0;
+            }
+            else if (strcmp(key, "show_buttons") == 0) {
+                cur->show_buttons = (atoi(val) != 0) ? 1 : 0;
+            }
             else if (strcmp(key, "host") == 0)
                 snprintf(cur->ssh.host, sizeof(cur->ssh.host), "%s", val);
             else if (strcmp(key, "port") == 0)
@@ -295,6 +301,8 @@ int profile_save(const profile_t *p)
         const session_entry_t *s = &p->sessions[i];
         fprintf(fp, "[session:%s]\n", s->name);
         fprintf(fp, "log_enabled = %d\n", s->log_enabled ? 1 : 0);
+        fprintf(fp, "show_cmdline = %d\n", s->show_cmdline ? 1 : 0);
+        fprintf(fp, "show_buttons = %d\n", s->show_buttons ? 1 : 0);
 
         if (s->type == SESSION_TYPE_SSH) {
             fprintf(fp, "type = ssh\n");
