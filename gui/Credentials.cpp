@@ -4,16 +4,19 @@
 #include <QDebug>
 #include <QString>
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
+#ifdef _WIN32
+  #ifndef WIN32_LEAN_AND_MEAN
+  #define WIN32_LEAN_AND_MEAN
+  #endif
+  #include <windows.h>
+  #include <wincrypt.h>
 #endif
-#include <windows.h>
-#include <wincrypt.h>
 
 namespace tscrt {
 
 namespace {
 
+#ifdef _WIN32
 constexpr const char *kPrefix = "dpapi:";
 
 QByteArray dpapiProtect(const QByteArray &plain)
@@ -55,6 +58,11 @@ QByteArray dpapiUnprotect(const QByteArray &cipher)
     LocalFree(out.pbData);
     return result;
 }
+#else
+// On macOS / Linux, store passwords as plaintext in the profile.
+// A future version may integrate macOS Keychain or libsecret.
+constexpr const char *kPrefix = "dpapi:"; // recognised but not decryptable
+#endif
 
 } // namespace
 
@@ -70,12 +78,17 @@ QString encryptSecret(const QString &plaintext)
     if (isEncrypted(plaintext))
         return plaintext; // already wrapped
 
+#ifdef _WIN32
     const QByteArray cipher = dpapiProtect(plaintext.toUtf8());
     if (cipher.isEmpty())
         return plaintext; // fallback: store plaintext rather than losing data
 
     return QString::fromLatin1(kPrefix) +
            QString::fromLatin1(cipher.toBase64());
+#else
+    // No OS-level encryption on POSIX yet — store plaintext.
+    return plaintext;
+#endif
 }
 
 QString decryptSecret(const QString &stored)
@@ -85,6 +98,7 @@ QString decryptSecret(const QString &stored)
     if (!isEncrypted(stored))
         return stored; // legacy plaintext
 
+#ifdef _WIN32
     const QByteArray b64 = stored.mid(int(qstrlen(kPrefix))).toLatin1();
     const QByteArray cipher = QByteArray::fromBase64(b64);
     const QByteArray plain  = dpapiUnprotect(cipher);
@@ -93,6 +107,10 @@ QString decryptSecret(const QString &stored)
         return {};
     }
     return QString::fromUtf8(plain);
+#else
+    qWarning("DPAPI-encrypted secret cannot be decrypted on this platform");
+    return {};
+#endif
 }
 
 } // namespace tscrt

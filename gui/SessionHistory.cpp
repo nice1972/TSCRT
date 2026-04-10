@@ -24,12 +24,12 @@ QString sanitize(const QString &in)
 QString historyDirFor(const profile_t &profile)
 {
     return QString::fromLocal8Bit(profile.base_dir) +
-           QStringLiteral("\\history");
+           QChar(QLatin1Char('/')) + QStringLiteral("history");
 }
 
 QString historyPathFor(const profile_t &profile, const QString &sessionName)
 {
-    return historyDirFor(profile) + QStringLiteral("\\") +
+    return historyDirFor(profile) + QChar(QLatin1Char('/')) +
            sanitize(sessionName) + QStringLiteral(".history");
 }
 

@@ -1,0 +1,38 @@
+TSCRT macOS Build Guide
+========================
+
+1. Install dependencies (Homebrew)
+-----------------------------------
+brew install qt@6 libssh2 libvterm pkg-config cmake ninja
+
+2. Set environment
+-------------------
+export PATH="$(brew --prefix qt@6)/bin:$PATH"
+export PKG_CONFIG_PATH="$(brew --prefix libssh2)/lib/pkgconfig:$(brew --prefix libvterm)/lib/pkgconfig"
+export CMAKE_PREFIX_PATH="$(brew --prefix qt@6)"
+
+3. Clone and build
+-------------------
+git clone https://github.com/nice1972/tscrt_win
+cd tscrt_win
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+
+4. Run tests
+-------------
+ctest --test-dir build --output-on-failure
+
+5. Run
+-------
+./build/tscrt_win
+
+6. Create DMG installer (optional)
+------------------------------------
+cd build && cpack -G DragNDrop
+
+Notes
+------
+- Requires macOS 12+ and Qt 6.5+
+- Serial ports use /dev/cu.* or /dev/tty.* device paths
+- DPAPI-encrypted passwords from Windows profiles cannot be decrypted
+  on macOS. Re-enter passwords after migrating profiles.

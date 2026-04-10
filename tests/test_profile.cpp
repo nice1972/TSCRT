@@ -31,14 +31,23 @@ private:
 void TestProfile::initTestCase()
 {
     QVERIFY(m_tmp.isValid());
+#ifdef _WIN32
     m_savedAppdata = qEnvironmentVariable("APPDATA");
     qputenv("APPDATA", m_tmp.path().toLocal8Bit());
+#else
+    m_savedAppdata = qEnvironmentVariable("HOME");
+    qputenv("HOME", m_tmp.path().toLocal8Bit());
+#endif
 }
 
 void TestProfile::cleanupTestCase()
 {
     if (!m_savedAppdata.isEmpty())
+#ifdef _WIN32
         qputenv("APPDATA", m_savedAppdata.toLocal8Bit());
+#else
+        qputenv("HOME", m_savedAppdata.toLocal8Bit());
+#endif
 }
 
 void TestProfile::initialize()

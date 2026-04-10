@@ -23,9 +23,10 @@ int profile_init(profile_t *p)
     memset(p, 0, sizeof(*p));
 
     const char *home = tscrt_get_home();
-    snprintf(p->base_dir, sizeof(p->base_dir), "%s\\%s", home, TSCRT_DIR_NAME);
+    snprintf(p->base_dir, sizeof(p->base_dir),
+             "%s" TSCRT_PATH_SEP "%s", home, TSCRT_DIR_NAME);
     snprintf(p->profile_path, sizeof(p->profile_path),
-             "%s\\%s", p->base_dir, TSCRT_PROFILE_NAME);
+             "%s" TSCRT_PATH_SEP "%s", p->base_dir, TSCRT_PROFILE_NAME);
 
     if (tscrt_ensure_dir(p->base_dir) < 0) {
         fprintf(stderr, "Cannot create directory: %s\n", p->base_dir);
@@ -33,7 +34,7 @@ int profile_init(profile_t *p)
     }
 
     char pem_dir[MAX_PATH_LEN];
-    snprintf(pem_dir, sizeof(pem_dir), "%s\\pem", p->base_dir);
+    snprintf(pem_dir, sizeof(pem_dir), "%s" TSCRT_PATH_SEP "pem", p->base_dir);
     tscrt_ensure_dir(pem_dir);
 
     /* Defaults — session logs land in "My Documents\TSCRT", not under
@@ -41,7 +42,7 @@ int profile_init(profile_t *p)
      * the first log line is written. */
     const char *docs = tscrt_get_documents_dir();
     snprintf(p->common.log_dir, sizeof(p->common.log_dir),
-             "%s\\TSCRT", docs);
+             "%s" TSCRT_PATH_SEP "TSCRT", docs);
     snprintf(p->common.terminal_type, sizeof(p->common.terminal_type), "xterm-256color");
     snprintf(p->common.encoding, sizeof(p->common.encoding), "UTF-8");
     p->common.scrollback = 10000;
@@ -250,13 +251,13 @@ int profile_load(profile_t *p)
      * new default under My Documents\TSCRT. Custom paths are left alone. */
     {
         char legacy[MAX_PATH_LEN];
-        snprintf(legacy, sizeof(legacy), "%s\\%s",
+        snprintf(legacy, sizeof(legacy), "%s" TSCRT_PATH_SEP "%s",
                  p->base_dir, TSCRT_LOG_DIR_NAME);
         if (p->common.log_dir[0] == '\0' ||
             strcmp(p->common.log_dir, legacy) == 0) {
             const char *docs = tscrt_get_documents_dir();
             snprintf(p->common.log_dir, sizeof(p->common.log_dir),
-                     "%s\\TSCRT", docs);
+                     "%s" TSCRT_PATH_SEP "TSCRT", docs);
         }
     }
 

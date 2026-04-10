@@ -1,8 +1,8 @@
 /*
- * tscrt.h - TSCRT Common Definitions (Windows port)
+ * tscrt.h - TSCRT Common Definitions
  *
- * Cross-platform header. POSIX-only headers are guarded so the same
- * file can be included from MSYS2/UCRT64 (Windows) and Linux builds.
+ * Cross-platform header. Platform-specific headers are guarded so the
+ * same file can be used on Windows (MSYS2/UCRT64), macOS, and Linux.
  */
 #ifndef TSCRT_H
 #define TSCRT_H
@@ -27,6 +27,7 @@
   #endif
   /* mkdir(path, mode) compatibility */
   #define tscrt_mkdir(p, m) _mkdir(p)
+  #define TSCRT_PATH_SEP "\\"
 #else
   #include <unistd.h>
   #include <signal.h>
@@ -36,14 +37,15 @@
   #include <poll.h>
   #include <fcntl.h>
   #define tscrt_mkdir(p, m) mkdir((p), (m))
+  #define TSCRT_PATH_SEP "/"
 #endif
 
 /* Suppress warn_unused_result for raw I/O writes (POSIX only) */
 #define WRITE_TTY(fd, buf, len) \
     do { if (write((fd), (buf), (len)) < 0) { /* ignore */ } } while(0)
 
-#define TSCRT_VERSION        "1.0.0-win"
-#define TSCRT_DIR_NAME       "tscrt"          /* under %APPDATA% on Windows */
+#define TSCRT_VERSION        "1.0.0"
+#define TSCRT_DIR_NAME       "tscrt"
 #define TSCRT_PROFILE_NAME   "tscrt.profile"
 #define TSCRT_LOG_DIR_NAME   "logs"
 

@@ -24,8 +24,12 @@ pkg_check_modules(LIBVTERM REQUIRED IMPORTED_TARGET vterm)
 # ---- core (C, platform-portable) -----------------------------------------
 set(CORE_SOURCES
     core/profile.c
-    core/platform_win.c
 )
+if(WIN32)
+    list(APPEND CORE_SOURCES core/platform_win.c)
+else()
+    list(APPEND CORE_SOURCES core/platform_posix.c)
+endif()
 
 # ---- gui (C++/Qt) --------------------------------------------------------
 set(GUI_SOURCES
@@ -102,10 +106,15 @@ if(TSCRT_WIN_BUILD_TESTS)
     target_link_libraries(test_action_parser PRIVATE Qt6::Core Qt6::Test)
     add_test(NAME action_parser COMMAND test_action_parser)
 
+    if(WIN32)
+        set(_PLATFORM_SRC core/platform_win.c)
+    else()
+        set(_PLATFORM_SRC core/platform_posix.c)
+    endif()
     add_executable(test_profile
         tests/test_profile.cpp
         core/profile.c
-        core/platform_win.c
+        ${_PLATFORM_SRC}
         include/tscrt.h
         include/profile.h)
     target_include_directories(test_profile PRIVATE include core)
@@ -251,16 +260,18 @@ target_link_libraries(tscrt_win PRIVATE
     Qt6::Widgets
     PkgConfig::LIBSSH2
     PkgConfig::LIBVTERM
-    ws2_32
-    dbghelp
-    crypt32
 )
 
-target_compile_definitions(tscrt_win PRIVATE
-    UNICODE
-    _UNICODE
-    WIN32_LEAN_AND_MEAN
-)
+if(WIN32)
+    target_link_libraries(tscrt_win PRIVATE ws2_32 dbghelp crypt32)
+    target_compile_definitions(tscrt_win PRIVATE
+        UNICODE _UNICODE WIN32_LEAN_AND_MEAN)
+elseif(APPLE)
+    find_library(SECURITY_FW Security)
+    if(SECURITY_FW)
+        target_link_libraries(tscrt_win PRIVATE ${SECURITY_FW})
+    endif()
+endif()
 
 # Quality gate: warnings are errors. Tightened progressively.
 if(MSVC)
@@ -273,8 +284,10 @@ else()
         -Wno-missing-field-initializers)
 endif()
 
-# Target Windows 10 (1809+) APIs
-target_compile_definitions(tscrt_win PRIVATE
-    _WIN32_WINNT=0x0A00
-    WINVER=0x0A00
-    NTDDI_VERSION=0x0A000006)
+if(WIN32)
+    # Target Windows 10 (1809+) APIs
+    target_compile_definitions(tscrt_win PRIVATE
+        _WIN32_WINNT=0x0A00
+        WINVER=0x0A00
+        NTDDI_VERSION=0x0A000006)
+endif()

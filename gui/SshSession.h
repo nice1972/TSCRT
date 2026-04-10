@@ -1,5 +1,5 @@
 /*
- * SshSession - libssh2-backed terminal session for Windows.
+ * SshSession - libssh2-backed terminal session.
  *
  * Runs its I/O loop on a dedicated QThread. Connection, authentication,
  * PTY allocation and read/write are handled here. Outgoing user input
@@ -17,7 +17,17 @@
 #include <QThread>
 #include <QWaitCondition>
 
-#include <winsock2.h>
+#ifdef _WIN32
+  #include <winsock2.h>
+#else
+  #include <sys/socket.h>
+  #include <netinet/in.h>
+  #include <netinet/tcp.h>
+  #include <arpa/inet.h>
+  #include <netdb.h>
+  #include <unistd.h>
+  #include <poll.h>
+#endif
 #include <libssh2.h>
 
 class SshSession : public ISession {
@@ -58,7 +68,11 @@ private:
     QThread           m_thread;
 
     // Worker-thread state
+#ifdef _WIN32
     SOCKET            m_sock      = INVALID_SOCKET;
+#else
+    int               m_sock      = -1;
+#endif
     LIBSSH2_SESSION  *m_session   = nullptr;
     LIBSSH2_CHANNEL  *m_channel   = nullptr;
 

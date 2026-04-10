@@ -4,7 +4,16 @@
 
 #include <QFile>
 #include <QtGlobal>
-#include <ws2tcpip.h>
+#ifdef _WIN32
+  #include <ws2tcpip.h>
+#else
+  #include <sys/socket.h>
+  #include <netdb.h>
+  #include <unistd.h>
+  #include <poll.h>
+  #include <netinet/tcp.h>
+  #include <cerrno>
+#endif
 
 #include <cstring>
 
@@ -74,11 +83,13 @@ void SshSession::resize(int cols, int rows)
 
 bool SshSession::connectSocket(QString *err)
 {
+#ifdef _WIN32
     WSADATA wsa;
     if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
         *err = QStringLiteral("WSAStartup failed");
         return false;
     }
+#endif
 
     addrinfo hints{};
     hints.ai_family   = AF_UNSPEC;
@@ -94,21 +105,31 @@ bool SshSession::connectSocket(QString *err)
     }
 
     m_sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+#ifdef _WIN32
     if (m_sock == INVALID_SOCKET) {
+#else
+    if (m_sock < 0) {
+#endif
         freeaddrinfo(res);
         *err = QStringLiteral("socket() failed");
         return false;
     }
 
-    BOOL nodelay = TRUE;
+    int nodelay = 1;
     setsockopt(m_sock, IPPROTO_TCP, TCP_NODELAY,
                reinterpret_cast<const char *>(&nodelay), sizeof(nodelay));
 
-    if (::connect(m_sock, res->ai_addr, (int)res->ai_addrlen) == SOCKET_ERROR) {
+    if (::connect(m_sock, res->ai_addr, (int)res->ai_addrlen) != 0) {
         freeaddrinfo(res);
+#ifdef _WIN32
         *err = QStringLiteral("connect() failed: %1").arg(WSAGetLastError());
         closesocket(m_sock);
         m_sock = INVALID_SOCKET;
+#else
+        *err = QStringLiteral("connect() failed: %1").arg(QString::fromLocal8Bit(strerror(errno)));
+        ::close(m_sock);
+        m_sock = -1;
+#endif
         return false;
     }
     freeaddrinfo(res);
@@ -172,7 +193,11 @@ bool SshSession::authenticate(QString *err)
 
     // 3) Default key files (~/.ssh/id_rsa, id_ed25519, id_ecdsa)
     if (!ok && !m_cfg.keyfile[0]) {
+#ifdef _WIN32
         const QString home = QString::fromLocal8Bit(qgetenv("USERPROFILE"));
+#else
+        const QString home = QString::fromLocal8Bit(qgetenv("HOME"));
+#endif
         const char *keyNames[] = {
             "/.ssh/id_ed25519", "/.ssh/id_rsa", "/.ssh/id_ecdsa"
         };
@@ -270,15 +295,22 @@ void SshSession::cleanup()
         m_channel = nullptr;
     }
     if (m_session) {
-        libssh2_session_disconnect(m_session, "tscrt_win shutdown");
+        libssh2_session_disconnect(m_session, "tscrt shutdown");
         libssh2_session_free(m_session);
         m_session = nullptr;
     }
+#ifdef _WIN32
     if (m_sock != INVALID_SOCKET) {
         closesocket(m_sock);
         m_sock = INVALID_SOCKET;
     }
     WSACleanup();
+#else
+    if (m_sock >= 0) {
+        ::close(m_sock);
+        m_sock = -1;
+    }
+#endif
 }
 
 void SshSession::runLoop()
@@ -336,7 +368,11 @@ void SshSession::runLoop()
                     m_channel, txChunk.constData() + sent,
                     txChunk.size() - sent);
                 if (w == LIBSSH2_ERROR_EAGAIN) {
+#ifdef _WIN32
                     Sleep(1);
+#else
+                    usleep(1000);
+#endif
                     continue;
                 }
                 if (w < 0) {
@@ -369,11 +405,19 @@ void SshSession::runLoop()
 
         // Wait on socket if idle.
         if (!gotData && txChunk.isEmpty()) {
+#ifdef _WIN32
             WSAPOLLFD pf;
             pf.fd      = m_sock;
             pf.events  = POLLIN;
             pf.revents = 0;
             WSAPoll(&pf, 1, POLL_TIMEOUT_MS);
+#else
+            struct pollfd pf;
+            pf.fd      = m_sock;
+            pf.events  = POLLIN;
+            pf.revents = 0;
+            poll(&pf, 1, POLL_TIMEOUT_MS);
+#endif
         }
     }
 

@@ -8,11 +8,19 @@
 #include <QFileInfo>
 #include <QString>
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
+#ifdef _WIN32
+  #ifndef WIN32_LEAN_AND_MEAN
+  #define WIN32_LEAN_AND_MEAN
+  #endif
+  #include <windows.h>
+  #include <dbghelp.h>
+#else
+  #include <signal.h>
+  #include <execinfo.h>
+  #include <unistd.h>
+  #include <fcntl.h>
+  #include <cstdlib>
 #endif
-#include <windows.h>
-#include <dbghelp.h>
 
 namespace tscrt {
 
@@ -35,6 +43,8 @@ QString resolveDumpDir()
     return dir.absolutePath();
 }
 
+#ifdef _WIN32
+
 LONG WINAPI exceptionFilter(EXCEPTION_POINTERS *ep)
 {
     if (g_dumpDir.isEmpty())
@@ -42,7 +52,7 @@ LONG WINAPI exceptionFilter(EXCEPTION_POINTERS *ep)
 
     const QString stamp = QDateTime::currentDateTime()
                               .toString(QStringLiteral("yyyyMMdd-HHmmss"));
-    const QString path  = QStringLiteral("%1/tscrt_win-%2-%3.dmp")
+    const QString path  = QStringLiteral("%1/tscrt-%2-%3.dmp")
                               .arg(g_dumpDir, stamp)
                               .arg(GetCurrentProcessId());
 
@@ -69,14 +79,59 @@ LONG WINAPI exceptionFilter(EXCEPTION_POINTERS *ep)
     return EXCEPTION_EXECUTE_HANDLER;
 }
 
+#else // POSIX
+
+static char g_dumpPath[512];
+
+static void posixSignalHandler(int sig, siginfo_t * /*info*/, void * /*ctx*/)
+{
+    // Async-signal-safe: write backtrace to file using raw fd I/O.
+    int fd = ::open(g_dumpPath, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd >= 0) {
+        const char *msg = "TSCRT crash — signal ";
+        (void)::write(fd, msg, strlen(msg));
+        char sigbuf[16];
+        int n = snprintf(sigbuf, sizeof(sigbuf), "%d\n", sig);
+        (void)::write(fd, sigbuf, n);
+
+        void *bt[64];
+        int depth = backtrace(bt, 64);
+        backtrace_symbols_fd(bt, depth, fd);
+        ::close(fd);
+    }
+    _exit(128 + sig);
+}
+
+#endif
+
 } // namespace
 
 QString installCrashHandler()
 {
     g_dumpDir = resolveDumpDir();
+
+#ifdef _WIN32
     SetUnhandledExceptionFilter(&exceptionFilter);
-    // Disable Windows Error Reporting popup so our dump runs cleanly.
     SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
+#else
+    // Build dump path once so the signal handler can use it safely.
+    QByteArray p = QStringLiteral("%1/tscrt-%2.crash")
+                       .arg(g_dumpDir)
+                       .arg(getpid())
+                       .toLocal8Bit();
+    strncpy(g_dumpPath, p.constData(), sizeof(g_dumpPath) - 1);
+
+    struct sigaction sa{};
+    sa.sa_sigaction = &posixSignalHandler;
+    sa.sa_flags     = SA_SIGINFO;
+    sigemptyset(&sa.sa_mask);
+    sigaction(SIGSEGV, &sa, nullptr);
+    sigaction(SIGBUS,  &sa, nullptr);
+    sigaction(SIGABRT, &sa, nullptr);
+    sigaction(SIGFPE,  &sa, nullptr);
+    sigaction(SIGILL,  &sa, nullptr);
+#endif
+
     return g_dumpDir;
 }
 
@@ -87,7 +142,11 @@ QString findLastCrashDump()
         return {};
     QDir d(dir);
     const auto entries = d.entryInfoList(
+#ifdef _WIN32
         QStringList{ QStringLiteral("*.dmp") },
+#else
+        QStringList{ QStringLiteral("*.crash") },
+#endif
         QDir::Files, QDir::Time);
     if (entries.isEmpty())
         return {};
