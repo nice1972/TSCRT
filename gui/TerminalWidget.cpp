@@ -24,17 +24,15 @@ namespace {
 
 constexpr int    kBlinkIntervalMs = 530;
 
-QColor cellColor(const VTermColor &c, const QColor &fallback)
+QColor cellColor(VTermColor c, const VTermScreen *screen, const QColor &fallback)
 {
     if (VTERM_COLOR_IS_DEFAULT_FG(&c) || VTERM_COLOR_IS_DEFAULT_BG(&c))
         return fallback;
+    // Convert indexed palette colors to RGB so we always read .rgb fields.
+    if (VTERM_COLOR_IS_INDEXED(&c) && screen)
+        vterm_screen_convert_color_to_rgb(screen, &c);
     if (VTERM_COLOR_IS_RGB(&c))
         return QColor(c.rgb.red, c.rgb.green, c.rgb.blue);
-    if (VTERM_COLOR_IS_INDEXED(&c)) {
-        // libvterm 0.3 already maps indexed colors into the rgb field
-        // when the state machine has a palette set; fall back to rgb anyway.
-        return QColor(c.rgb.red, c.rgb.green, c.rgb.blue);
-    }
     return fallback;
 }
 
@@ -182,9 +180,12 @@ int TerminalWidget::s_moveCursor(VTermPos pos, VTermPos /*oldpos*/,
     return 1;
 }
 
-int TerminalWidget::s_settermprop(VTermProp /*prop*/, VTermValue * /*val*/,
-                                  void * /*user*/)
+int TerminalWidget::s_settermprop(VTermProp prop, VTermValue *val,
+                                  void *user)
 {
+    auto *self = static_cast<TerminalWidget *>(user);
+    if (prop == VTERM_PROP_MOUSE)
+        self->m_mouseMode = val->number;
     return 1;
 }
 
@@ -410,19 +411,15 @@ void TerminalWidget::paintEvent(QPaintEvent * /*event*/)
     const int sbCount = int(m_scrollback.size());
 
     for (int row = 0; row < m_rows; ++row) {
-        for (int col = 0; col < m_cols; ++col) {
-            // Map this visible row to either a scrollback line or a
-            // current-screen row, taking m_scrollOffset into account.
-            // logical_index runs from 0 (oldest scrollback) to
-            // sbCount + m_rows - 1 (bottom of live screen).
-            const int bottomLogical = sbCount + m_rows - 1 - m_scrollOffset;
-            const int logical       = bottomLogical - (m_rows - 1 - row);
+        // Map this visible row to either a scrollback line or a
+        // current-screen row, taking m_scrollOffset into account.
+        const int bottomLogical = sbCount + m_rows - 1 - m_scrollOffset;
+        const int logical       = bottomLogical - (m_rows - 1 - row);
+        if (logical < 0) continue;
 
+        for (int col = 0; col < m_cols; ++col) {
             VTermScreenCell cell{};
-            if (logical < 0) {
-                // Above the start of scrollback — leave background.
-                continue;
-            } else if (logical < sbCount) {
+            if (logical < sbCount) {
                 const auto &line = m_scrollback[logical];
                 if (col >= int(line.size())) continue;
                 cell = line[col];
@@ -432,11 +429,17 @@ void TerminalWidget::paintEvent(QPaintEvent * /*event*/)
                     continue;
             }
 
+            // Continuation cell of a wide character — already drawn.
+            if (cell.width == 0)
+                continue;
+
+            const int cellSpan = std::max(1, int(cell.width));
             const int x = col * m_cellW;
             const int y = row * m_cellH;
+            const int w = cellSpan * m_cellW;
 
-            QColor bg = cellColor(cell.bg, m_bg);
-            QColor fg = cellColor(cell.fg, m_fg);
+            QColor bg = cellColor(cell.bg, m_screen, m_bg);
+            QColor fg = cellColor(cell.fg, m_screen, m_fg);
 
             // Selection takes precedence over the cell background
             if (cellInSelection(row, col)) {
@@ -448,7 +451,7 @@ void TerminalWidget::paintEvent(QPaintEvent * /*event*/)
                 fg = QColor(0x00, 0x00, 0x00);
             }
 
-            p.fillRect(x, y, m_cellW, m_cellH, bg);
+            p.fillRect(x, y, w, m_cellH, bg);
 
             if (cell.chars[0] != 0 && cell.chars[0] != 0x20) {
                 QString glyph;
@@ -466,6 +469,10 @@ void TerminalWidget::paintEvent(QPaintEvent * /*event*/)
                 p.setPen(fg);
                 p.drawText(x, y + m_baseline, glyph);
             }
+
+            // Skip continuation columns of wide characters.
+            if (cellSpan > 1)
+                col += cellSpan - 1;
         }
     }
 
@@ -608,18 +615,50 @@ void TerminalWidget::inputMethodEvent(QInputMethodEvent *event)
     event->accept();
 }
 
-// ---- Mouse: text selection ------------------------------------------------
+// ---- Mouse: selection + terminal forwarding --------------------------------
+
+static VTermModifier qtMouseMod(Qt::KeyboardModifiers m)
+{
+    VTermModifier mod = VTERM_MOD_NONE;
+    if (m & Qt::ShiftModifier)   mod = VTermModifier(mod | VTERM_MOD_SHIFT);
+    if (m & Qt::ControlModifier) mod = VTermModifier(mod | VTERM_MOD_CTRL);
+    if (m & Qt::AltModifier)     mod = VTermModifier(mod | VTERM_MOD_ALT);
+    return mod;
+}
+
+static int qtButtonToVterm(Qt::MouseButton btn)
+{
+    switch (btn) {
+    case Qt::LeftButton:   return 1;
+    case Qt::MiddleButton: return 2;
+    case Qt::RightButton:  return 3;
+    default:               return 0;
+    }
+}
 
 void TerminalWidget::mousePressEvent(QMouseEvent *e)
 {
     setFocus(Qt::MouseFocusReason);
+
+    // When the remote app has mouse tracking on and Shift is NOT held,
+    // forward to vterm so tmux/vim/etc. receive mouse events.
+    if (m_mouseMode != VTERM_PROP_MOUSE_NONE
+        && !(e->modifiers() & Qt::ShiftModifier) && m_vt) {
+        const GridPos g = cellAt(e->pos());
+        vterm_mouse_move(m_vt, g.row, g.col, qtMouseMod(e->modifiers()));
+        vterm_mouse_button(m_vt, qtButtonToVterm(e->button()),
+                           true, qtMouseMod(e->modifiers()));
+        e->accept();
+        return;
+    }
+
+    // Local selection (no mouse tracking, or Shift held).
     if (e->button() == Qt::LeftButton) {
         m_selecting = true;
         m_selAnchor = cellAt(e->pos());
         m_selCursor = m_selAnchor;
         viewport()->update();
     } else if (e->button() == Qt::MiddleButton) {
-        // Middle-click paste (X11 convention, also handy on Windows)
         pasteFromClipboard();
     }
     e->accept();
@@ -627,6 +666,14 @@ void TerminalWidget::mousePressEvent(QMouseEvent *e)
 
 void TerminalWidget::mouseMoveEvent(QMouseEvent *e)
 {
+    if (m_mouseMode >= VTERM_PROP_MOUSE_DRAG
+        && !(e->modifiers() & Qt::ShiftModifier) && m_vt) {
+        const GridPos g = cellAt(e->pos());
+        vterm_mouse_move(m_vt, g.row, g.col, qtMouseMod(e->modifiers()));
+        e->accept();
+        return;
+    }
+
     if (m_selecting) {
         m_selCursor = cellAt(e->pos());
         viewport()->update();
@@ -636,14 +683,22 @@ void TerminalWidget::mouseMoveEvent(QMouseEvent *e)
 
 void TerminalWidget::mouseReleaseEvent(QMouseEvent *e)
 {
+    if (m_mouseMode != VTERM_PROP_MOUSE_NONE
+        && !(e->modifiers() & Qt::ShiftModifier) && m_vt) {
+        const GridPos g = cellAt(e->pos());
+        vterm_mouse_move(m_vt, g.row, g.col, qtMouseMod(e->modifiers()));
+        vterm_mouse_button(m_vt, qtButtonToVterm(e->button()),
+                           false, qtMouseMod(e->modifiers()));
+        e->accept();
+        return;
+    }
+
     if (e->button() == Qt::LeftButton && m_selecting) {
         m_selecting = false;
-        // Auto-copy on selection completion (xterm-style)
         if (m_selAnchor.valid() && m_selCursor.valid()
             && !(m_selAnchor == m_selCursor)) {
             copySelection();
         } else {
-            // Clear single-click selection
             m_selAnchor = {};
             m_selCursor = {};
             viewport()->update();

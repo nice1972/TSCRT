@@ -138,6 +138,9 @@ private:
     QColor        m_bg{ 0x10, 0x10, 0x10 };
     QColor        m_fg{ 0xE0, 0xE0, 0xE0 };
 
+    // Mouse tracking mode set by the remote application (tmux, vim, etc.)
+    int           m_mouseMode = 0;   // VTERM_PROP_MOUSE_NONE
+
     // Selection
     bool          m_selecting = false;
     GridPos       m_selAnchor;
