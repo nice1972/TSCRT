@@ -34,6 +34,7 @@ public:
     /// tell at a glance whether a loop is currently ticking. Has no
     /// effect on signal routing — that lives in SessionTab.
     void setLoopRunning(bool running);
+    void setMarkActive(bool active);
 
     /// Mark the user-button whose action matches \a action as the
     /// active looping button.  Pass an empty string to clear.
@@ -48,8 +49,10 @@ signals:
     void buttonLoopRequested(const QString &actionString);
     void markClicked();           // left click
     void markRightClicked();      // right click
+    void markDoubleClicked();     // double click
     void loopClicked();           // left click
     void loopRightClicked();      // right click
+    void loopDoubleClicked();     // double click
     void helpRequested();
 
 protected:
@@ -72,6 +75,7 @@ private:
     int                m_repeatInterval = 0;
     QPushButton       *m_repeatBtn = nullptr;
     QPushButton       *m_loopBtn = nullptr;
+    QPushButton       *m_markBtn = nullptr;
     bool               m_loopRunning = false;
 
     QPushButton       *m_loopingBtn   = nullptr;

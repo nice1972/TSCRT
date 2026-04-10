@@ -43,8 +43,10 @@ private slots:
     void onButtonAction(const QString &actionString);
     void onMarkClicked();          // left click on mark button
     void onMarkRightClicked();     // right click on mark button
+    void onMarkDoubleClicked();    // double click on mark button
     void onLoopClicked();          // left click on loop button
     void onLoopRightClicked();     // right click on loop button
+    void onLoopDoubleClicked();    // double click on loop button
     void onLoopTick();
     void onButtonLoopRequested(const QString &action);
     void onHelpRequested();
@@ -55,6 +57,7 @@ private:
     void startLoop();               // start ticking with current cfg
     void stopLoop();                // stop ticking
     void configureMark();           // pop the highlight pattern dialog
+    void clearMark();               // clear the highlight pattern
 
 private:
     TerminalWidget      *m_term    = nullptr;

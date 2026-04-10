@@ -101,7 +101,7 @@ void ButtonBar::setButtons(const button_t buttons[MAX_BUTTONS])
 {
     clearLayout();
 
-    // User-defined buttons (left).
+    // User-defined buttons.
     for (int i = 0; i < MAX_BUTTONS; ++i) {
         const button_t &b = buttons[i];
         if (b.label[0] == '\0' && b.action[0] == '\0')
@@ -114,22 +114,28 @@ void ButtonBar::setButtons(const button_t buttons[MAX_BUTTONS])
 
     m_layout->addStretch();
 
-    // Special buttons + help (right).
-    m_loopBtn = makeSpecial(tr("loop"), QString::fromLatin1(kCssLoop));
+    // loop / mark — subtle accent, right-aligned before help.
+    m_loopBtn = new QPushButton(tr("loop"), this);
+    m_loopBtn->setStyleSheet(QString::fromLatin1(kCssLoop));
+    m_loopBtn->setFocusPolicy(Qt::NoFocus);
     m_loopBtn->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_loopBtn->installEventFilter(this);
     connect(m_loopBtn, &QPushButton::clicked,
             this, &ButtonBar::loopClicked);
     connect(m_loopBtn, &QPushButton::customContextMenuRequested,
             this, [this](const QPoint &) { emit loopRightClicked(); });
     m_layout->addWidget(m_loopBtn);
 
-    auto *mark = makeSpecial(tr("mark"), QString::fromLatin1(kCssMark));
-    mark->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(mark, &QPushButton::clicked,
+    m_markBtn = new QPushButton(tr("mark"), this);
+    m_markBtn->setStyleSheet(QString::fromLatin1(kCssMark));
+    m_markBtn->setFocusPolicy(Qt::NoFocus);
+    m_markBtn->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_markBtn->installEventFilter(this);
+    connect(m_markBtn, &QPushButton::clicked,
             this, &ButtonBar::markClicked);
-    connect(mark, &QPushButton::customContextMenuRequested,
+    connect(m_markBtn, &QPushButton::customContextMenuRequested,
             this, [this](const QPoint &) { emit markRightClicked(); });
-    m_layout->addWidget(mark);
+    m_layout->addWidget(m_markBtn);
 
     auto *help = makeSpecial(tr("?"), QString::fromLatin1(kCssHelp));
     connect(help, &QPushButton::clicked, this, &ButtonBar::helpRequested);
@@ -151,6 +157,21 @@ void ButtonBar::setLoopRunning(bool running)
     } else {
         m_loopBtn->setText(tr("loop"));
         m_loopBtn->setStyleSheet(QString::fromLatin1(kCssLoop));
+    }
+}
+
+void ButtonBar::setMarkActive(bool active)
+{
+    if (!m_markBtn) return;
+    if (active) {
+        m_markBtn->setText(tr("mark ●"));
+        m_markBtn->setStyleSheet(QStringLiteral(
+            "QPushButton { background:#a30000; color:#fff;"
+            " padding:4px 10px; border:1px solid #c00; border-radius:3px;"
+            " font-weight:bold; }"));
+    } else {
+        m_markBtn->setText(tr("mark"));
+        m_markBtn->setStyleSheet(QString::fromLatin1(kCssMark));
     }
 }
 
@@ -222,6 +243,14 @@ bool ButtonBar::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::MouseButtonDblClick) {
         auto *btn = qobject_cast<QPushButton *>(obj);
         if (btn) {
+            if (btn == m_loopBtn) {
+                emit loopDoubleClicked();
+                return true;
+            }
+            if (btn == m_markBtn) {
+                emit markDoubleClicked();
+                return true;
+            }
             const QString action = btn->property("action").toString();
             if (!action.isEmpty()) {
                 emit buttonLoopRequested(action);

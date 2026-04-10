@@ -47,10 +47,14 @@ SessionTab::SessionTab(ISession *session, const profile_t &profile,
             this, &SessionTab::onMarkClicked);
     connect(m_buttons, &ButtonBar::markRightClicked,
             this, &SessionTab::onMarkRightClicked);
+    connect(m_buttons, &ButtonBar::markDoubleClicked,
+            this, &SessionTab::onMarkDoubleClicked);
     connect(m_buttons, &ButtonBar::loopClicked,
             this, &SessionTab::onLoopClicked);
     connect(m_buttons, &ButtonBar::loopRightClicked,
             this, &SessionTab::onLoopRightClicked);
+    connect(m_buttons, &ButtonBar::loopDoubleClicked,
+            this, &SessionTab::onLoopDoubleClicked);
     connect(m_buttons, &ButtonBar::buttonLoopRequested,
             this, &SessionTab::onButtonLoopRequested);
     connect(m_buttons, &ButtonBar::helpRequested,
@@ -140,25 +144,38 @@ void SessionTab::configureMark()
     m_markPattern = p;
     if (m_engine) m_engine->setHighlightPattern(p);
     if (m_term)   m_term->setHighlightPattern(p);
+    if (m_buttons) m_buttons->setMarkActive(!p.isEmpty());
+}
+
+void SessionTab::clearMark()
+{
+    m_markPattern.clear();
+    if (m_engine) m_engine->setHighlightPattern(QString());
+    if (m_term)   m_term->setHighlightPattern(QString());
+    if (m_buttons) m_buttons->setMarkActive(false);
 }
 
 void SessionTab::onMarkClicked()
 {
-    // Left click: open the configuration dialog (set / change pattern).
+    // If mark is active, skip so double-click can fire clearMark().
+    if (!m_markPattern.isEmpty()) return;
     configureMark();
 }
 
 void SessionTab::onMarkRightClicked()
 {
-    // Right click while a pattern is set → clear it. Otherwise open the
-    // dialog so the user can set one.
-    if (m_markPattern.isEmpty()) {
+    if (m_markPattern.isEmpty())
         configureMark();
-    } else {
-        m_markPattern.clear();
-        if (m_engine) m_engine->setHighlightPattern(QString());
-        if (m_term)   m_term->setHighlightPattern(QString());
-    }
+    else
+        clearMark();
+}
+
+void SessionTab::onMarkDoubleClicked()
+{
+    if (!m_markPattern.isEmpty())
+        clearMark();
+    else
+        configureMark();
 }
 
 void SessionTab::configureLoop()
@@ -215,6 +232,17 @@ void SessionTab::onLoopRightClicked()
         stopLoop();
     else
         configureLoop();
+}
+
+void SessionTab::onLoopDoubleClicked()
+{
+    // Double click: stop if running, otherwise configure+start.
+    if (m_loopTimer.isActive()) {
+        stopLoop();
+    } else {
+        configureLoop();
+        startLoop();
+    }
 }
 
 void SessionTab::onLoopTick()
