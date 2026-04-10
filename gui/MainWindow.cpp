@@ -25,6 +25,7 @@
 #include <QHeaderView>
 #include <QIcon>
 #include <QInputDialog>
+#include <QKeyEvent>
 #include <QKeySequence>
 #include <QPainter>
 #include <QPixmap>
@@ -87,6 +88,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
             m_tabs->setCurrentIndex(i + 1);
     });
 
+    auto *fsToggle = new QShortcut(QKeySequence(Qt::Key_F11), this);
+    fsToggle->setContext(Qt::ApplicationShortcut);
+    connect(fsToggle, &QShortcut::activated,
+            this, &MainWindow::toggleFullScreen);
+
     loadProfile();
     createMenus();
     createSessionDock();
@@ -107,6 +113,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     saveSettings();
     QMainWindow::closeEvent(event);
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    QMainWindow::keyPressEvent(event);
 }
 
 void MainWindow::saveSettings()
@@ -191,6 +202,12 @@ void MainWindow::createMenus()
     viewMenu->addAction(m_actViewCmdLine);
     viewMenu->addAction(m_actViewButtons);
     viewMenu->addAction(m_actViewStatus);
+    viewMenu->addSeparator();
+    m_actFullScreen = new QAction(tr("&Full Screen\tF11"), this);
+    m_actFullScreen->setCheckable(true);
+    connect(m_actFullScreen, &QAction::triggered,
+            this, &MainWindow::toggleFullScreen);
+    viewMenu->addAction(m_actFullScreen);
 
     auto *settingsMenu = menuBar()->addMenu(tr("Se&ttings"));
     m_actSettings = new QAction(tr("&Preferences..."), this);
@@ -727,7 +744,27 @@ void MainWindow::openSessionByIndex(int profileIndex)
 
     ISession *session = nullptr;
     if (s.type == SESSION_TYPE_SSH) {
-        session = new SshSession(s.ssh, QString::fromLocal8Bit(s.name));
+        ssh_config_t sshCfg = s.ssh;
+
+        // If no password and no keyfile stored, prompt for password.
+        if (!sshCfg.password[0] && !sshCfg.keyfile[0]) {
+            bool ok = false;
+            const QString pw = QInputDialog::getText(this,
+                tr("SSH Password"),
+                tr("Password for %1@%2:")
+                    .arg(QString::fromLocal8Bit(sshCfg.username),
+                         QString::fromLocal8Bit(sshCfg.host)),
+                QLineEdit::Password, QString(), &ok);
+            if (!ok) return;
+            if (!pw.isEmpty()) {
+                const QByteArray b = pw.toUtf8();
+                const int n = qMin<int>(int(sizeof(sshCfg.password)) - 1, b.size());
+                memcpy(sshCfg.password, b.constData(), n);
+                sshCfg.password[n] = '\0';
+            }
+        }
+
+        session = new SshSession(sshCfg, QString::fromLocal8Bit(s.name));
     } else {
         session = new SerialSession(s.serial, QString::fromLocal8Bit(s.name));
     }
@@ -897,6 +934,45 @@ void MainWindow::toggleStatusBar(bool visible)
 {
     QSettings().setValue(QStringLiteral("ui/showStatusBar"), visible);
     statusBar()->setVisible(visible);
+}
+
+void MainWindow::toggleFullScreen()
+{
+    m_fullScreen = !m_fullScreen;
+    if (m_actFullScreen)
+        m_actFullScreen->setChecked(m_fullScreen);
+
+    if (m_fullScreen) {
+        // Hide everything except tabs.
+        menuBar()->setVisible(false);
+        if (m_sessionDock) m_sessionDock->setVisible(false);
+        statusBar()->setVisible(false);
+        for (int i = 0; i < m_tabs->count(); ++i) {
+            auto *tab = qobject_cast<tscrt::SessionTab *>(m_tabs->widget(i));
+            if (!tab) continue;
+            if (tab->commandLine()) tab->commandLine()->setVisible(false);
+            if (tab->buttonBar())   tab->buttonBar()->setVisible(false);
+        }
+        showFullScreen();
+    } else {
+        // Restore from saved preferences.
+        showNormal();
+        menuBar()->setVisible(true);
+        QSettings prefs;
+        if (m_sessionDock)
+            m_sessionDock->setVisible(
+                prefs.value(QStringLiteral("ui/showSessionDock"), true).toBool());
+        statusBar()->setVisible(
+            m_actViewStatus ? m_actViewStatus->isChecked() : true);
+        const bool showCmd = m_actViewCmdLine ? m_actViewCmdLine->isChecked() : true;
+        const bool showBtn = m_actViewButtons ? m_actViewButtons->isChecked() : true;
+        for (int i = 0; i < m_tabs->count(); ++i) {
+            auto *tab = qobject_cast<tscrt::SessionTab *>(m_tabs->widget(i));
+            if (!tab) continue;
+            if (tab->commandLine()) tab->commandLine()->setVisible(showCmd);
+            if (tab->buttonBar())   tab->buttonBar()->setVisible(showBtn);
+        }
+    }
 }
 
 void MainWindow::setUiLanguage(const QString &langCode)

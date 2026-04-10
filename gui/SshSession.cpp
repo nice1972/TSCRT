@@ -2,6 +2,7 @@
 
 #include "Credentials.h"
 
+#include <QFile>
 #include <QtGlobal>
 #include <ws2tcpip.h>
 
@@ -136,26 +137,107 @@ bool SshSession::sshHandshake(QString *err)
 bool SshSession::authenticate(QString *err)
 {
     bool ok = false;
-    if (m_cfg.keyfile[0]) {
+
+    // 1) SSH Agent (Windows OpenSSH agent / Pageant) — best-effort.
+    if (!ok) {
+        LIBSSH2_AGENT *agent = libssh2_agent_init(m_session);
+        if (agent) {
+            if (libssh2_agent_connect(agent) == 0) {
+                if (libssh2_agent_list_identities(agent) == 0) {
+                    struct libssh2_agent_publickey *id = nullptr;
+                    struct libssh2_agent_publickey *prev = nullptr;
+                    while (libssh2_agent_get_identity(agent, &id, prev) == 0) {
+                        if (libssh2_agent_userauth(agent, m_cfg.username,
+                                                   id) == 0) {
+                            ok = true;
+                            break;
+                        }
+                        prev = id;
+                    }
+                }
+                libssh2_agent_disconnect(agent);
+            }
+            libssh2_agent_free(agent);
+        }
+    }
+
+    // 2) Explicit key file
+    if (!ok && m_cfg.keyfile[0]) {
         if (libssh2_userauth_publickey_fromfile(
                 m_session, m_cfg.username, nullptr, m_cfg.keyfile,
                 m_cfg.password[0] ? m_cfg.password : nullptr) == 0) {
             ok = true;
         }
     }
+
+    // 3) Default key files (~/.ssh/id_rsa, id_ed25519, id_ecdsa)
+    if (!ok && !m_cfg.keyfile[0]) {
+        const QString home = QString::fromLocal8Bit(qgetenv("USERPROFILE"));
+        const char *keyNames[] = {
+            "/.ssh/id_ed25519", "/.ssh/id_rsa", "/.ssh/id_ecdsa"
+        };
+        for (const char *name : keyNames) {
+            const QByteArray path = (home + QString::fromLatin1(name)).toLocal8Bit();
+            if (QFile::exists(QString::fromLocal8Bit(path))) {
+                if (libssh2_userauth_publickey_fromfile(
+                        m_session, m_cfg.username, nullptr,
+                        path.constData(),
+                        m_cfg.password[0] ? m_cfg.password : nullptr) == 0) {
+                    ok = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    // 4) Password
     if (!ok && m_cfg.password[0]) {
         if (libssh2_userauth_password(m_session, m_cfg.username,
                                       m_cfg.password) == 0)
             ok = true;
     }
+
+    // 5) Keyboard-interactive (many servers only accept this)
+    if (!ok && m_cfg.password[0]) {
+        *libssh2_session_abstract(m_session) = &m_cfg;
+        if (libssh2_userauth_keyboard_interactive(
+                m_session, m_cfg.username,
+                &SshSession::kbdInteractiveCallback) == 0)
+            ok = true;
+    }
+
     if (!ok) {
-        char *e = nullptr;
-        libssh2_session_last_error(m_session, &e, nullptr, 0);
-        *err = QStringLiteral("Authentication failed: %1")
-                   .arg(QString::fromLocal8Bit(e ? e : "no method"));
+        if (!m_cfg.password[0] && !m_cfg.keyfile[0])
+            *err = QStringLiteral("Authentication failed: no password or key configured");
+        else {
+            char *e = nullptr;
+            libssh2_session_last_error(m_session, &e, nullptr, 0);
+            *err = QStringLiteral("Authentication failed: %1")
+                       .arg(QString::fromLocal8Bit(e ? e : "unknown"));
+        }
         return false;
     }
     return true;
+}
+
+void SshSession::kbdInteractiveCallback(
+    const char * /*name*/, int /*name_len*/,
+    const char * /*instruction*/, int /*instruction_len*/,
+    int num_prompts,
+    const LIBSSH2_USERAUTH_KBDINT_PROMPT * /*prompts*/,
+    LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses,
+    void **abstract)
+{
+    if (num_prompts <= 0 || !abstract || !*abstract) return;
+    auto *cfg = static_cast<ssh_config_t *>(*abstract);
+
+    // Fill the first response (password prompt) with the stored password.
+    const size_t len = strlen(cfg->password);
+    responses[0].text = static_cast<char *>(malloc(len));
+    if (responses[0].text) {
+        memcpy(responses[0].text, cfg->password, len);
+        responses[0].length = static_cast<unsigned int>(len);
+    }
 }
 
 bool SshSession::openShell(int cols, int rows, QString *err)

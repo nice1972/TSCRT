@@ -45,6 +45,14 @@ private:
     bool openShell(int cols, int rows, QString *err);
     void cleanup();
 
+    static void kbdInteractiveCallback(
+        const char *name, int name_len,
+        const char *instruction, int instruction_len,
+        int num_prompts,
+        const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts,
+        LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses,
+        void **abstract);
+
     ssh_config_t      m_cfg;
     QString           m_name;
     QThread           m_thread;

@@ -30,6 +30,7 @@ public:
 
 protected:
     void closeEvent(QCloseEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 public slots:
     void openSessionByIndex(int profileIndex);
@@ -54,6 +55,7 @@ private slots:
     void toggleButtonBars(bool visible);
     void toggleCmdLines(bool visible);
     void toggleStatusBar(bool visible);
+    void toggleFullScreen();
 
 private:
     void renameSessionByIndex(int profileIndex);
@@ -88,6 +90,8 @@ private:
     QAction       *m_actViewButtons = nullptr;
     QAction       *m_actViewCmdLine = nullptr;
     QAction       *m_actViewStatus  = nullptr;
+    QAction       *m_actFullScreen  = nullptr;
+    bool           m_fullScreen     = false;
 
     // Session clipboard for the tree's right-click "Copy"/"Paste".
     session_entry_t m_sessionClipboard{};
