@@ -46,6 +46,7 @@ private slots:
     void onLoopClicked();          // left click on loop button
     void onLoopRightClicked();     // right click on loop button
     void onLoopTick();
+    void onButtonLoopRequested(const QString &action);
     void onHelpRequested();
     void onCommandEntered(const QString &cmd);
 

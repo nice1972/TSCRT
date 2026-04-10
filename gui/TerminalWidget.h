@@ -82,6 +82,7 @@ protected:
     void contextMenuEvent(QContextMenuEvent *e) override;
     void focusInEvent(QFocusEvent *e)          override;
     void focusOutEvent(QFocusEvent *e)         override;
+    bool focusNextPrevChild(bool next)         override;
 
 public:
     // libvterm callback trampolines (public so the static callback table

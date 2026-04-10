@@ -32,6 +32,19 @@ constexpr const char *kCssHelp =
     "QPushButton { background:#1f4d7a; color:#fff; padding:4px 10px;"
     " border:1px solid #2f6ba8; border-radius:3px; }";
 
+// Looping button: idle between ticks — subtle highlight.
+constexpr const char *kCssLooping =
+    "QPushButton { background:#2c2c2c; color:#ffcc00; padding:4px 10px;"
+    " border:2px solid #a36500; border-radius:3px; font-weight:bold; }"
+    "QPushButton:hover { background:#3a3a3a; }";
+
+// Looping button: flash on tick — bright pop.
+constexpr const char *kCssFlash =
+    "QPushButton { background:#ff6600; color:#fff; padding:4px 10px;"
+    " border:2px solid #ff9900; border-radius:3px; font-weight:bold; }";
+
+constexpr int kFlashDurationMs = 300;
+
 } // namespace
 
 ButtonBar::ButtonBar(QWidget *parent) : QWidget(parent)
@@ -45,6 +58,10 @@ ButtonBar::ButtonBar(QWidget *parent) : QWidget(parent)
 
     m_repeatTimer = new QTimer(this);
     connect(m_repeatTimer, &QTimer::timeout, this, &ButtonBar::onRepeatTick);
+
+    m_flashTimer = new QTimer(this);
+    m_flashTimer->setSingleShot(true);
+    connect(m_flashTimer, &QTimer::timeout, this, &ButtonBar::onFlashOff);
 }
 
 void ButtonBar::clearLayout()
@@ -64,6 +81,7 @@ QPushButton *ButtonBar::makeAction(int slot, const QString &label, const QString
     btn->setProperty("slotIndex", slot);
     btn->setFocusPolicy(Qt::NoFocus);
     btn->setContextMenuPolicy(Qt::CustomContextMenu);
+    btn->installEventFilter(this);
     connect(btn, &QPushButton::clicked,
             this, &ButtonBar::onButtonClicked);
     connect(btn, &QPushButton::customContextMenuRequested,
@@ -161,6 +179,57 @@ void ButtonBar::onRepeatTick()
 {
     if (!m_repeatAction.isEmpty())
         emit actionRequested(m_repeatAction);
+}
+
+void ButtonBar::setLoopingAction(const QString &action)
+{
+    // Revert the previous looping button to normal style.
+    if (m_loopingBtn) {
+        m_flashTimer->stop();
+        m_loopingBtn->setStyleSheet(QString::fromLatin1(kCssNormal));
+        m_loopingBtn = nullptr;
+    }
+
+    if (action.isEmpty())
+        return;
+
+    // Find the button whose action matches.
+    for (int i = 0; i < m_layout->count(); ++i) {
+        auto *btn = qobject_cast<QPushButton *>(m_layout->itemAt(i)->widget());
+        if (btn && btn->property("action").toString() == action) {
+            m_loopingBtn = btn;
+            m_loopingBtn->setStyleSheet(QString::fromLatin1(kCssLooping));
+            break;
+        }
+    }
+}
+
+void ButtonBar::flashLoopingButton()
+{
+    if (!m_loopingBtn) return;
+    m_loopingBtn->setStyleSheet(QString::fromLatin1(kCssFlash));
+    m_flashTimer->start(kFlashDurationMs);
+}
+
+void ButtonBar::onFlashOff()
+{
+    if (m_loopingBtn)
+        m_loopingBtn->setStyleSheet(QString::fromLatin1(kCssLooping));
+}
+
+bool ButtonBar::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::MouseButtonDblClick) {
+        auto *btn = qobject_cast<QPushButton *>(obj);
+        if (btn) {
+            const QString action = btn->property("action").toString();
+            if (!action.isEmpty()) {
+                emit buttonLoopRequested(action);
+                return true;
+            }
+        }
+    }
+    return QWidget::eventFilter(obj, event);
 }
 
 } // namespace tscrt

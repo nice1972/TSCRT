@@ -505,6 +505,13 @@ void TerminalWidget::focusOutEvent(QFocusEvent *e)
     viewport()->update();
 }
 
+bool TerminalWidget::focusNextPrevChild(bool /*next*/)
+{
+    // Prevent Tab / Shift+Tab from moving focus away — the terminal
+    // needs those keys for shell tab-completion, etc.
+    return false;
+}
+
 // ---- Keyboard input -------------------------------------------------------
 
 void TerminalWidget::keyPressEvent(QKeyEvent *event)

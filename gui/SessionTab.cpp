@@ -51,6 +51,8 @@ SessionTab::SessionTab(ISession *session, const profile_t &profile,
             this, &SessionTab::onLoopClicked);
     connect(m_buttons, &ButtonBar::loopRightClicked,
             this, &SessionTab::onLoopRightClicked);
+    connect(m_buttons, &ButtonBar::buttonLoopRequested,
+            this, &SessionTab::onButtonLoopRequested);
     connect(m_buttons, &ButtonBar::helpRequested,
             this, &SessionTab::onHelpRequested);
 
@@ -179,14 +181,20 @@ void SessionTab::startLoop()
     if (m_loopAction.isEmpty() || m_loopIntervalSec <= 0) return;
     if (m_loopTimer.isActive()) return;
     m_loopTimer.start(m_loopIntervalSec * 1000);
-    if (m_buttons) m_buttons->setLoopRunning(true);
+    if (m_buttons) {
+        m_buttons->setLoopRunning(true);
+        m_buttons->setLoopingAction(m_loopAction);
+    }
     onLoopTick();   // fire immediately so the user sees feedback
 }
 
 void SessionTab::stopLoop()
 {
     m_loopTimer.stop();
-    if (m_buttons) m_buttons->setLoopRunning(false);
+    if (m_buttons) {
+        m_buttons->setLoopRunning(false);
+        m_buttons->setLoopingAction(QString());
+    }
 }
 
 void SessionTab::onLoopClicked()
@@ -213,6 +221,32 @@ void SessionTab::onLoopTick()
 {
     if (m_engine && !m_loopAction.isEmpty())
         m_engine->executeAction(m_loopAction + QStringLiteral("\\r"));
+    if (m_buttons)
+        m_buttons->flashLoopingButton();
+}
+
+void SessionTab::onButtonLoopRequested(const QString &action)
+{
+    // If the same action is already looping, stop it.
+    if (m_loopTimer.isActive() && m_loopAction == action) {
+        stopLoop();
+        return;
+    }
+
+    // If a different loop is running, stop it first.
+    if (m_loopTimer.isActive())
+        stopLoop();
+
+    bool ok = false;
+    const int sec = QInputDialog::getInt(this, tr("Loop"),
+        tr("Interval (seconds):"),
+        m_loopIntervalSec > 0 ? m_loopIntervalSec : 60,
+        1, 86400, 1, &ok);
+    if (!ok) return;
+
+    m_loopAction      = action;
+    m_loopIntervalSec = sec;
+    startLoop();
 }
 
 void SessionTab::onHelpRequested()

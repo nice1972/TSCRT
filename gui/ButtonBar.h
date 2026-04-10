@@ -35,19 +35,31 @@ public:
     /// effect on signal routing — that lives in SessionTab.
     void setLoopRunning(bool running);
 
+    /// Mark the user-button whose action matches \a action as the
+    /// active looping button.  Pass an empty string to clear.
+    void setLoopingAction(const QString &action);
+
+    /// Briefly flash the looping button (call on every loop tick).
+    void flashLoopingButton();
+
 signals:
     void actionRequested(const QString &actionString);
     void buttonEditRequested(int slotIndex);
+    void buttonLoopRequested(const QString &actionString);
     void markClicked();           // left click
     void markRightClicked();      // right click
     void loopClicked();           // left click
     void loopRightClicked();      // right click
     void helpRequested();
 
+protected:
+    bool eventFilter(QObject *obj, QEvent *event) override;
+
 private slots:
     void onButtonClicked();
     void onButtonContextMenu(const QPoint &pos);
     void onRepeatTick();
+    void onFlashOff();
 
 private:
     QPushButton *makeAction(int slot, const QString &label, const QString &action);
@@ -61,6 +73,9 @@ private:
     QPushButton       *m_repeatBtn = nullptr;
     QPushButton       *m_loopBtn = nullptr;
     bool               m_loopRunning = false;
+
+    QPushButton       *m_loopingBtn   = nullptr;
+    QTimer            *m_flashTimer   = nullptr;
 };
 
 } // namespace tscrt
