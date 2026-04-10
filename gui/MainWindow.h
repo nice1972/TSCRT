@@ -16,6 +16,7 @@ class QAction;
 class QDockWidget;
 class QLabel;
 class QMenu;
+class QStackedWidget;
 class QTabWidget;
 class QTreeWidget;
 class QTreeWidgetItem;
@@ -46,6 +47,8 @@ private:
 
 private slots:
     void onTabCloseRequested(int index);
+    void onTabBarDoubleClicked(int index);
+    void onTabBarContextMenu(const QPoint &pos);
     void onCurrentTabChanged(int index);
     void onSessionTreeActivated(QTreeWidgetItem *item, int column);
     void onSessionTreeContextMenu(const QPoint &pos);
@@ -69,12 +72,19 @@ private:
     void createSessionDock();
     void createStatusBar();
     void updateStatusForCurrentTab();
+    void updateCentralView();
+    void renameTab(int index);
+    void duplicateTab(int index);
+    void restorePinnedTabs();
+    void updatePinIcon(int index);
     void loadProfile();
     void saveSettings();
     void loadSettings();
 
-    profile_t      m_profile{};
-    QTabWidget    *m_tabs        = nullptr;
+    profile_t        m_profile{};
+    QStackedWidget  *m_central    = nullptr;
+    QWidget         *m_emptyPage  = nullptr;
+    QTabWidget      *m_tabs       = nullptr;
     QDockWidget   *m_sessionDock = nullptr;
     QTreeWidget   *m_sessionTree = nullptr;
     QLabel        *m_lblProto    = nullptr;

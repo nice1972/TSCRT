@@ -3,4 +3,7 @@
     <qresource prefix="/icons">
         <file alias="app.png">tscrt_win.png</file>
     </qresource>
+    <qresource prefix="/images">
+        <file alias="airix_bg.png">airix_bg.png</file>
+    </qresource>
 </RCC>

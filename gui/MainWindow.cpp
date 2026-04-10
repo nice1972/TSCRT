@@ -35,11 +35,13 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QStackedWidget>
 #include <QStatusBar>
 #include <QStyle>
 #include <QShortcut>
 #include <QTabBar>
 #include <QTabWidget>
+#include <QVBoxLayout>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QtGlobal>
@@ -52,12 +54,22 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     setWindowTitle(QStringLiteral("TSCRT"));
     resize(1100, 720);
 
+    // -- Empty-state page (logo background) --
+    m_emptyPage = new QWidget(this);
+    m_emptyPage->setStyleSheet(QStringLiteral("background: white;"));
+    auto *emptyLayout = new QVBoxLayout(m_emptyPage);
+    emptyLayout->setAlignment(Qt::AlignCenter);
+    auto *logoLabel = new QLabel(m_emptyPage);
+    QPixmap logo(QStringLiteral(":/images/airix_bg.png"));
+    logoLabel->setPixmap(logo.scaled(480, 480, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    logoLabel->setAlignment(Qt::AlignCenter);
+    emptyLayout->addWidget(logoLabel);
+
+    // -- Tab widget --
     m_tabs = new QTabWidget(this);
     m_tabs->setTabsClosable(true);
     m_tabs->setMovable(true);
     m_tabs->setDocumentMode(true);
-    // Highlight the active tab in light blue. documentMode=true forwards
-    // styling to the embedded QTabBar.
     m_tabs->tabBar()->setStyleSheet(QStringLiteral(
         "QTabBar::tab:selected {"
         "    background: #aed6f1;"
@@ -70,7 +82,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
             this, &MainWindow::onTabCloseRequested);
     connect(m_tabs, &QTabWidget::currentChanged,
             this, &MainWindow::onCurrentTabChanged);
-    setCentralWidget(m_tabs);
+    connect(m_tabs->tabBar(), &QTabBar::tabBarDoubleClicked,
+            this, &MainWindow::onTabBarDoubleClicked);
+    m_tabs->tabBar()->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_tabs->tabBar(), &QWidget::customContextMenuRequested,
+            this, &MainWindow::onTabBarContextMenu);
+
+    // -- Stacked central widget --
+    m_central = new QStackedWidget(this);
+    m_central->addWidget(m_emptyPage);  // index 0
+    m_central->addWidget(m_tabs);       // index 1
+    m_central->setCurrentWidget(m_emptyPage);
+    setCentralWidget(m_central);
 
     // Ctrl+Alt+Left / Ctrl+Alt+Right: move between tabs without wrap-around.
     auto *prevTab = new QShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_Left), this);
@@ -107,6 +130,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         const bool showStatus = prefs.value(QStringLiteral("ui/showStatusBar"), true).toBool();
         statusBar()->setVisible(showStatus);
     }
+
+    restorePinnedTabs();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -127,6 +152,22 @@ void MainWindow::saveSettings()
     s.setValue(QStringLiteral("geometry"),  saveGeometry());
     s.setValue(QStringLiteral("state"),     saveState());
     s.endGroup();
+
+    // Persist pinned tabs (profile index + display name).
+    QList<QVariant> pinned;
+    for (int i = 0; i < m_tabs->count(); ++i) {
+        QWidget *page = m_tabs->widget(i);
+        if (page && page->property("tscrtPinned").toBool()) {
+            const QVariant v = page->property("tscrtProfileIndex");
+            if (v.isValid()) {
+                QVariantMap entry;
+                entry[QStringLiteral("index")] = v.toInt();
+                entry[QStringLiteral("name")]  = m_tabs->tabText(i);
+                pinned.append(entry);
+            }
+        }
+    }
+    s.setValue(QStringLiteral("pinnedTabs"), pinned);
 }
 
 void MainWindow::loadSettings()
@@ -340,6 +381,12 @@ void MainWindow::updateStatusForCurrentTab()
 void MainWindow::onCurrentTabChanged(int /*index*/)
 {
     updateStatusForCurrentTab();
+    updateCentralView();
+}
+
+void MainWindow::updateCentralView()
+{
+    m_central->setCurrentWidget(m_tabs->count() > 0 ? m_tabs : m_emptyPage);
 }
 
 void MainWindow::onSessionTreeActivated(QTreeWidgetItem *item, int /*column*/)
@@ -802,6 +849,7 @@ void MainWindow::openSessionByIndex(int profileIndex)
     connect(tab, &tscrt::SessionTab::buttonEditRequested,
             this, &MainWindow::editButtonSlot);
 
+    tab->setProperty("tscrtProfileIndex", profileIndex);
     const int idx = m_tabs->addTab(tab, QString::fromLocal8Bit(s.name));
     m_tabs->setCurrentIndex(idx);
 
@@ -830,6 +878,117 @@ void MainWindow::onTabCloseRequested(int index)
     m_tabs->removeTab(index);
     if (page)
         page->deleteLater();
+    updateCentralView();
+}
+
+void MainWindow::onTabBarDoubleClicked(int index)
+{
+    if (index < 0)
+        return;
+    renameTab(index);
+}
+
+void MainWindow::onTabBarContextMenu(const QPoint &pos)
+{
+    const int index = m_tabs->tabBar()->tabAt(pos);
+    if (index < 0)
+        return;
+
+    QMenu menu(this);
+    QAction *actRename    = menu.addAction(tr("Rename"));
+    QAction *actDuplicate = menu.addAction(tr("Duplicate"));
+    menu.addSeparator();
+
+    QWidget *page = m_tabs->widget(index);
+    const bool pinned = page && page->property("tscrtPinned").toBool();
+    QAction *actPin = menu.addAction(pinned ? tr("Unpin") : tr("Pin"));
+    menu.addSeparator();
+    QAction *actClose = menu.addAction(tr("Close"));
+
+    QAction *chosen = menu.exec(m_tabs->tabBar()->mapToGlobal(pos));
+    if (chosen == actRename) {
+        renameTab(index);
+    } else if (chosen == actDuplicate) {
+        duplicateTab(index);
+    } else if (chosen == actPin) {
+        if (page) {
+            page->setProperty("tscrtPinned", !pinned);
+            updatePinIcon(index);
+        }
+    } else if (chosen == actClose) {
+        onTabCloseRequested(index);
+    }
+}
+
+void MainWindow::renameTab(int index)
+{
+    const QString cur = m_tabs->tabText(index);
+    bool ok = false;
+    const QString name = QInputDialog::getText(
+        this, tr("Rename Tab"), tr("Tab name:"),
+        QLineEdit::Normal, cur, &ok);
+    if (ok && !name.isEmpty())
+        m_tabs->setTabText(index, name);
+}
+
+void MainWindow::duplicateTab(int index)
+{
+    QWidget *page = m_tabs->widget(index);
+    if (!page)
+        return;
+    const QVariant v = page->property("tscrtProfileIndex");
+    if (!v.isValid())
+        return;
+    bool ok = false;
+    const int profileIndex = v.toInt(&ok);
+    if (ok && profileIndex >= 0)
+        openSessionByIndex(profileIndex);
+}
+
+void MainWindow::restorePinnedTabs()
+{
+    QSettings s;
+    const QList<QVariant> pinned = s.value(QStringLiteral("pinnedTabs")).toList();
+    for (const QVariant &v : pinned) {
+        // Support new format (QVariantMap) and legacy format (int).
+        int idx = -1;
+        QString displayName;
+        if (v.typeId() == QMetaType::QVariantMap) {
+            const QVariantMap m = v.toMap();
+            idx = m.value(QStringLiteral("index"), -1).toInt();
+            displayName = m.value(QStringLiteral("name")).toString();
+        } else {
+            bool ok = false;
+            idx = v.toInt(&ok);
+            if (!ok) continue;
+        }
+        if (idx < 0 || idx >= m_profile.session_count)
+            continue;
+        openSessionByIndex(idx);
+        const int tabIdx = m_tabs->count() - 1;
+        QWidget *page = m_tabs->widget(tabIdx);
+        if (page) {
+            page->setProperty("tscrtPinned", true);
+            updatePinIcon(tabIdx);
+            if (!displayName.isEmpty())
+                m_tabs->setTabText(tabIdx, displayName);
+        }
+    }
+}
+
+void MainWindow::updatePinIcon(int index)
+{
+    QWidget *page = m_tabs->widget(index);
+    if (!page)
+        return;
+    const bool pinned = page->property("tscrtPinned").toBool();
+    const QString base = page->property("tscrtProfileIndex").isValid()
+        ? QString::fromLocal8Bit(m_profile.sessions[page->property("tscrtProfileIndex").toInt()].name)
+        : m_tabs->tabText(index);
+    if (pinned)
+        m_tabs->tabBar()->setTabIcon(index, style()->standardIcon(QStyle::SP_DialogApplyButton));
+    else
+        m_tabs->tabBar()->setTabIcon(index, QIcon());
 }
 
 void MainWindow::showSettingsDialog()
@@ -998,7 +1157,7 @@ void MainWindow::showAboutDialog()
         "<h2>TSCRT</h2>"
         "<p><b>Version %1</b><br/>"
         "Built %2</p>"
-        "<p>A SecureCRT-style terminal emulator for SSH2 and serial "
+        "<p>A terminal emulator for SSH2 and serial "
         "consoles.</p>"
         "<p style=\"color:#888;\">"
         "Qt %3 &middot; libssh2 %4 &middot; libvterm %5.%6"
