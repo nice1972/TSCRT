@@ -65,8 +65,8 @@ private:
 
     // Common
     QLineEdit       *m_logDir       = nullptr;
-    QLineEdit       *m_termType     = nullptr;
-    QLineEdit       *m_encoding     = nullptr;
+    QComboBox       *m_termType     = nullptr;
+    QComboBox       *m_encoding     = nullptr;
     QSpinBox        *m_scrollback   = nullptr;
 
     // Buttons (20 rows)

@@ -151,7 +151,7 @@ void MainWindow::createMenus()
     auto *fileMenu = menuBar()->addMenu(tr("&File"));
 
     m_actCloseTab = new QAction(tr("&Close tab"), this);
-    m_actCloseTab->setShortcut(QKeySequence(tr("Ctrl+W")));
+    m_actCloseTab->setShortcut(QKeySequence(tr("Ctrl+Shift+W")));
     connect(m_actCloseTab, &QAction::triggered, this, &MainWindow::closeCurrentTab);
     fileMenu->addAction(m_actCloseTab);
 

@@ -67,9 +67,47 @@ QWidget *SettingsDialog::buildCommonTab()
     auto *page = new QWidget(this);
     auto *form = new QFormLayout(page);
 
-    m_logDir   = new QLineEdit(fromCStr(m_p.common.log_dir),       page);
-    m_termType = new QLineEdit(fromCStr(m_p.common.terminal_type), page);
-    m_encoding = new QLineEdit(fromCStr(m_p.common.encoding),      page);
+    m_logDir = new QLineEdit(fromCStr(m_p.common.log_dir), page);
+
+    m_termType = new QComboBox(page);
+    m_termType->addItems({
+        QStringLiteral("xterm-256color"),
+        QStringLiteral("xterm"),
+        QStringLiteral("vt220"),
+        QStringLiteral("vt100"),
+        QStringLiteral("ansi"),
+        QStringLiteral("linux"),
+        QStringLiteral("screen-256color"),
+        QStringLiteral("screen"),
+        QStringLiteral("tmux-256color"),
+        QStringLiteral("tmux"),
+    });
+    {
+        const QString cur = fromCStr(m_p.common.terminal_type);
+        int idx = m_termType->findText(cur);
+        if (idx >= 0) m_termType->setCurrentIndex(idx);
+        else { m_termType->addItem(cur); m_termType->setCurrentIndex(m_termType->count() - 1); }
+    }
+
+    m_encoding = new QComboBox(page);
+    m_encoding->addItems({
+        QStringLiteral("UTF-8"),
+        QStringLiteral("EUC-KR"),
+        QStringLiteral("ISO-8859-1"),
+        QStringLiteral("ISO-8859-15"),
+        QStringLiteral("Windows-1252"),
+        QStringLiteral("Shift_JIS"),
+        QStringLiteral("EUC-JP"),
+        QStringLiteral("GB2312"),
+        QStringLiteral("Big5"),
+    });
+    {
+        const QString cur = fromCStr(m_p.common.encoding);
+        int idx = m_encoding->findText(cur, Qt::MatchFixedString);
+        if (idx >= 0) m_encoding->setCurrentIndex(idx);
+        else { m_encoding->addItem(cur); m_encoding->setCurrentIndex(m_encoding->count() - 1); }
+    }
+
     m_scrollback = new QSpinBox(page);
     m_scrollback->setRange(0, 10'000'000);
     m_scrollback->setValue(m_p.common.scrollback);
@@ -94,8 +132,8 @@ QWidget *SettingsDialog::buildCommonTab()
 void SettingsDialog::commitCommon()
 {
     setStr(m_p.common.log_dir,       sizeof(m_p.common.log_dir),       m_logDir->text());
-    setStr(m_p.common.terminal_type, sizeof(m_p.common.terminal_type), m_termType->text());
-    setStr(m_p.common.encoding,      sizeof(m_p.common.encoding),      m_encoding->text());
+    setStr(m_p.common.terminal_type, sizeof(m_p.common.terminal_type), m_termType->currentText());
+    setStr(m_p.common.encoding,      sizeof(m_p.common.encoding),      m_encoding->currentText());
     m_p.common.scrollback = m_scrollback->value();
 }
 

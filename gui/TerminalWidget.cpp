@@ -72,6 +72,7 @@ TerminalWidget::TerminalWidget(QWidget *parent)
     vterm_output_set_callback(m_vt, &TerminalWidget::s_outputCallback, this);
 
     m_screen = vterm_obtain_screen(m_vt);
+    vterm_screen_enable_altscreen(m_screen, 1);
     vterm_screen_set_callbacks(m_screen, &kScreenCallbacks, this);
     vterm_screen_reset(m_screen, 1);
 
@@ -184,8 +185,17 @@ int TerminalWidget::s_settermprop(VTermProp prop, VTermValue *val,
                                   void *user)
 {
     auto *self = static_cast<TerminalWidget *>(user);
-    if (prop == VTERM_PROP_MOUSE)
+    switch (prop) {
+    case VTERM_PROP_CURSORVISIBLE:
+        self->m_cursorVisible = val->boolean;
+        self->scheduleRepaint();
+        break;
+    case VTERM_PROP_MOUSE:
         self->m_mouseMode = val->number;
+        break;
+    default:
+        break;
+    }
     return 1;
 }
 
@@ -441,6 +451,9 @@ void TerminalWidget::paintEvent(QPaintEvent * /*event*/)
             QColor bg = cellColor(cell.bg, m_screen, m_bg);
             QColor fg = cellColor(cell.fg, m_screen, m_fg);
 
+            if (cell.attrs.reverse)
+                std::swap(fg, bg);
+
             // Selection takes precedence over the cell background
             if (cellInSelection(row, col)) {
                 bg = QColor(70, 110, 200);
@@ -476,17 +489,39 @@ void TerminalWidget::paintEvent(QPaintEvent * /*event*/)
         }
     }
 
-    // Cursor (block) — only when looking at the live screen.
-    if (m_scrollOffset == 0) {
-        if (m_cursorVisible && hasFocus() && m_blinkOn) {
-            const int x = m_cursorCol * m_cellW;
-            const int y = m_cursorRow * m_cellH;
-            p.fillRect(x, y, m_cellW, m_cellH, QColor(255, 255, 255, 110));
-        } else if (m_cursorVisible) {
-            const int x = m_cursorCol * m_cellW;
-            const int y = m_cursorRow * m_cellH;
-            p.setPen(QColor(255, 255, 255, 160));
-            p.drawRect(x, y, m_cellW - 1, m_cellH - 1);
+    // Cursor — only when looking at the live screen.
+    if (m_scrollOffset == 0 && m_cursorVisible) {
+        const int x = m_cursorCol * m_cellW;
+        const int y = m_cursorRow * m_cellH;
+
+        // Read the cell under the cursor for glyph redraw.
+        VTermScreenCell cell{};
+        VTermPos cpos{ m_cursorRow, m_cursorCol };
+        if (m_screen)
+            vterm_screen_get_cell(m_screen, cpos, &cell);
+
+        // Pick cursor brightness: bright when focused+blink-on,
+        // dimmer otherwise — always a solid filled block.
+        QColor curBg;
+        if (hasFocus() && m_blinkOn)
+            curBg = QColor(0xFF, 0xFF, 0xFF);   // bright white
+        else if (hasFocus())
+            curBg = QColor(0x80, 0x80, 0x80);   // medium gray (blink-off)
+        else
+            curBg = QColor(0x70, 0x70, 0x70);   // unfocused
+        static const QColor curFg(0x00, 0x00, 0x00);
+
+        p.fillRect(x, y, m_cellW, m_cellH, curBg);
+
+        if (cell.chars[0] != 0 && cell.chars[0] != 0x20) {
+            QString glyph;
+            for (int k = 0; k < VTERM_MAX_CHARS_PER_CELL && cell.chars[k]; ++k)
+                glyph.append(QChar::fromUcs4(cell.chars[k]));
+            p.setFont(cell.attrs.bold
+                ? [&]{ QFont bf = m_font; bf.setBold(true); return bf; }()
+                : m_font);
+            p.setPen(curFg);
+            p.drawText(x, y + m_baseline, glyph);
         }
     }
 }
