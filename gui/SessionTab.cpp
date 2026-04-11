@@ -3,14 +3,17 @@
 #include "AutomationEngine.h"
 #include "ButtonBar.h"
 #include "CommandLineWidget.h"
+#include "FindBar.h"
 #include "ISession.h"
 #include "SessionHistory.h"
 #include "SessionLogger.h"
 #include "TerminalWidget.h"
 
 #include <QInputDialog>
+#include <QKeySequence>
 #include <QMessageBox>
 #include <QSettings>
+#include <QShortcut>
 #include <QVBoxLayout>
 
 namespace tscrt {
@@ -29,6 +32,57 @@ SessionTab::SessionTab(ISession *session, const profile_t &profile,
 
     m_term = new TerminalWidget(this);
     root->addWidget(m_term, 1);
+
+    // Find / Mark bar — hidden until Ctrl+F or the Mark button opens it.
+    m_findBar = new FindBar(this);
+    m_findBar->hide();
+    root->addWidget(m_findBar);
+    connect(m_findBar, &FindBar::patternOrOptionsChanged, this, [this]() {
+        if (!m_term) return;
+        const int total = m_term->findAll(m_findBar->pattern(),
+                                          m_findBar->caseSensitive(),
+                                          m_findBar->regex());
+        m_findBar->setMatchInfo(m_term->findCurrentIndex(), total);
+        if (m_findBar->markActive())
+            m_term->setHighlightPattern(m_findBar->pattern());
+    });
+    connect(m_findBar, &FindBar::findNextRequested, this, [this]() {
+        if (m_term) m_term->findNext();
+    });
+    connect(m_findBar, &FindBar::findPrevRequested, this, [this]() {
+        if (m_term) m_term->findPrev();
+    });
+    connect(m_findBar, &FindBar::markToggled, this, [this](bool on) {
+        if (!m_term) return;
+        if (on) {
+            m_markPattern = m_findBar->pattern();
+            m_term->setHighlightPattern(m_markPattern);
+            if (m_engine) m_engine->setHighlightPattern(m_markPattern);
+            if (m_buttons) m_buttons->setMarkActive(!m_markPattern.isEmpty());
+        } else {
+            m_markPattern.clear();
+            m_term->setHighlightPattern(QString());
+            if (m_engine) m_engine->setHighlightPattern(QString());
+            if (m_buttons) m_buttons->setMarkActive(false);
+        }
+    });
+    connect(m_findBar, &FindBar::closeRequested, this, [this]() {
+        if (m_term) {
+            m_term->clearFind();
+            m_term->setFocus();
+        }
+        m_findBar->hide();
+    });
+    connect(m_term, &TerminalWidget::findIndexChanged,
+            m_findBar, &FindBar::setMatchInfo);
+
+    // Ctrl+F (⌘F on mac via Qt::CTRL portable constant) opens the bar.
+    auto *findShortcut = new QShortcut(
+        QKeySequence(QKeySequence::Find), this);
+    findShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+    connect(findShortcut, &QShortcut::activated, this, [this]() {
+        showFindBar(false);
+    });
 
     // Command line entry — keeps a per-session history file.
     m_cmdLine = new ::CommandLineWidget(this);
@@ -139,17 +193,30 @@ void SessionTab::onCommandEntered(const QString &cmd)
     // clicking the terminal or another widget.
 }
 
+void SessionTab::showFindBar(bool markPreset)
+{
+    if (!m_findBar) return;
+    m_findBar->show();
+    if (markPreset) {
+        m_findBar->setPattern(m_markPattern);
+        m_findBar->setMarkActive(!m_markPattern.isEmpty());
+    } else {
+        m_findBar->setMarkActive(!m_markPattern.isEmpty());
+    }
+    m_findBar->focusInput();
+    // Trigger a search with the current text (if any) so the count updates.
+    if (m_term && !m_findBar->pattern().isEmpty()) {
+        const int total = m_term->findAll(m_findBar->pattern(),
+                                          m_findBar->caseSensitive(),
+                                          m_findBar->regex());
+        m_findBar->setMatchInfo(m_term->findCurrentIndex(), total);
+    }
+}
+
 void SessionTab::configureMark()
 {
-    bool ok = false;
-    const QString p = QInputDialog::getText(this, tr("Mark"),
-        tr("Highlight pattern (empty to clear):"), QLineEdit::Normal,
-        m_markPattern, &ok);
-    if (!ok) return;
-    m_markPattern = p;
-    if (m_engine) m_engine->setHighlightPattern(p);
-    if (m_term)   m_term->setHighlightPattern(p);
-    if (m_buttons) m_buttons->setMarkActive(!p.isEmpty());
+    // Legacy entry point — route to the shared Find/Mark bar.
+    showFindBar(true);
 }
 
 void SessionTab::clearMark()

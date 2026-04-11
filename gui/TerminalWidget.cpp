@@ -12,6 +12,7 @@
 #include <QPainter>
 #include <QPaintEvent>
 #include <QResizeEvent>
+#include <QRegularExpression>
 #include <QScrollBar>
 #include <QtGlobal>
 
@@ -325,25 +326,12 @@ bool TerminalWidget::cellInSelection(int row, int col) const
     return !(here < a) && (here < b || here == b);
 }
 
-bool TerminalWidget::cellInHighlight(int row, int col) const
+bool TerminalWidget::cellInHighlight(int logical, int col) const
 {
-    if (m_highlight.isEmpty() || !m_screen)
+    if (m_highlight.isEmpty())
         return false;
-    // Build the row text and find substring offsets that cover this column.
-    QString line;
-    line.reserve(m_cols);
-    for (int c = 0; c < m_cols; ++c) {
-        VTermPos p{ row, c };
-        VTermScreenCell cell;
-        if (!vterm_screen_get_cell(m_screen, p, &cell)) {
-            line.append(QLatin1Char(' '));
-            continue;
-        }
-        if (cell.chars[0])
-            line.append(QChar::fromUcs4(cell.chars[0]));
-        else
-            line.append(QLatin1Char(' '));
-    }
+    const QString line = lineTextForLogical(logical);
+    if (line.isEmpty()) return false;
     int from = 0;
     while (true) {
         const int idx = line.indexOf(m_highlight, from);
@@ -407,6 +395,175 @@ void TerminalWidget::setHighlightPattern(const QString &pattern)
     viewport()->update();
 }
 
+// ---- Find -----------------------------------------------------------------
+
+QString TerminalWidget::lineTextForLogical(int logical) const
+{
+    QString line;
+    const int sbCount = int(m_scrollback.size());
+    if (logical < 0) return line;
+
+    if (logical < sbCount) {
+        const auto &cells = m_scrollback[logical];
+        line.reserve(int(cells.size()));
+        for (const auto &cell : cells) {
+            if (cell.width == 0) continue;
+            if (cell.chars[0])
+                line.append(QChar::fromUcs4(cell.chars[0]));
+            else
+                line.append(QLatin1Char(' '));
+        }
+    } else if (m_screen) {
+        const int row = logical - sbCount;
+        if (row < 0 || row >= m_rows) return line;
+        line.reserve(m_cols);
+        for (int c = 0; c < m_cols; ++c) {
+            VTermPos p{ row, c };
+            VTermScreenCell cell;
+            if (!vterm_screen_get_cell(m_screen, p, &cell)) {
+                line.append(QLatin1Char(' '));
+                continue;
+            }
+            if (cell.width == 0) continue;
+            if (cell.chars[0])
+                line.append(QChar::fromUcs4(cell.chars[0]));
+            else
+                line.append(QLatin1Char(' '));
+        }
+    }
+    // Trim trailing spaces so end-of-line whitespace doesn't produce
+    // bogus matches.
+    int end = line.length();
+    while (end > 0 && line.at(end - 1) == QLatin1Char(' ')) --end;
+    return line.left(end);
+}
+
+int TerminalWidget::findAll(const QString &pattern, bool caseSens, bool regex)
+{
+    m_findMatches.clear();
+    m_findCurrent = -1;
+    if (pattern.isEmpty()) {
+        emit findIndexChanged(-1, 0);
+        viewport()->update();
+        return 0;
+    }
+
+    constexpr int kMaxMatches = 10000;
+
+    const Qt::CaseSensitivity cs = caseSens
+        ? Qt::CaseSensitive : Qt::CaseInsensitive;
+
+    QRegularExpression re;
+    if (regex) {
+        QRegularExpression::PatternOptions opt =
+            QRegularExpression::NoPatternOption;
+        if (!caseSens) opt |= QRegularExpression::CaseInsensitiveOption;
+        re.setPattern(pattern);
+        re.setPatternOptions(opt);
+        if (!re.isValid()) {
+            emit findIndexChanged(-1, 0);
+            viewport()->update();
+            return 0;
+        }
+    }
+
+    const int sbCount  = int(m_scrollback.size());
+    const int logicalCount = sbCount + (m_screen ? m_rows : 0);
+
+    for (int L = 0; L < logicalCount; ++L) {
+        const QString text = lineTextForLogical(L);
+        if (text.isEmpty()) continue;
+
+        if (regex) {
+            auto it = re.globalMatch(text);
+            while (it.hasNext()) {
+                auto m = it.next();
+                if (m.capturedLength() == 0) break; // avoid infinite loop
+                m_findMatches.push_back({ L,
+                                          int(m.capturedStart()),
+                                          int(m.capturedLength()) });
+                if (int(m_findMatches.size()) >= kMaxMatches) break;
+            }
+        } else {
+            int from = 0;
+            while (true) {
+                const int idx = text.indexOf(pattern, from, cs);
+                if (idx < 0) break;
+                m_findMatches.push_back({ L, idx, int(pattern.length()) });
+                from = idx + int(pattern.length());
+                if (int(m_findMatches.size()) >= kMaxMatches) break;
+            }
+        }
+        if (int(m_findMatches.size()) >= kMaxMatches) break;
+    }
+
+    if (!m_findMatches.empty()) {
+        // Start at the first match at or below the current viewport top,
+        // so pressing Enter feels like "find below".
+        const int viewTopLogical = sbCount - m_scrollOffset;
+        m_findCurrent = 0;
+        for (size_t i = 0; i < m_findMatches.size(); ++i) {
+            if (m_findMatches[i].logical >= viewTopLogical) {
+                m_findCurrent = int(i);
+                break;
+            }
+        }
+        ensureLogicalVisible(m_findMatches[m_findCurrent].logical);
+    }
+
+    emit findIndexChanged(m_findCurrent, int(m_findMatches.size()));
+    viewport()->update();
+    return int(m_findMatches.size());
+}
+
+bool TerminalWidget::findNext()
+{
+    if (m_findMatches.empty()) return false;
+    m_findCurrent = (m_findCurrent + 1) % int(m_findMatches.size());
+    ensureLogicalVisible(m_findMatches[m_findCurrent].logical);
+    emit findIndexChanged(m_findCurrent, int(m_findMatches.size()));
+    viewport()->update();
+    return true;
+}
+
+bool TerminalWidget::findPrev()
+{
+    if (m_findMatches.empty()) return false;
+    const int n = int(m_findMatches.size());
+    m_findCurrent = (m_findCurrent - 1 + n) % n;
+    ensureLogicalVisible(m_findMatches[m_findCurrent].logical);
+    emit findIndexChanged(m_findCurrent, int(m_findMatches.size()));
+    viewport()->update();
+    return true;
+}
+
+void TerminalWidget::clearFind()
+{
+    m_findMatches.clear();
+    m_findCurrent = -1;
+    emit findIndexChanged(-1, 0);
+    viewport()->update();
+}
+
+void TerminalWidget::ensureLogicalVisible(int logical)
+{
+    const int sbCount = int(m_scrollback.size());
+    // Current visible logical range: [top, bottom]
+    const int top    = sbCount - m_scrollOffset;
+    const int bottom = top + m_rows - 1;
+    if (logical >= top && logical <= bottom)
+        return;
+    // Center the target line if possible.
+    const int desiredTop = std::max(0, logical - m_rows / 2);
+    int offset = sbCount - desiredTop;
+    if (offset < 0) offset = 0;
+    if (offset > sbCount) offset = sbCount;
+    m_scrollOffset = offset;
+    if (auto *bar = verticalScrollBar())
+        bar->setValue(bar->maximum() - m_scrollOffset);
+    viewport()->update();
+}
+
 // ---- Painting -------------------------------------------------------------
 
 void TerminalWidget::paintEvent(QPaintEvent * /*event*/)
@@ -419,6 +576,23 @@ void TerminalWidget::paintEvent(QPaintEvent * /*event*/)
     p.setFont(m_font);
 
     const int sbCount = int(m_scrollback.size());
+
+    // Pre-bucket find matches by visible row so the cell loop can check
+    // in O(matches-on-this-row).
+    QVector<QVector<FindMatch>> rowFindMatches(m_rows);
+    QVector<int>                rowFindCurrentIdx(m_rows, -1);
+    if (!m_findMatches.empty()) {
+        const int topLogical = sbCount + m_rows - 1 - m_scrollOffset
+                               - (m_rows - 1);
+        for (size_t i = 0; i < m_findMatches.size(); ++i) {
+            const auto &mm = m_findMatches[i];
+            const int row = mm.logical - topLogical;
+            if (row < 0 || row >= m_rows) continue;
+            rowFindMatches[row].push_back(mm);
+            if (int(i) == m_findCurrent)
+                rowFindCurrentIdx[row] = rowFindMatches[row].size() - 1;
+        }
+    }
 
     for (int row = 0; row < m_rows; ++row) {
         // Map this visible row to either a scrollback line or a
@@ -454,11 +628,36 @@ void TerminalWidget::paintEvent(QPaintEvent * /*event*/)
             if (cell.attrs.reverse)
                 std::swap(fg, bg);
 
+            // Check if this cell sits inside a find match on this row,
+            // and whether it's the currently-focused match.
+            bool inFind        = false;
+            bool inFindCurrent = false;
+            {
+                const auto &bucket = rowFindMatches[row];
+                for (int i = 0; i < bucket.size(); ++i) {
+                    const auto &mm = bucket[i];
+                    if (col >= mm.col && col < mm.col + mm.len) {
+                        inFind = true;
+                        if (i == rowFindCurrentIdx[row])
+                            inFindCurrent = true;
+                        break;
+                    }
+                }
+            }
+
             // Selection takes precedence over the cell background
             if (cellInSelection(row, col)) {
                 bg = QColor(70, 110, 200);
                 fg = QColor(0xff, 0xff, 0xff);
-            } else if (cellInHighlight(row, col)) {
+            } else if (inFindCurrent) {
+                // Currently-selected find match: bright yellow
+                bg = QColor(0xff, 0xd7, 0x00);
+                fg = QColor(0x00, 0x00, 0x00);
+            } else if (inFind) {
+                // Other find matches: dim yellow
+                bg = QColor(0x80, 0x6a, 0x00);
+                fg = QColor(0x00, 0x00, 0x00);
+            } else if (cellInHighlight(logical, col)) {
                 // Mark highlight: amber background
                 bg = QColor(0xc0, 0x70, 0x00);
                 fg = QColor(0x00, 0x00, 0x00);
@@ -569,6 +768,13 @@ void TerminalWidget::keyPressEvent(QKeyEvent *event)
         == (Qt::ControlModifier | Qt::ShiftModifier)) {
         if (event->key() == Qt::Key_C) { copySelection();      event->accept(); return; }
         if (event->key() == Qt::Key_V) { pasteFromClipboard(); event->accept(); return; }
+    }
+
+    // Enter while scrolled up: snap back to the live screen first so the
+    // user sees the newest output immediately (standard terminal UX).
+    if (m_scrollOffset > 0 &&
+        (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)) {
+        scrollToBottom();
     }
 
     VTermModifier mod = VTERM_MOD_NONE;

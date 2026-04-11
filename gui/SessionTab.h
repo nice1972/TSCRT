@@ -22,6 +22,7 @@ namespace tscrt {
 
 class AutomationEngine;
 class ButtonBar;
+class FindBar;
 
 class SessionTab : public QWidget {
     Q_OBJECT
@@ -37,6 +38,10 @@ public:
     ::CommandLineWidget *commandLine() const { return m_cmdLine; }
     bool showCmdLineInFullscreen() const { return m_showCmdLineFs; }
     bool showButtonsInFullscreen() const { return m_showButtonsFs; }
+
+    /// Show the Find/Mark bar and focus the input. If markPreset is true
+    /// the Mark toggle starts on with the current mark pattern pre-filled.
+    void showFindBar(bool markPreset = false);
 
 signals:
     void buttonEditRequested(int slotIndex);
@@ -63,6 +68,7 @@ private:
 
 private:
     TerminalWidget      *m_term    = nullptr;
+    FindBar             *m_findBar = nullptr;
     ::CommandLineWidget *m_cmdLine = nullptr;
     ButtonBar           *m_buttons = nullptr;
     AutomationEngine    *m_engine  = nullptr;

@@ -281,6 +281,16 @@ void MainWindow::createMenus()
     connect(m_actQuit, &QAction::triggered, this, &QWidget::close);
     fileMenu->addAction(m_actQuit);
 
+    auto *editMenu = menuBar()->addMenu(tr("&Edit"));
+    auto *actFind  = new QAction(tr("&Find..."), this);
+    actFind->setShortcut(QKeySequence::Find);
+    connect(actFind, &QAction::triggered, this, [this]() {
+        if (auto *tab = qobject_cast<tscrt::SessionTab *>(
+                m_tabs->currentWidget()))
+            tab->showFindBar(false);
+    });
+    editMenu->addAction(actFind);
+
     m_sessionsMenu = menuBar()->addMenu(tr("&Sessions"));
 
     m_snapshotsMenu = menuBar()->addMenu(tr("S&napshots"));

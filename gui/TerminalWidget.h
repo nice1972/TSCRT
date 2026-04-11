@@ -60,7 +60,22 @@ public slots:
     /// Highlight pattern (substring). Empty string clears the mark.
     void setHighlightPattern(const QString &pattern);
 
+    /// Find: build a match list across scrollback + live screen.
+    /// Returns total match count (capped at 10,000).
+    int  findAll(const QString &pattern, bool caseSens, bool regex);
+    /// Move to next/previous match (wraps). Returns true if moved.
+    bool findNext();
+    bool findPrev();
+    /// Drop the find result list and the current index.
+    void clearFind();
+
+    int  findMatchCount()   const { return int(m_findMatches.size()); }
+    int  findCurrentIndex() const { return m_findCurrent; }
+
 signals:
+    /// Emitted whenever findAll/findNext/findPrev changes the counters.
+    void findIndexChanged(int current, int total);
+
     /// Bytes that the terminal wants to send back to the host (key input,
     /// mouse reports, status responses).
     void outputBytes(const QByteArray &data);
@@ -117,7 +132,7 @@ private:
     GridPos cellAt(QPoint pos) const;
     QString selectionText() const;
     bool    cellInSelection(int row, int col) const;
-    bool    cellInHighlight(int row, int col) const;
+    bool    cellInHighlight(int logical, int col) const;
 
     // State
     VTerm        *m_vt        = nullptr;
@@ -149,6 +164,20 @@ private:
 
     // Highlight (mark) pattern
     QString       m_highlight;
+
+    // Find result state. Matches are stored in logical coordinates so
+    // they survive scrollback additions; logical == sbCount+screenRow
+    // for the live screen.
+    struct FindMatch {
+        int logical = 0;
+        int col     = 0;
+        int len     = 0;
+    };
+    std::vector<FindMatch> m_findMatches;
+    int           m_findCurrent = -1;
+
+    QString lineTextForLogical(int logical) const;
+    void    ensureLogicalVisible(int logical);
 
     // Scrollback. Each entry is one screen-wide line of cells; new lines
     // (the most recent rolled-off content) are appended to the back.

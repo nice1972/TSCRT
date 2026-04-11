@@ -81,6 +81,8 @@ set(GUI_SOURCES
     gui/SnapshotBrowserDialog.cpp
     gui/HelpDialog.h
     gui/HelpDialog.cpp
+    gui/FindBar.h
+    gui/FindBar.cpp
     gui/LogSettingsDialog.h
     gui/LogSettingsDialog.cpp
     gui/CronSchedule.h
