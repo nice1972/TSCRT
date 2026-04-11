@@ -27,6 +27,15 @@ public:
     bool isOpen() const { return m_file.isOpen(); }
     QString filePath() const { return m_file.fileName(); }
 
+    /// Strip ANSI escape sequences + CRs from a byte stream. Does not
+    /// keep cross-call state, so callers feeding byte-by-byte should use
+    /// the stateful stripAnsiState overload instead.
+    static QByteArray stripAnsi(const QByteArray &data);
+
+    /// Stateful variant: `state` is 0..4 and must be preserved between
+    /// calls so sequences split across reads still strip cleanly.
+    static QByteArray stripAnsiStateful(const QByteArray &data, int *state);
+
 public slots:
     void onBytesReceived(const QByteArray &data);
 

@@ -14,7 +14,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # Qt6 (MSYS2 UCRT64)
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Gui Widgets LinguistTools)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Gui Widgets Network LinguistTools)
 
 # pkg-config for libssh2 / libvterm
 find_package(PkgConfig REQUIRED)
@@ -69,6 +69,16 @@ set(GUI_SOURCES
     gui/SessionHistory.cpp
     gui/SessionTab.h
     gui/SessionTab.cpp
+    gui/SmtpClient.h
+    gui/SmtpClient.cpp
+    gui/SnapshotRunner.h
+    gui/SnapshotRunner.cpp
+    gui/SnapshotManager.h
+    gui/SnapshotManager.cpp
+    gui/SnapshotsDialog.h
+    gui/SnapshotsDialog.cpp
+    gui/CronSchedule.h
+    gui/CronSchedule.cpp
 )
 
 set(WIN_RESOURCES
@@ -105,6 +115,14 @@ if(TSCRT_WIN_BUILD_TESTS)
     target_include_directories(test_action_parser PRIVATE gui include)
     target_link_libraries(test_action_parser PRIVATE Qt6::Core Qt6::Test)
     add_test(NAME action_parser COMMAND test_action_parser)
+
+    add_executable(test_cron
+        tests/test_cron.cpp
+        gui/CronSchedule.cpp
+        gui/CronSchedule.h)
+    target_include_directories(test_cron PRIVATE gui include)
+    target_link_libraries(test_cron PRIVATE Qt6::Core Qt6::Test)
+    add_test(NAME cron COMMAND test_cron)
 
     if(WIN32)
         set(_PLATFORM_SRC core/platform_win.c)
@@ -258,6 +276,7 @@ target_link_libraries(tscrt_win PRIVATE
     Qt6::Core
     Qt6::Gui
     Qt6::Widgets
+    Qt6::Network
     PkgConfig::LIBSSH2
     PkgConfig::LIBVTERM
 )

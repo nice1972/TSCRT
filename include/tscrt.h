@@ -76,6 +76,15 @@
 #define MAX_PATTERN_LEN      256
 #define TRIGGER_BUF_SIZE     1024
 
+#define MAX_SNAPSHOTS        16
+#define MAX_SNAPSHOT_CMDS    16
+#define MAX_SNAPSHOT_CMD_LEN 256
+#define MAX_SNAPSHOT_RECIP   8
+#define MAX_SNAPSHOT_RULES   32
+#define MAX_REGEX_LEN        128
+#define MAX_EMAIL_LEN        192
+#define MAX_CRON_LEN         64
+
 #define TSCRT_HELP_TEXT \
     "\r\n--- TSCRT Help ---\r\n" \
     "  GUI menus and buttons replace tmux key chords on Windows.\r\n" \
@@ -160,6 +169,51 @@ typedef struct {
 } common_config_t;
 
 typedef struct {
+    char command[MAX_SNAPSHOT_CMD_LEN];   /* ActionParser syntax (\r, \p, ...) */
+    int  delay_ms;                        /* minimum wait after sending */
+    char expect_prompt[MAX_REGEX_LEN];    /* regex; empty = no early exit */
+    int  max_wait_ms;                     /* upper bound for expect_prompt (0 = delay_ms only) */
+} snapshot_cmd_t;
+
+typedef struct {
+    char            name[MAX_NAME_LEN];
+    char            description[MAX_NAME_LEN];
+    snapshot_cmd_t  cmds[MAX_SNAPSHOT_CMDS];
+    int             cmd_count;
+    char            recipients[MAX_SNAPSHOT_RECIP][MAX_EMAIL_LEN];
+    int             recipient_count;
+    char            subject_tmpl[MAX_NAME_LEN];
+    int             send_email;
+    int             attach_file;
+} snapshot_entry_t;
+
+typedef enum {
+    SNAPSHOT_TRIGGER_ON_CONNECT = 0,
+    SNAPSHOT_TRIGGER_CRON       = 1,
+    SNAPSHOT_TRIGGER_PATTERN    = 2
+} snapshot_trigger_kind_t;
+
+typedef struct {
+    int  kind;                        /* snapshot_trigger_kind_t */
+    char session[MAX_NAME_LEN];       /* empty = all sessions */
+    char snapshot[MAX_NAME_LEN];
+    char cron_expr[MAX_CRON_LEN];     /* "m h dom mon dow" */
+    char pattern[MAX_PATTERN_LEN];
+    int  cooldown_sec;
+} snapshot_rule_t;
+
+typedef struct {
+    char host[MAX_HOST_LEN];
+    int  port;
+    int  security;                    /* 0=none, 1=STARTTLS, 2=SMTPS */
+    char username[MAX_USER_LEN];
+    char password[MAX_PASS_LEN];      /* encryptSecret()-wrapped */
+    char from_addr[MAX_EMAIL_LEN];
+    char from_name[MAX_NAME_LEN];
+    int  timeout_sec;
+} smtp_config_t;
+
+typedef struct {
     char            base_dir[MAX_PATH_LEN];
     char            profile_path[MAX_PATH_LEN];
     common_config_t common;
@@ -172,6 +226,11 @@ typedef struct {
     int             periodic_count;
     startup_entry_t startups[MAX_STARTUP];
     int             startup_count;
+    snapshot_entry_t snapshots[MAX_SNAPSHOTS];
+    int             snapshot_count;
+    snapshot_rule_t snapshot_rules[MAX_SNAPSHOT_RULES];
+    int             snapshot_rule_count;
+    smtp_config_t   smtp;
 } profile_t;
 
 #ifdef __cplusplus

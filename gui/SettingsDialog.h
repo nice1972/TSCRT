@@ -44,15 +44,20 @@ private slots:
 
     void onSessionFilterChanged();
 
+    // SMTP
+    void onSmtpTest();
+
 private:
     QWidget *buildCommonTab();
     QWidget *buildButtonsTab();
     QWidget *buildStartupTab();
     QWidget *buildTriggersTab();
     QWidget *buildPeriodicTab();
+    QWidget *buildSmtpTab();
 
     void commitCommon();
     void commitButtons();
+    void commitSmtp();
     void accept() override;
 
     void reloadStartupTable();
@@ -79,4 +84,14 @@ private:
     QTableWidget    *m_trigTable    = nullptr;
     QComboBox       *m_perSess      = nullptr;
     QTableWidget    *m_perTable     = nullptr;
+
+    // SMTP
+    QLineEdit       *m_smtpHost     = nullptr;
+    QSpinBox        *m_smtpPort     = nullptr;
+    QComboBox       *m_smtpSecurity = nullptr;
+    QLineEdit       *m_smtpUser     = nullptr;
+    QLineEdit       *m_smtpPass     = nullptr;
+    QLineEdit       *m_smtpFromAddr = nullptr;
+    QLineEdit       *m_smtpFromName = nullptr;
+    QSpinBox        *m_smtpTimeout  = nullptr;
 };

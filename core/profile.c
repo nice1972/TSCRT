@@ -109,6 +109,8 @@ int profile_load(profile_t *p)
     session_entry_t *cur = NULL;
     int btn_idx = 0;
     char auto_session[MAX_NAME_LEN] = {0};
+    snapshot_entry_t *cur_snap = NULL;
+    snapshot_rule_t  *cur_rule = NULL;
 
     while (fgets(line, sizeof(line), fp)) {
         char *s = trim(line);
@@ -143,6 +145,29 @@ int profile_load(profile_t *p)
             } else if (strncmp(s, "startup:", 8) == 0) {
                 snprintf(auto_session, sizeof(auto_session), "%s", s + 8);
                 section = 6;
+            } else if (strcmp(s, "smtp") == 0) {
+                section = 7;
+            } else if (strncmp(s, "snapshot:", 9) == 0) {
+                if (p->snapshot_count < MAX_SNAPSHOTS) {
+                    cur_snap = &p->snapshots[p->snapshot_count++];
+                    memset(cur_snap, 0, sizeof(*cur_snap));
+                    snprintf(cur_snap->name, sizeof(cur_snap->name), "%s", s + 9);
+                    snprintf(cur_snap->subject_tmpl, sizeof(cur_snap->subject_tmpl),
+                             "TSCRT {session} {snapshot} {timestamp}");
+                    cur_snap->send_email = 1;
+                    cur_snap->attach_file = 1;
+                    section = 8;
+                } else {
+                    section = 0;
+                }
+            } else if (strncmp(s, "snapshot_rule:", 14) == 0) {
+                if (p->snapshot_rule_count < MAX_SNAPSHOT_RULES) {
+                    cur_rule = &p->snapshot_rules[p->snapshot_rule_count++];
+                    memset(cur_rule, 0, sizeof(*cur_rule));
+                    section = 9;
+                } else {
+                    section = 0;
+                }
             }
             continue;
         }
@@ -242,6 +267,98 @@ int profile_load(profile_t *p)
                 snprintf(su->name, sizeof(su->name), "%s", key);
                 snprintf(su->action, sizeof(su->action), "%s", val);
             }
+        } else if (section == 7) {
+            /* [smtp] */
+            if (strcmp(key, "host") == 0)
+                snprintf(p->smtp.host, sizeof(p->smtp.host), "%s", val);
+            else if (strcmp(key, "port") == 0)
+                p->smtp.port = atoi(val);
+            else if (strcmp(key, "security") == 0) {
+                if (strcmp(val, "starttls") == 0) p->smtp.security = 1;
+                else if (strcmp(val, "smtps") == 0) p->smtp.security = 2;
+                else p->smtp.security = 0;
+            }
+            else if (strcmp(key, "username") == 0)
+                snprintf(p->smtp.username, sizeof(p->smtp.username), "%s", val);
+            else if (strcmp(key, "password") == 0)
+                snprintf(p->smtp.password, sizeof(p->smtp.password), "%s", val);
+            else if (strcmp(key, "from_addr") == 0)
+                snprintf(p->smtp.from_addr, sizeof(p->smtp.from_addr), "%s", val);
+            else if (strcmp(key, "from_name") == 0)
+                snprintf(p->smtp.from_name, sizeof(p->smtp.from_name), "%s", val);
+            else if (strcmp(key, "timeout_sec") == 0)
+                p->smtp.timeout_sec = atoi(val);
+        } else if (section == 8 && cur_snap) {
+            /* [snapshot:<name>]
+             *   description = ...
+             *   subject_tmpl = ...
+             *   send_email = 0/1
+             *   attach_file = 0/1
+             *   recipient = user@host   (repeated)
+             *   cmd = <delay_ms>|<max_wait_ms>|<expect_prompt>|<command>
+             */
+            if (strcmp(key, "description") == 0)
+                snprintf(cur_snap->description, sizeof(cur_snap->description), "%s", val);
+            else if (strcmp(key, "subject_tmpl") == 0)
+                snprintf(cur_snap->subject_tmpl, sizeof(cur_snap->subject_tmpl), "%s", val);
+            else if (strcmp(key, "send_email") == 0)
+                cur_snap->send_email = (atoi(val) != 0) ? 1 : 0;
+            else if (strcmp(key, "attach_file") == 0)
+                cur_snap->attach_file = (atoi(val) != 0) ? 1 : 0;
+            else if (strcmp(key, "recipient") == 0) {
+                if (cur_snap->recipient_count < MAX_SNAPSHOT_RECIP) {
+                    snprintf(cur_snap->recipients[cur_snap->recipient_count],
+                             MAX_EMAIL_LEN, "%s", val);
+                    cur_snap->recipient_count++;
+                }
+            }
+            else if (strcmp(key, "cmd") == 0) {
+                if (cur_snap->cmd_count < MAX_SNAPSHOT_CMDS) {
+                    snapshot_cmd_t *cmd = &cur_snap->cmds[cur_snap->cmd_count++];
+                    /* Parse three '|' separators (delay|max_wait|expect|command).
+                     * Command is the rest of the line so it may contain '|'. */
+                    char *p1 = strchr(val, '|');
+                    if (p1) {
+                        *p1 = '\0';
+                        cmd->delay_ms = atoi(val);
+                        char *p2 = strchr(p1 + 1, '|');
+                        if (p2) {
+                            *p2 = '\0';
+                            cmd->max_wait_ms = atoi(p1 + 1);
+                            char *p3 = strchr(p2 + 1, '|');
+                            if (p3) {
+                                *p3 = '\0';
+                                snprintf(cmd->expect_prompt,
+                                         sizeof(cmd->expect_prompt), "%s", p2 + 1);
+                                snprintf(cmd->command,
+                                         sizeof(cmd->command), "%s", p3 + 1);
+                            } else {
+                                snprintf(cmd->expect_prompt,
+                                         sizeof(cmd->expect_prompt), "%s", p2 + 1);
+                            }
+                        }
+                    } else {
+                        /* bare command only, no delay/regex */
+                        snprintf(cmd->command, sizeof(cmd->command), "%s", val);
+                    }
+                }
+            }
+        } else if (section == 9 && cur_rule) {
+            if (strcmp(key, "kind") == 0) {
+                if (strcmp(val, "on_connect") == 0) cur_rule->kind = 0;
+                else if (strcmp(val, "cron") == 0)  cur_rule->kind = 1;
+                else if (strcmp(val, "pattern") == 0) cur_rule->kind = 2;
+            }
+            else if (strcmp(key, "session") == 0)
+                snprintf(cur_rule->session, sizeof(cur_rule->session), "%s", val);
+            else if (strcmp(key, "snapshot") == 0)
+                snprintf(cur_rule->snapshot, sizeof(cur_rule->snapshot), "%s", val);
+            else if (strcmp(key, "cron_expr") == 0)
+                snprintf(cur_rule->cron_expr, sizeof(cur_rule->cron_expr), "%s", val);
+            else if (strcmp(key, "pattern") == 0)
+                snprintf(cur_rule->pattern, sizeof(cur_rule->pattern), "%s", val);
+            else if (strcmp(key, "cooldown_sec") == 0)
+                cur_rule->cooldown_sec = atoi(val);
         }
     }
 
@@ -379,6 +496,58 @@ int profile_save(const profile_t *p)
                 fprintf(fp, "%d:%s = %s\n", p->periodics[i].interval,
                         p->periodics[i].name, p->periodics[i].action);
         fprintf(fp, "\n");
+    }
+
+    /* SMTP */
+    if (p->smtp.host[0] || p->smtp.from_addr[0]) {
+        const char *sec = (p->smtp.security == 1) ? "starttls"
+                        : (p->smtp.security == 2) ? "smtps" : "none";
+        fprintf(fp, "[smtp]\n");
+        fprintf(fp, "host = %s\n", p->smtp.host);
+        fprintf(fp, "port = %d\n", p->smtp.port);
+        fprintf(fp, "security = %s\n", sec);
+        fprintf(fp, "username = %s\n", p->smtp.username);
+        fprintf(fp, "password = %s\n", p->smtp.password);
+        fprintf(fp, "from_addr = %s\n", p->smtp.from_addr);
+        fprintf(fp, "from_name = %s\n", p->smtp.from_name);
+        fprintf(fp, "timeout_sec = %d\n\n", p->smtp.timeout_sec);
+    }
+
+    /* Snapshots */
+    for (int i = 0; i < p->snapshot_count; i++) {
+        const snapshot_entry_t *sn = &p->snapshots[i];
+        fprintf(fp, "[snapshot:%s]\n", sn->name);
+        if (sn->description[0])
+            fprintf(fp, "description = %s\n", sn->description);
+        if (sn->subject_tmpl[0])
+            fprintf(fp, "subject_tmpl = %s\n", sn->subject_tmpl);
+        fprintf(fp, "send_email = %d\n", sn->send_email ? 1 : 0);
+        fprintf(fp, "attach_file = %d\n", sn->attach_file ? 1 : 0);
+        for (int r = 0; r < sn->recipient_count; r++)
+            fprintf(fp, "recipient = %s\n", sn->recipients[r]);
+        for (int c = 0; c < sn->cmd_count; c++) {
+            const snapshot_cmd_t *cmd = &sn->cmds[c];
+            fprintf(fp, "cmd = %d|%d|%s|%s\n",
+                    cmd->delay_ms, cmd->max_wait_ms,
+                    cmd->expect_prompt, cmd->command);
+        }
+        fprintf(fp, "\n");
+    }
+
+    /* Snapshot rules */
+    for (int i = 0; i < p->snapshot_rule_count; i++) {
+        const snapshot_rule_t *r = &p->snapshot_rules[i];
+        const char *k = (r->kind == 1) ? "cron"
+                      : (r->kind == 2) ? "pattern" : "on_connect";
+        fprintf(fp, "[snapshot_rule:%d]\n", i);
+        fprintf(fp, "kind = %s\n", k);
+        fprintf(fp, "session = %s\n", r->session);
+        fprintf(fp, "snapshot = %s\n", r->snapshot);
+        if (r->cron_expr[0])
+            fprintf(fp, "cron_expr = %s\n", r->cron_expr);
+        if (r->pattern[0])
+            fprintf(fp, "pattern = %s\n", r->pattern);
+        fprintf(fp, "cooldown_sec = %d\n\n", r->cooldown_sec);
     }
 
     fclose(fp);

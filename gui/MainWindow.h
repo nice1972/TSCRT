@@ -23,6 +23,8 @@ class QTreeWidgetItem;
 class TerminalWidget;
 class ISession;
 
+namespace tscrt { class SnapshotManager; }
+
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
@@ -54,6 +56,10 @@ private slots:
     void onSessionTreeContextMenu(const QPoint &pos);
     void editButtonSlot(int slotIndex);
     void rebuildSessionsMenu();
+    void rebuildSnapshotsMenu();
+    void showSnapshotsDialog();
+    void showSnapshotRulesDialog();
+    void openSnapshotFolder();
     void rebuildSessionTree();
     void toggleButtonBars(bool visible);
     void toggleCmdLines(bool visible);
@@ -90,8 +96,9 @@ private:
     QLabel        *m_lblProto    = nullptr;
     QLabel        *m_lblHost     = nullptr;
     QLabel        *m_lblGrid     = nullptr;
-    QMenu         *m_sessionsMenu = nullptr;
-    QMenu         *m_viewMenu     = nullptr;
+    QMenu         *m_sessionsMenu  = nullptr;
+    QMenu         *m_snapshotsMenu = nullptr;
+    QMenu         *m_viewMenu      = nullptr;
     QAction       *m_actSettings = nullptr;
     QAction       *m_actQuit     = nullptr;
     QAction       *m_actAbout    = nullptr;
@@ -106,4 +113,7 @@ private:
     // Session clipboard for the tree's right-click "Copy"/"Paste".
     session_entry_t m_sessionClipboard{};
     bool            m_sessionClipboardValid = false;
+
+    // Snapshot coordinator (owns runners + cron ticker).
+    tscrt::SnapshotManager *m_snapshotMgr = nullptr;
 };

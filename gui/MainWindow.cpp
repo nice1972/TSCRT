@@ -10,6 +10,8 @@
 #include "SessionManagerDialog.h"
 #include "SessionTab.h"
 #include "SettingsDialog.h"
+#include "SnapshotManager.h"
+#include "SnapshotsDialog.h"
 #include "SshSession.h"
 #include "TerminalWidget.h"
 
@@ -19,7 +21,10 @@
 #include <QApplication>
 #include <QByteArray>
 #include <QCloseEvent>
+#include <QDesktopServices>
+#include <QDir>
 #include <QDockWidget>
+#include <QUrl>
 #include <QFont>
 #include <QFrame>
 #include <QHeaderView>
@@ -117,10 +122,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
             this, &MainWindow::toggleFullScreen);
 
     loadProfile();
+
+    // Snapshot coordinator listens to sessions as they are attached.
+    m_snapshotMgr = new tscrt::SnapshotManager(this);
+    m_snapshotMgr->setProfile(m_profile);
+    connect(m_snapshotMgr, &tscrt::SnapshotManager::message,
+            this, [this](const QString &text) {
+        statusBar()->showMessage(text, 4000);
+    });
+
     createMenus();
     createSessionDock();
     createStatusBar();
     rebuildSessionsMenu();
+    rebuildSnapshotsMenu();
     rebuildSessionTree();
     loadSettings();
 
@@ -216,6 +231,8 @@ void MainWindow::createMenus()
 
     m_sessionsMenu = menuBar()->addMenu(tr("&Sessions"));
 
+    m_snapshotsMenu = menuBar()->addMenu(tr("S&napshots"));
+
     m_viewMenu = menuBar()->addMenu(tr("&View"));
     auto *viewMenu = m_viewMenu;
 
@@ -279,7 +296,9 @@ void MainWindow::createMenus()
     m_actReload->setShortcut(QKeySequence(tr("F5")));
     connect(m_actReload, &QAction::triggered, this, [this] {
         loadProfile();
+        if (m_snapshotMgr) m_snapshotMgr->setProfile(m_profile);
         rebuildSessionsMenu();
+        rebuildSnapshotsMenu();
         rebuildSessionTree();
         statusBar()->showMessage(tr("Profile reloaded."), 2500);
     });
@@ -473,6 +492,7 @@ void MainWindow::renameSessionByIndex(int profileIndex)
         return;
     }
     rebuildSessionsMenu();
+    rebuildSnapshotsMenu();
     rebuildSessionTree();
 }
 
@@ -516,6 +536,7 @@ void MainWindow::editSessionByIndex(int profileIndex)
         return;
     }
     rebuildSessionsMenu();
+    rebuildSnapshotsMenu();
     rebuildSessionTree();
 }
 
@@ -541,6 +562,7 @@ void MainWindow::deleteSessionByIndex(int profileIndex)
     }
     tscrt::pruneOrphanHistoryFiles(m_profile);
     rebuildSessionsMenu();
+    rebuildSnapshotsMenu();
     rebuildSessionTree();
 }
 
@@ -594,6 +616,7 @@ void MainWindow::pasteSessionFromClipboard()
         return;
     }
     rebuildSessionsMenu();
+    rebuildSnapshotsMenu();
     rebuildSessionTree();
 }
 
@@ -719,6 +742,98 @@ void MainWindow::rebuildSessionsMenu()
     }
 }
 
+void MainWindow::rebuildSnapshotsMenu()
+{
+    if (!m_snapshotsMenu) return;
+    m_snapshotsMenu->clear();
+
+    // Run submenu targets the currently active session tab.
+    QMenu *runMenu = m_snapshotsMenu->addMenu(tr("&Run on current session"));
+    if (m_profile.snapshot_count == 0) {
+        QAction *empty = runMenu->addAction(tr("(no snapshots defined)"));
+        empty->setEnabled(false);
+    } else {
+        for (int i = 0; i < m_profile.snapshot_count; ++i) {
+            const QString sname =
+                QString::fromLocal8Bit(m_profile.snapshots[i].name);
+            QAction *a = runMenu->addAction(sname);
+            if (i == 0)
+                a->setShortcut(QKeySequence(tr("Ctrl+Shift+S")));
+            connect(a, &QAction::triggered, this, [this, sname] {
+                auto *tab = qobject_cast<tscrt::SessionTab *>(m_tabs->currentWidget());
+                if (tab && m_snapshotMgr)
+                    m_snapshotMgr->runSnapshotByName(
+                        tab->session(), tab->displayName(), sname);
+            });
+        }
+    }
+
+    m_snapshotsMenu->addSeparator();
+
+    auto *manageAct = new QAction(tr("&Manage snapshots..."), this);
+    connect(manageAct, &QAction::triggered,
+            this, &MainWindow::showSnapshotsDialog);
+    m_snapshotsMenu->addAction(manageAct);
+
+    auto *rulesAct = new QAction(tr("&Automation rules..."), this);
+    connect(rulesAct, &QAction::triggered,
+            this, &MainWindow::showSnapshotRulesDialog);
+    m_snapshotsMenu->addAction(rulesAct);
+
+    m_snapshotsMenu->addSeparator();
+
+    auto *openFolderAct = new QAction(tr("Open snapshot &folder"), this);
+    connect(openFolderAct, &QAction::triggered,
+            this, &MainWindow::openSnapshotFolder);
+    m_snapshotsMenu->addAction(openFolderAct);
+}
+
+void MainWindow::showSnapshotsDialog()
+{
+    SnapshotsDialog dlg(m_profile, this);
+    if (dlg.exec() == QDialog::Accepted) {
+        m_profile = dlg.profile();
+        if (profile_save(&m_profile) != 0) {
+            QMessageBox::warning(this, tr("Save failed"),
+                tr("Could not write profile to:\n%1")
+                    .arg(QString::fromLocal8Bit(m_profile.profile_path)));
+            return;
+        }
+        if (m_snapshotMgr) m_snapshotMgr->setProfile(m_profile);
+        rebuildSnapshotsMenu();
+        statusBar()->showMessage(tr("Snapshots saved."), 2500);
+    }
+}
+
+void MainWindow::showSnapshotRulesDialog()
+{
+    SnapshotsDialog dlg(m_profile, this);
+    dlg.showRulesTab();
+    if (dlg.exec() == QDialog::Accepted) {
+        m_profile = dlg.profile();
+        if (profile_save(&m_profile) != 0) {
+            QMessageBox::warning(this, tr("Save failed"),
+                tr("Could not write profile to:\n%1")
+                    .arg(QString::fromLocal8Bit(m_profile.profile_path)));
+            return;
+        }
+        if (m_snapshotMgr) m_snapshotMgr->setProfile(m_profile);
+        rebuildSnapshotsMenu();
+        statusBar()->showMessage(tr("Snapshots saved."), 2500);
+    }
+}
+
+void MainWindow::openSnapshotFolder()
+{
+    QString dir = QString::fromLocal8Bit(m_profile.common.log_dir);
+    if (dir.isEmpty()) return;
+    QDir d(dir);
+    if (!d.exists(QStringLiteral("snapshots")))
+        d.mkpath(QStringLiteral("snapshots"));
+    d.cd(QStringLiteral("snapshots"));
+    QDesktopServices::openUrl(QUrl::fromLocalFile(d.absolutePath()));
+}
+
 bool MainWindow::appendSessionToProfile(session_entry_t entry)
 {
     if (m_profile.session_count >= MAX_SESSIONS) {
@@ -748,6 +863,7 @@ bool MainWindow::appendSessionToProfile(session_entry_t entry)
         return false;
     }
     rebuildSessionsMenu();
+    rebuildSnapshotsMenu();
     rebuildSessionTree();
     return true;
 }
@@ -849,6 +965,10 @@ void MainWindow::openSessionByIndex(int profileIndex)
     connect(tab, &tscrt::SessionTab::buttonEditRequested,
             this, &MainWindow::editButtonSlot);
 
+    // Hook into the snapshot manager so rules fire on this session.
+    if (m_snapshotMgr)
+        m_snapshotMgr->attachSession(session, QString::fromLocal8Bit(s.name));
+
     tab->setProperty("tscrtProfileIndex", profileIndex);
     const int idx = m_tabs->addTab(tab, QString::fromLocal8Bit(s.name));
     m_tabs->setCurrentIndex(idx);
@@ -875,6 +995,11 @@ void MainWindow::onTabCloseRequested(int index)
     if (index < 0)
         return;
     QWidget *page = m_tabs->widget(index);
+    if (m_snapshotMgr) {
+        auto *tab = qobject_cast<tscrt::SessionTab *>(page);
+        if (tab && tab->session())
+            m_snapshotMgr->detachSession(tab->session());
+    }
     m_tabs->removeTab(index);
     if (page)
         page->deleteLater();
@@ -899,6 +1024,22 @@ void MainWindow::onTabBarContextMenu(const QPoint &pos)
     QAction *actDuplicate = menu.addAction(tr("Duplicate"));
     menu.addSeparator();
 
+    // Run Snapshot ▸ submenu, filled from the profile's snapshot list.
+    QMenu *snapMenu = menu.addMenu(tr("Run Snapshot"));
+    QList<QAction *> snapActs;
+    if (m_profile.snapshot_count == 0) {
+        QAction *empty = snapMenu->addAction(tr("(no snapshots defined)"));
+        empty->setEnabled(false);
+    } else {
+        for (int i = 0; i < m_profile.snapshot_count; ++i) {
+            QAction *a = snapMenu->addAction(
+                QString::fromLocal8Bit(m_profile.snapshots[i].name));
+            a->setData(i);
+            snapActs.append(a);
+        }
+    }
+    menu.addSeparator();
+
     QWidget *page = m_tabs->widget(index);
     const bool pinned = page && page->property("tscrtPinned").toBool();
     QAction *actPin = menu.addAction(pinned ? tr("Unpin") : tr("Pin"));
@@ -906,6 +1047,8 @@ void MainWindow::onTabBarContextMenu(const QPoint &pos)
     QAction *actClose = menu.addAction(tr("Close"));
 
     QAction *chosen = menu.exec(m_tabs->tabBar()->mapToGlobal(pos));
+    if (!chosen) return;
+
     if (chosen == actRename) {
         renameTab(index);
     } else if (chosen == actDuplicate) {
@@ -917,6 +1060,15 @@ void MainWindow::onTabBarContextMenu(const QPoint &pos)
         }
     } else if (chosen == actClose) {
         onTabCloseRequested(index);
+    } else if (snapActs.contains(chosen)) {
+        const int snapIdx = chosen->data().toInt();
+        auto *tab = qobject_cast<tscrt::SessionTab *>(m_tabs->widget(index));
+        if (tab && m_snapshotMgr && snapIdx >= 0
+            && snapIdx < m_profile.snapshot_count) {
+            m_snapshotMgr->runSnapshotByName(
+                tab->session(), tab->displayName(),
+                QString::fromLocal8Bit(m_profile.snapshots[snapIdx].name));
+        }
     }
 }
 
@@ -1002,6 +1154,7 @@ void MainWindow::showSettingsDialog()
                     .arg(QString::fromLocal8Bit(m_profile.profile_path)));
             return;
         }
+        if (m_snapshotMgr) m_snapshotMgr->setProfile(m_profile);
         rebuildSessionsMenu();
         rebuildSessionTree();
         statusBar()->showMessage(tr("Preferences saved."), 2500);

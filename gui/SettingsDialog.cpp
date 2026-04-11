@@ -1,8 +1,12 @@
 #include "SettingsDialog.h"
 
+#include "Credentials.h"
+#include "SmtpClient.h"
+
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QDir>
+#include <QEventLoop>
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QHBoxLayout>
@@ -51,6 +55,7 @@ SettingsDialog::SettingsDialog(const profile_t &initial, QWidget *parent)
     tabs->addTab(buildStartupTab(),  tr("Startup"));
     tabs->addTab(buildTriggersTab(), tr("Triggers"));
     tabs->addTab(buildPeriodicTab(), tr("Periodic"));
+    tabs->addTab(buildSmtpTab(),     tr("SMTP"));
     root->addWidget(tabs);
 
     auto *bb = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel,
@@ -442,11 +447,120 @@ void SettingsDialog::deletePeriodic()
 
 void SettingsDialog::onSessionFilterChanged() {}
 
+// ---- SMTP ----------------------------------------------------------------
+
+QWidget *SettingsDialog::buildSmtpTab()
+{
+    auto *page = new QWidget(this);
+    auto *form = new QFormLayout(page);
+
+    m_smtpHost = new QLineEdit(fromCStr(m_p.smtp.host), page);
+    m_smtpPort = new QSpinBox(page);
+    m_smtpPort->setRange(1, 65535);
+    m_smtpPort->setValue(m_p.smtp.port > 0 ? m_p.smtp.port : 587);
+
+    m_smtpSecurity = new QComboBox(page);
+    m_smtpSecurity->addItems({ tr("None"), tr("STARTTLS"), tr("SMTPS (implicit TLS)") });
+    m_smtpSecurity->setCurrentIndex(m_p.smtp.security);
+
+    m_smtpUser = new QLineEdit(fromCStr(m_p.smtp.username), page);
+
+    m_smtpPass = new QLineEdit(page);
+    m_smtpPass->setEchoMode(QLineEdit::Password);
+    if (m_p.smtp.password[0]) {
+        const QString plain = tscrt::decryptSecret(
+            QString::fromLocal8Bit(m_p.smtp.password));
+        m_smtpPass->setText(plain);
+    }
+
+    m_smtpFromAddr = new QLineEdit(fromCStr(m_p.smtp.from_addr), page);
+    m_smtpFromName = new QLineEdit(fromCStr(m_p.smtp.from_name), page);
+
+    m_smtpTimeout = new QSpinBox(page);
+    m_smtpTimeout->setRange(5, 300);
+    m_smtpTimeout->setValue(m_p.smtp.timeout_sec > 0 ? m_p.smtp.timeout_sec : 30);
+    m_smtpTimeout->setSuffix(tr(" s"));
+
+    form->addRow(tr("SMTP host:"),     m_smtpHost);
+    form->addRow(tr("Port:"),          m_smtpPort);
+    form->addRow(tr("Security:"),      m_smtpSecurity);
+    form->addRow(tr("Username:"),      m_smtpUser);
+    form->addRow(tr("Password:"),      m_smtpPass);
+    form->addRow(tr("From address:"),  m_smtpFromAddr);
+    form->addRow(tr("From name:"),     m_smtpFromName);
+    form->addRow(tr("Timeout:"),       m_smtpTimeout);
+
+    auto *testBtn = new QPushButton(tr("Send test email..."), page);
+    connect(testBtn, &QPushButton::clicked, this, &SettingsDialog::onSmtpTest);
+    form->addRow(QString(), testBtn);
+
+    return page;
+}
+
+void SettingsDialog::commitSmtp()
+{
+    if (!m_smtpHost) return;
+    setStr(m_p.smtp.host,      sizeof(m_p.smtp.host),      m_smtpHost->text());
+    m_p.smtp.port              = m_smtpPort->value();
+    m_p.smtp.security          = m_smtpSecurity->currentIndex();
+    setStr(m_p.smtp.username,  sizeof(m_p.smtp.username),  m_smtpUser->text());
+    const QString plainPass = m_smtpPass->text();
+    if (plainPass.isEmpty()) {
+        m_p.smtp.password[0] = '\0';
+    } else {
+        const QString enc = tscrt::encryptSecret(plainPass);
+        setStr(m_p.smtp.password, sizeof(m_p.smtp.password), enc);
+    }
+    setStr(m_p.smtp.from_addr, sizeof(m_p.smtp.from_addr), m_smtpFromAddr->text());
+    setStr(m_p.smtp.from_name, sizeof(m_p.smtp.from_name), m_smtpFromName->text());
+    m_p.smtp.timeout_sec       = m_smtpTimeout->value();
+}
+
+void SettingsDialog::onSmtpTest()
+{
+    commitSmtp();
+    if (m_p.smtp.host[0] == '\0' || m_p.smtp.from_addr[0] == '\0') {
+        QMessageBox::warning(this, tr("SMTP test"),
+            tr("Fill in host and From address first."));
+        return;
+    }
+    bool ok = false;
+    const QString to = QInputDialog::getText(this, tr("SMTP test"),
+        tr("Send test email to:"), QLineEdit::Normal,
+        fromCStr(m_p.smtp.from_addr), &ok);
+    if (!ok || to.isEmpty()) return;
+
+    tscrt::SmtpClient client(m_p.smtp, this);
+    QEventLoop loop;
+    QString err;
+    bool sent = false;
+    connect(&client, &tscrt::SmtpClient::sent, &loop, [&] {
+        sent = true; loop.quit();
+    });
+    connect(&client, &tscrt::SmtpClient::failed, &loop,
+            [&](const QString &reason) {
+        err = reason; loop.quit();
+    });
+
+    client.send(QStringList{ to },
+                QStringLiteral("TSCRT SMTP test"),
+                QStringLiteral("This is a test message from TSCRT.\n"));
+    loop.exec();
+
+    if (sent)
+        QMessageBox::information(this, tr("SMTP test"),
+            tr("Test email sent to %1").arg(to));
+    else
+        QMessageBox::critical(this, tr("SMTP test"),
+            tr("Send failed: %1").arg(err));
+}
+
 // ---- Accept --------------------------------------------------------------
 
 void SettingsDialog::accept()
 {
     commitCommon();
     commitButtons();
+    commitSmtp();
     QDialog::accept();
 }

@@ -53,6 +53,51 @@ SessionLogger::~SessionLogger()
     }
 }
 
+QByteArray SessionLogger::stripAnsi(const QByteArray &data)
+{
+    int state = 0;
+    return stripAnsiStateful(data, &state);
+}
+
+QByteArray SessionLogger::stripAnsiStateful(const QByteArray &data, int *state)
+{
+    QByteArray out;
+    out.reserve(data.size());
+    int ansi = state ? *state : 0;
+
+    for (char raw : data) {
+        const unsigned char c = static_cast<unsigned char>(raw);
+        switch (ansi) {
+        case 1:
+            if (c == '[')        { ansi = 2; continue; }
+            if (c == ']' || c == 'P' || c == 'X' || c == '^' || c == '_') {
+                ansi = 3; continue;
+            }
+            ansi = 0;
+            continue;
+        case 2:
+            if (c >= 0x40 && c <= 0x7e) ansi = 0;
+            continue;
+        case 3:
+            if (c == 0x07) { ansi = 0; continue; }
+            if (c == 0x1b) { ansi = 4; continue; }
+            continue;
+        case 4:
+            ansi = (c == '\\') ? 0 : 3;
+            continue;
+        default: break;
+        }
+
+        if (c == 0x1b) { ansi = 1; continue; }
+        if (c == '\r') continue;
+        if (c != '\n' && c != '\t' && c < 0x20) continue;
+        out.append(static_cast<char>(c));
+    }
+
+    if (state) *state = ansi;
+    return out;
+}
+
 void SessionLogger::writeTimestampPrefix()
 {
     const QString prefix = QDateTime::currentDateTime()
