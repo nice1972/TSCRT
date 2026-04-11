@@ -107,17 +107,20 @@ SessionTab::SessionTab(ISession *session, const profile_t &profile,
             session, &ISession::resize,
             Qt::DirectConnection);
 
-    // Take parent ownership of the session so it dies with the tab.
-    if (session && session->parent() != this)
-        session->setParent(this);
+    // Session lives on its own QThread — setParent across threads is
+    // rejected by Qt, so SessionTab owns it manually and deletes it in
+    // the destructor after stop() joins the worker thread.
 
     m_term->setFocus(Qt::OtherFocusReason);
 }
 
 SessionTab::~SessionTab()
 {
-    if (m_session)
+    if (m_session) {
         m_session->stop();
+        delete m_session;
+        m_session = nullptr;
+    }
 }
 
 void SessionTab::onButtonAction(const QString &actionString)
