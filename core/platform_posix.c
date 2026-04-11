@@ -51,7 +51,23 @@ int tscrt_ensure_dir(const char *path)
     struct stat st;
     if (stat(path, &st) == 0)
         return S_ISDIR(st.st_mode) ? 0 : -1;
-    return mkdir(path, 0700);
+
+    char buf[MAX_PATH_LEN];
+    size_t n = strlen(path);
+    if (n == 0 || n >= sizeof(buf)) return -1;
+    memcpy(buf, path, n + 1);
+
+    for (size_t i = 1; i < n; ++i) {
+        if (buf[i] != '/') continue;
+        buf[i] = '\0';
+        if (stat(buf, &st) != 0) {
+            if (mkdir(buf, 0700) != 0) return -1;
+        } else if (!S_ISDIR(st.st_mode)) {
+            return -1;
+        }
+        buf[i] = '/';
+    }
+    return mkdir(buf, 0700);
 }
 
 int tscrt_set_private_perms(const char *path)

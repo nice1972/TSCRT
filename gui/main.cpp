@@ -25,7 +25,11 @@ int main(int argc, char *argv[])
 #endif
 
     QApplication app(argc, argv);
+#ifdef Q_OS_MACOS
+    app.setApplicationName(QStringLiteral("tscrt_mac"));
+#else
     app.setApplicationName(QStringLiteral("tscrt_win"));
+#endif
     app.setOrganizationName(QStringLiteral("tscrt"));
     app.setApplicationVersion(QStringLiteral("1.0.0"));
     app.setWindowIcon(QIcon(QStringLiteral(":/icons/app.png")));

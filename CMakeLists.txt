@@ -87,10 +87,16 @@ set(GUI_SOURCES
     gui/CronSchedule.cpp
 )
 
-set(WIN_RESOURCES
-    resources/tscrt_win.rc
-    resources/tscrt_win.qrc
-)
+if(WIN32)
+    set(WIN_RESOURCES
+        resources/tscrt_win.rc
+        resources/tscrt_win.qrc
+    )
+else()
+    set(WIN_RESOURCES
+        resources/tscrt_win.qrc
+    )
+endif()
 
 # ---- Translations --------------------------------------------------------
 set(TS_FILES
@@ -105,6 +111,10 @@ add_executable(tscrt_win WIN32
     ${CORE_SOURCES}
     ${WIN_RESOURCES}
 )
+
+if(APPLE)
+    set_target_properties(tscrt_win PROPERTIES OUTPUT_NAME tscrt_mac)
+endif()
 
 qt_add_translations(tscrt_win
     TS_FILES        ${TS_FILES}
@@ -151,6 +161,7 @@ endif()
 # ---- Install + CPack (NSIS) ---------------------------------------------
 include(GNUInstallDirs)
 
+if(WIN32)
 install(TARGETS tscrt_win
         RUNTIME DESTINATION .)
 
@@ -273,6 +284,9 @@ include(CPack)
 # Make sure CMake hands the .rc file to windres correctly.
 set_source_files_properties(resources/tscrt_win.rc
     PROPERTIES LANGUAGE RC)
+else()
+    install(TARGETS tscrt_win RUNTIME DESTINATION bin BUNDLE DESTINATION .)
+endif()
 
 target_include_directories(tscrt_win PRIVATE
     include
@@ -306,6 +320,7 @@ if(MSVC)
 else()
     target_compile_options(tscrt_win PRIVATE
         -Wall -Wextra -Werror
+        -Wno-unknown-warning-option
         -Wno-unused-parameter
         -Wno-format-truncation
         -Wno-missing-field-initializers)

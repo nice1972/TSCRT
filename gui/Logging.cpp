@@ -102,7 +102,11 @@ QString installLogging()
         dir.cd(QString::fromLatin1(TSCRT_LOG_DIR_NAME));
     }
 
+#ifdef Q_OS_MACOS
+    const QString path = dir.filePath(QStringLiteral("tscrt_mac.log"));
+#else
     const QString path = dir.filePath(QStringLiteral("tscrt_win.log"));
+#endif
     rotateIfNeeded(path);
 
     auto *f = new QFile(path);
@@ -131,7 +135,11 @@ void shutdownLogging()
 
 void logBanner()
 {
+#ifdef Q_OS_MACOS
+    qInfo("tscrt_mac %s starting (Qt %s, libssh2 %s, libvterm %d.%d)",
+#else
     qInfo("tscrt_win %s starting (Qt %s, libssh2 %s, libvterm %d.%d)",
+#endif
           TSCRT_VERSION,
           qVersion(),
           LIBSSH2_VERSION,
