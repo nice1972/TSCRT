@@ -7,12 +7,23 @@
 #include <QSettings>
 #include <QTranslator>
 
+#ifndef _WIN32
+#include <signal.h>
+#endif
+
 #include "CrashHandler.h"
 #include "Logging.h"
 #include "MainWindow.h"
 
 int main(int argc, char *argv[])
 {
+#ifndef _WIN32
+    // Writing to a closed socket would otherwise kill the process on
+    // macOS/Linux — libssh2 on macOS can't use MSG_NOSIGNAL, so we mask
+    // SIGPIPE globally and rely on write() returning EPIPE instead.
+    signal(SIGPIPE, SIG_IGN);
+#endif
+
     QApplication app(argc, argv);
     app.setApplicationName(QStringLiteral("tscrt_win"));
     app.setOrganizationName(QStringLiteral("tscrt"));
