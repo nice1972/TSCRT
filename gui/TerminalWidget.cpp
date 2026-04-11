@@ -219,7 +219,7 @@ int TerminalWidget::s_sbPushline(int cols, const VTermScreenCell *cells, void *u
     std::vector<VTermScreenCell> line(cells, cells + cols);
     self->m_scrollback.push_back(std::move(line));
     if (int(self->m_scrollback.size()) > self->m_scrollMax)
-        self->m_scrollback.erase(self->m_scrollback.begin());
+        self->m_scrollback.pop_front();
     self->updateScrollBarRange();
     if (wasAtBottom) self->scrollToBottom();
     self->scheduleRepaint();

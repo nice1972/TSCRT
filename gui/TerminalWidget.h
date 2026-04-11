@@ -23,6 +23,7 @@
 #include <QString>
 #include <QTimer>
 #include <QVector>
+#include <deque>
 #include <vector>
 
 #include <vterm.h>
@@ -153,8 +154,8 @@ private:
     // (the most recent rolled-off content) are appended to the back.
     // m_scrollOffset > 0 means the user has scrolled up by that many
     // lines; 0 means follow the live screen.
-    std::vector<std::vector<VTermScreenCell>> m_scrollback;
-    int           m_scrollMax    = 10000;
+    std::deque<std::vector<VTermScreenCell>> m_scrollback;
+    int           m_scrollMax    = 50000;
     int           m_scrollOffset = 0;
 
     void updateScrollBarRange();

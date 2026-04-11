@@ -45,7 +45,7 @@ int profile_init(profile_t *p)
              "%s" TSCRT_PATH_SEP "TSCRT", docs);
     snprintf(p->common.terminal_type, sizeof(p->common.terminal_type), "xterm-256color");
     snprintf(p->common.encoding, sizeof(p->common.encoding), "UTF-8");
-    p->common.scrollback = 10000;
+    p->common.scrollback = 50000;
 
     static const char *btn_defaults[][2] = {
         /* Quick keys */
