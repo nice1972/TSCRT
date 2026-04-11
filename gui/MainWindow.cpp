@@ -51,6 +51,7 @@
 #include <QShortcut>
 #include <QTabBar>
 #include <QTabWidget>
+#include <QToolButton>
 #include <QVBoxLayout>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
@@ -79,7 +80,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     // -- Tab widget --
     m_tabs = new QTabWidget(this);
-    m_tabs->setTabsClosable(true);
+    // We install our own tiny close button per tab (see openSessionByIndex),
+    // so the default closable machinery is disabled.
+    m_tabs->setTabsClosable(false);
     m_tabs->setMovable(true);
     m_tabs->setDocumentMode(true);
     m_tabs->tabBar()->setStyleSheet(QStringLiteral(
@@ -88,10 +91,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         "    color: #1a1a1a;"
         "}"
         "QTabBar::tab {"
-        "    padding: 4px 10px;"
+        "    padding: 4px 6px 4px 10px;"
         "}"));
-    connect(m_tabs, &QTabWidget::tabCloseRequested,
-            this, &MainWindow::onTabCloseRequested);
     connect(m_tabs, &QTabWidget::currentChanged,
             this, &MainWindow::onCurrentTabChanged);
     connect(m_tabs->tabBar(), &QTabBar::tabBarDoubleClicked,
@@ -1330,6 +1331,36 @@ void MainWindow::openSessionByIndex(int profileIndex)
     tab->setProperty("tscrtProfileIndex", profileIndex);
     const int idx = m_tabs->addTab(tab, QString::fromLocal8Bit(s.name));
     m_tabs->setCurrentIndex(idx);
+
+    // Tiny close button placed right next to the title. Smaller and less
+    // intrusive than Qt's default QTabBar::CloseButton which reserves a
+    // chunky square hit area.
+    {
+        auto *closeBtn = new QToolButton(m_tabs->tabBar());
+        closeBtn->setText(QStringLiteral("\u00D7"));    // ×
+        closeBtn->setAutoRaise(true);
+        closeBtn->setCursor(Qt::ArrowCursor);
+        closeBtn->setFocusPolicy(Qt::NoFocus);
+        closeBtn->setFixedSize(14, 14);
+        closeBtn->setToolTip(tr("Close tab"));
+        closeBtn->setStyleSheet(QStringLiteral(
+            "QToolButton {"
+            "  border: none; background: transparent;"
+            "  color: #888; padding: 0; margin: 0;"
+            "  font-size: 11pt; font-weight: bold;"
+            "}"
+            "QToolButton:hover {"
+            "  background: rgba(0, 0, 0, 0.15);"
+            "  color: #111; border-radius: 2px;"
+            "}"));
+        QPointer<QWidget> pageRef(tab);
+        connect(closeBtn, &QToolButton::clicked, this, [this, pageRef] {
+            if (!pageRef) return;
+            const int i = m_tabs->indexOf(pageRef.data());
+            if (i >= 0) onTabCloseRequested(i);
+        });
+        m_tabs->tabBar()->setTabButton(idx, QTabBar::RightSide, closeBtn);
+    }
 
     // SessionTab's constructor sets focus on the terminal, but at that
     // point the widget is not yet inside the QTabWidget so the call has
