@@ -225,6 +225,16 @@ static int profile_read_file(profile_t *p, const char *path)
                 else if (strcmp(val, "software") == 0) cur->serial.flowcontrol = FLOW_SOFTWARE;
                 else cur->serial.flowcontrol = FLOW_NONE;
             }
+            else if (strcmp(key, "auto_reconnect") == 0)
+                cur->auto_reconnect = (atoi(val) != 0) ? 1 : 0;
+            else if (strcmp(key, "reconnect_max") == 0)
+                cur->reconnect_max = atoi(val);
+            else if (strcmp(key, "reconnect_base_ms") == 0)
+                cur->reconnect_base_ms = atoi(val);
+            else if (strcmp(key, "ssh_keepalive_sec") == 0)
+                cur->ssh_keepalive_sec = atoi(val);
+            else if (strcmp(key, "ssh_tcp_keepalive") == 0)
+                cur->ssh_tcp_keepalive = (atoi(val) != 0) ? 1 : 0;
         } else if (section == 3) {
             if (btn_idx < MAX_BUTTONS) {
                 snprintf(p->buttons[btn_idx].label,  MAX_BTN_LABEL,  "%s", key);
@@ -449,6 +459,13 @@ static int profile_write_file(const profile_t *p, const char *path)
             fprintf(fp, "stopbits = %d\n", s->serial.stopbits);
             fprintf(fp, "parity = %s\n", parity_str(s->serial.parity));
             fprintf(fp, "flowcontrol = %s\n", flow_str(s->serial.flowcontrol));
+        }
+        fprintf(fp, "auto_reconnect = %d\n",    s->auto_reconnect ? 1 : 0);
+        fprintf(fp, "reconnect_max = %d\n",     s->reconnect_max);
+        fprintf(fp, "reconnect_base_ms = %d\n", s->reconnect_base_ms);
+        if (s->type == SESSION_TYPE_SSH) {
+            fprintf(fp, "ssh_keepalive_sec = %d\n", s->ssh_keepalive_sec);
+            fprintf(fp, "ssh_tcp_keepalive = %d\n", s->ssh_tcp_keepalive ? 1 : 0);
         }
         fprintf(fp, "\n");
     }

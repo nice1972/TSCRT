@@ -5,6 +5,7 @@
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QFormLayout>
+#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -137,6 +138,40 @@ void SessionEditDialog::buildUi()
 
     root->addWidget(m_stack);
 
+    // ---- Advanced (auto-reconnect + keepalive) ----
+    auto *advGroup = new QGroupBox(tr("Advanced"), this);
+    auto *advForm  = new QFormLayout(advGroup);
+
+    m_autoReconnect = new QCheckBox(tr("Auto reconnect on disconnect"), advGroup);
+    advForm->addRow(QString(), m_autoReconnect);
+
+    m_reconnectMax = new QSpinBox(advGroup);
+    m_reconnectMax->setRange(0, 1000);
+    m_reconnectMax->setValue(10);
+    m_reconnectMax->setSpecialValueText(tr("unlimited"));
+    advForm->addRow(tr("Max attempts:"), m_reconnectMax);
+
+    m_reconnectBaseMs = new QSpinBox(advGroup);
+    m_reconnectBaseMs->setRange(100, 60000);
+    m_reconnectBaseMs->setSingleStep(100);
+    m_reconnectBaseMs->setValue(500);
+    m_reconnectBaseMs->setSuffix(tr(" ms"));
+    advForm->addRow(tr("Base delay:"), m_reconnectBaseMs);
+
+    m_sshKeepaliveSec = new QSpinBox(advGroup);
+    m_sshKeepaliveSec->setRange(0, 3600);
+    m_sshKeepaliveSec->setValue(30);
+    m_sshKeepaliveSec->setSpecialValueText(tr("off"));
+    m_sshKeepaliveSec->setSuffix(tr(" s"));
+    m_keepaliveLabel = new QLabel(tr("SSH keepalive:"), advGroup);
+    advForm->addRow(m_keepaliveLabel, m_sshKeepaliveSec);
+
+    m_sshTcpKeepalive = new QCheckBox(tr("Enable TCP keepalive (SO_KEEPALIVE)"), advGroup);
+    m_sshTcpKeepalive->setChecked(true);
+    advForm->addRow(QString(), m_sshTcpKeepalive);
+
+    root->addWidget(advGroup);
+
     auto *bb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                                     this);
     connect(bb, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -150,7 +185,12 @@ void SessionEditDialog::buildUi()
 
 void SessionEditDialog::typeChanged(int /*index*/)
 {
-    m_stack->setCurrentIndex(m_type->currentData().toInt());
+    const int t = m_type->currentData().toInt();
+    m_stack->setCurrentIndex(t);
+    const bool ssh = (t == int(SESSION_TYPE_SSH));
+    if (m_keepaliveLabel)  m_keepaliveLabel->setVisible(ssh);
+    if (m_sshKeepaliveSec) m_sshKeepaliveSec->setVisible(ssh);
+    if (m_sshTcpKeepalive) m_sshTcpKeepalive->setVisible(ssh);
 }
 
 void SessionEditDialog::browseKeyfile()
@@ -184,6 +224,13 @@ void SessionEditDialog::setSession(const session_entry_t &s)
         m_serParity->setCurrentIndex(m_serParity->findData(int(s.serial.parity)));
         m_serFlow->setCurrentIndex(m_serFlow->findData(int(s.serial.flowcontrol)));
     }
+
+    m_autoReconnect->setChecked(s.auto_reconnect != 0);
+    m_reconnectMax->setValue(s.reconnect_max);
+    m_reconnectBaseMs->setValue(s.reconnect_base_ms > 0 ? s.reconnect_base_ms : 500);
+    m_sshKeepaliveSec->setValue(s.ssh_keepalive_sec);
+    m_sshTcpKeepalive->setChecked(s.ssh_tcp_keepalive != 0);
+    typeChanged(0);
 }
 
 session_entry_t SessionEditDialog::session() const
@@ -209,6 +256,14 @@ session_entry_t SessionEditDialog::session() const
         s.serial.stopbits = m_serStop->currentData().toInt();
         s.serial.parity   = parity_t(m_serParity->currentData().toInt());
         s.serial.flowcontrol = flowcontrol_t(m_serFlow->currentData().toInt());
+    }
+
+    s.auto_reconnect    = m_autoReconnect->isChecked() ? 1 : 0;
+    s.reconnect_max     = m_reconnectMax->value();
+    s.reconnect_base_ms = m_reconnectBaseMs->value();
+    if (s.type == SESSION_TYPE_SSH) {
+        s.ssh_keepalive_sec = m_sshKeepaliveSec->value();
+        s.ssh_tcp_keepalive = m_sshTcpKeepalive->isChecked() ? 1 : 0;
     }
     return s;
 }

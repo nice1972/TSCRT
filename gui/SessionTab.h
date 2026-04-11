@@ -1,20 +1,24 @@
 /*
- * SessionTab - composite widget hosting one terminal session.
+ * SessionTab - composite widget hosting one or more terminal panes.
  *
- * Lays out a TerminalWidget on top of a ButtonBar, owns the ISession
- * backend and the AutomationEngine for that session, and wires the
- * data signals between them.
+ * Each tab holds a QSplitter tree of Pane objects. A Pane wraps one
+ * TerminalWidget + ISession backend. The FindBar, CommandLineWidget
+ * and ButtonBar are shared by the tab and always target the active
+ * pane. Split-pane and input-broadcast live here; auto-reconnect
+ * lives inside each Pane.
  */
 #pragma once
 
 #include "tscrt.h"
 
+#include <QList>
 #include <QString>
 #include <QTimer>
 #include <QWidget>
 
 class CommandLineWidget;
 class ISession;
+class QSplitter;
 class SessionLogger;
 class TerminalWidget;
 
@@ -23,6 +27,7 @@ namespace tscrt {
 class AutomationEngine;
 class ButtonBar;
 class FindBar;
+class Pane;
 
 class SessionTab : public QWidget {
     Q_OBJECT
@@ -32,9 +37,14 @@ public:
     ~SessionTab() override;
 
     QString displayName() const { return m_displayName; }
-    TerminalWidget    *terminal() const { return m_term; }
-    ISession          *session()  const { return m_session; }
-    ButtonBar         *buttonBar() const { return m_buttons; }
+
+    // Backward-compat adapters — always target the active pane so
+    // existing MainWindow call sites (tab->terminal(), tab->session())
+    // keep working unchanged.
+    TerminalWidget *terminal() const;
+    ISession       *session()  const;
+
+    ButtonBar           *buttonBar() const { return m_buttons; }
     ::CommandLineWidget *commandLine() const { return m_cmdLine; }
     bool showCmdLineInFullscreen() const { return m_showCmdLineFs; }
     bool showButtonsInFullscreen() const { return m_showButtonsFs; }
@@ -43,8 +53,28 @@ public:
     /// the Mark toggle starts on with the current mark pattern pre-filled.
     void showFindBar(bool markPreset = false);
 
+    // Split / broadcast API
+    Pane *activePane() const { return m_activePane; }
+    const QList<Pane*> &panes() const { return m_panes; }
+    void splitActive(Qt::Orientation orient);
+    void closeActivePane();
+
+    bool broadcastEnabled() const { return m_broadcastEnabled; }
+    void setBroadcastEnabled(bool on);
+
 signals:
     void buttonEditRequested(int slotIndex);
+    /// A new pane has joined the tab (initial, split, reconnect).
+    /// MainWindow uses this to attach its status-bar + snapshot hooks.
+    void paneAdded(Pane *pane);
+    /// A pane is about to be destroyed.
+    void paneRemoving(Pane *pane);
+    /// Relayed from Pane: its ISession is about to be destroyed.
+    void sessionAboutToChange(ISession *oldSession);
+    /// Relayed from Pane: reconnect produced a fresh ISession.
+    void sessionRebound(ISession *newSession);
+    /// Tab has no panes left — MainWindow should close the tab.
+    void tabEmpty();
 
 private slots:
     void onButtonAction(const QString &actionString);
@@ -58,35 +88,44 @@ private slots:
     void onButtonLoopRequested(const QString &action);
     void onHelpRequested();
     void onCommandEntered(const QString &cmd);
+    void onAppFocusChanged(QWidget *old, QWidget *now);
 
 private:
-    void configureLoop();          // pop the cmd+interval dialog
-    void startLoop();               // start ticking with current cfg
-    void stopLoop();                // stop ticking
-    void configureMark();           // pop the highlight pattern dialog
-    void clearMark();               // clear the highlight pattern
+    void configureLoop();
+    void startLoop();
+    void stopLoop();
+    void configureMark();
+    void clearMark();
+
+    Pane *createPane(ISession *session);
+    void  addPaneToSplitter(Pane *pane, Pane *after, Qt::Orientation orient);
+    void  setActivePane(Pane *pane);
+    void  wirePaneBroadcast(Pane *pane);
+    void  removePane(Pane *pane);
+    void  refreshBroadcastBadges();
 
 private:
-    TerminalWidget      *m_term    = nullptr;
-    FindBar             *m_findBar = nullptr;
-    ::CommandLineWidget *m_cmdLine = nullptr;
-    ButtonBar           *m_buttons = nullptr;
-    AutomationEngine    *m_engine  = nullptr;
-    ISession            *m_session = nullptr;
-    ::SessionLogger     *m_logger  = nullptr;
-    QString              m_displayName;
+    profile_t                 m_profile{};
+    session_entry_t           m_entry{};
+    QSplitter                *m_rootSplitter = nullptr;
+    QList<Pane*>              m_panes;
+    Pane                     *m_activePane = nullptr;
 
-    // Loop state (per session, in-memory).
+    FindBar                  *m_findBar = nullptr;
+    ::CommandLineWidget      *m_cmdLine = nullptr;
+    ButtonBar                *m_buttons = nullptr;
+    QString                   m_displayName;
+
+    // Loop state (tab-wide, dispatches to the active pane).
     QTimer               m_loopTimer;
     QString              m_loopAction;
     int                  m_loopIntervalSec = 0;
 
-    // Mark state.
-    QString              m_markPattern;
-
-    // Per-session fullscreen visibility.
+    // Per-session fullscreen visibility (derived from the initial entry).
     bool                 m_showCmdLineFs = false;
     bool                 m_showButtonsFs = false;
+
+    bool                 m_broadcastEnabled = false;
 };
 
 } // namespace tscrt

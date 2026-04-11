@@ -15,6 +15,7 @@ class QComboBox;
 class QLineEdit;
 class QSpinBox;
 class QStackedWidget;
+class QLabel;
 
 class SessionEditDialog : public QDialog {
     Q_OBJECT
@@ -52,4 +53,12 @@ private:
     QComboBox      *m_serStop   = nullptr;
     QComboBox      *m_serParity = nullptr;
     QComboBox      *m_serFlow   = nullptr;
+
+    // Advanced: auto-reconnect + keepalive
+    QCheckBox      *m_autoReconnect   = nullptr;
+    QSpinBox       *m_reconnectMax    = nullptr;
+    QSpinBox       *m_reconnectBaseMs = nullptr;
+    QLabel         *m_keepaliveLabel  = nullptr;
+    QSpinBox       *m_sshKeepaliveSec = nullptr;
+    QCheckBox      *m_sshTcpKeepalive = nullptr;
 };

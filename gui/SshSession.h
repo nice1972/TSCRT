@@ -39,6 +39,11 @@ public:
 
     QString displayName() const override { return m_name; }
 
+    /// Keepalive configuration. Call before start(). 0 = off.
+    void setKeepalive(int seconds)   { m_keepaliveSec = seconds; }
+    /// Enable SO_KEEPALIVE on the TCP socket. Call before start().
+    void setTcpKeepalive(bool on)    { m_tcpKeepalive = on; }
+
 public slots:
     void start() override;
     void stop()  override;
@@ -83,4 +88,8 @@ private:
     int               m_pendingRows = 24;
     bool              m_resizePending = false;
     bool              m_stopRequested = false;
+
+    // Keepalive (configured before start())
+    int               m_keepaliveSec = 0;
+    bool              m_tcpKeepalive = false;
 };

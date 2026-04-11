@@ -119,6 +119,12 @@ bool SshSession::connectSocket(QString *err)
     setsockopt(m_sock, IPPROTO_TCP, TCP_NODELAY,
                reinterpret_cast<const char *>(&nodelay), sizeof(nodelay));
 
+    if (m_tcpKeepalive) {
+        int ka = 1;
+        setsockopt(m_sock, SOL_SOCKET, SO_KEEPALIVE,
+                   reinterpret_cast<const char *>(&ka), sizeof(ka));
+    }
+
     if (::connect(m_sock, res->ai_addr, (int)res->ai_addrlen) != 0) {
         freeaddrinfo(res);
 #ifdef _WIN32
@@ -331,6 +337,10 @@ void SshSession::runLoop()
         return;
     }
 
+    if (m_keepaliveSec > 0) {
+        libssh2_keepalive_config(m_session, 1 /*want_reply*/, m_keepaliveSec);
+    }
+
     m_running = true;
     emit connected();
 
@@ -403,6 +413,23 @@ void SshSession::runLoop()
             break;
         }
 
+        // Keepalive: ping server when its interval says so. libssh2 tells us
+        // how many seconds until the next one — we clamp the idle poll to
+        // that so we never oversleep a keepalive tick.
+        int pollMs = POLL_TIMEOUT_MS;
+        if (m_keepaliveSec > 0) {
+            int nextSec = 0;
+            int rc = libssh2_keepalive_send(m_session, &nextSec);
+            if (rc < 0) {
+                err = QStringLiteral("keepalive failed");
+                goto done;
+            }
+            if (nextSec > 0) {
+                const int cap = nextSec * 1000;
+                if (cap < pollMs) pollMs = cap;
+            }
+        }
+
         // Wait on socket if idle.
         if (!gotData && txChunk.isEmpty()) {
 #ifdef _WIN32
@@ -410,13 +437,13 @@ void SshSession::runLoop()
             pf.fd      = m_sock;
             pf.events  = POLLIN;
             pf.revents = 0;
-            WSAPoll(&pf, 1, POLL_TIMEOUT_MS);
+            WSAPoll(&pf, 1, pollMs);
 #else
             struct pollfd pf;
             pf.fd      = m_sock;
             pf.events  = POLLIN;
             pf.revents = 0;
-            poll(&pf, 1, POLL_TIMEOUT_MS);
+            poll(&pf, 1, pollMs);
 #endif
         }
     }

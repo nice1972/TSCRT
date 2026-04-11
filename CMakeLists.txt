@@ -67,6 +67,8 @@ set(GUI_SOURCES
     gui/CommandLineWidget.cpp
     gui/SessionHistory.h
     gui/SessionHistory.cpp
+    gui/Pane.h
+    gui/Pane.cpp
     gui/SessionTab.h
     gui/SessionTab.cpp
     gui/SmtpClient.h

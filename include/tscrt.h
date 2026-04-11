@@ -136,6 +136,13 @@ typedef struct {
     int             log_enabled;        /* 1 = write per-session log file */
     int             show_cmdline;       /* 1 = show command line in fullscreen */
     int             show_buttons;       /* 1 = show button bar in fullscreen */
+    /* Auto-reconnect (SSH + Serial common) */
+    int             auto_reconnect;     /* 0 = off, 1 = on */
+    int             reconnect_max;      /* 0 = unlimited, default 10 */
+    int             reconnect_base_ms;  /* base backoff, default 500ms */
+    /* SSH keepalive (ignored for serial) */
+    int             ssh_keepalive_sec;  /* libssh2 keepalive interval, 0 = off */
+    int             ssh_tcp_keepalive;  /* SO_KEEPALIVE on TCP socket, 0/1 */
     union {
         ssh_config_t    ssh;
         serial_config_t serial;

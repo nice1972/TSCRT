@@ -44,6 +44,13 @@ public slots:
     void showAboutDialog();
     void setUiLanguage(const QString &langCode);
 
+public:
+    /// Factory used by openSessionByIndex() and the Pane reconnect path.
+    /// The entry's ssh.password is expected to already be resolved (any
+    /// interactive prompt happens at the call site, not here).
+    ISession *makeSessionFor(const profile_t &p, const session_entry_t &entry);
+    const profile_t &profile() const { return m_profile; }
+
 private:
     bool appendSessionToProfile(session_entry_t entry);
 

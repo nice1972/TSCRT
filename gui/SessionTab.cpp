@@ -5,15 +5,21 @@
 #include "CommandLineWidget.h"
 #include "FindBar.h"
 #include "ISession.h"
+#include "MainWindow.h"
+#include "Pane.h"
 #include "SessionHistory.h"
 #include "SessionLogger.h"
 #include "TerminalWidget.h"
 
+#include <QApplication>
 #include <QInputDialog>
 #include <QKeySequence>
+#include <QMainWindow>
 #include <QMessageBox>
 #include <QSettings>
 #include <QShortcut>
+#include <QSplitter>
+#include <QStatusBar>
 #include <QVBoxLayout>
 
 namespace tscrt {
@@ -21,7 +27,8 @@ namespace tscrt {
 SessionTab::SessionTab(ISession *session, const profile_t &profile,
                        const session_entry_t &entry, QWidget *parent)
     : QWidget(parent),
-      m_session(session),
+      m_profile(profile),
+      m_entry(entry),
       m_displayName(QString::fromLocal8Bit(entry.name)),
       m_showCmdLineFs(entry.show_cmdline != 0),
       m_showButtonsFs(entry.show_buttons != 0)
@@ -30,53 +37,54 @@ SessionTab::SessionTab(ISession *session, const profile_t &profile,
     root->setContentsMargins(0, 0, 0, 0);
     root->setSpacing(0);
 
-    m_term = new TerminalWidget(this);
-    root->addWidget(m_term, 1);
+    // Root splitter holds one or more Pane widgets. A single pane at
+    // startup — split actions rebuild the tree. A 1px handle keeps the
+    // gap between panes tight.
+    m_rootSplitter = new QSplitter(Qt::Horizontal, this);
+    m_rootSplitter->setChildrenCollapsible(false);
+    m_rootSplitter->setHandleWidth(1);
+    root->addWidget(m_rootSplitter, 1);
 
     // Find / Mark bar — hidden until Ctrl+F or the Mark button opens it.
     m_findBar = new FindBar(this);
     m_findBar->hide();
     root->addWidget(m_findBar);
     connect(m_findBar, &FindBar::patternOrOptionsChanged, this, [this]() {
-        if (!m_term) return;
-        const int total = m_term->findAll(m_findBar->pattern(),
-                                          m_findBar->caseSensitive(),
-                                          m_findBar->regex());
-        m_findBar->setMatchInfo(m_term->findCurrentIndex(), total);
-        if (m_findBar->markActive())
-            m_term->setHighlightPattern(m_findBar->pattern());
+        TerminalWidget *term = terminal();
+        if (!term) return;
+        const int total = term->findAll(m_findBar->pattern(),
+                                        m_findBar->caseSensitive(),
+                                        m_findBar->regex());
+        m_findBar->setMatchInfo(term->findCurrentIndex(), total);
+        if (m_findBar->markActive() && m_activePane)
+            m_activePane->setMarkPattern(m_findBar->pattern());
     });
     connect(m_findBar, &FindBar::findNextRequested, this, [this]() {
-        if (m_term) m_term->findNext();
+        if (auto *term = terminal()) term->findNext();
     });
     connect(m_findBar, &FindBar::findPrevRequested, this, [this]() {
-        if (m_term) m_term->findPrev();
+        if (auto *term = terminal()) term->findPrev();
     });
     connect(m_findBar, &FindBar::markToggled, this, [this](bool on) {
-        if (!m_term) return;
+        if (!m_activePane) return;
         if (on) {
-            m_markPattern = m_findBar->pattern();
-            m_term->setHighlightPattern(m_markPattern);
-            if (m_engine) m_engine->setHighlightPattern(m_markPattern);
-            if (m_buttons) m_buttons->setMarkActive(!m_markPattern.isEmpty());
+            m_activePane->setMarkPattern(m_findBar->pattern());
+            if (m_buttons)
+                m_buttons->setMarkActive(!m_activePane->markPattern().isEmpty());
         } else {
-            m_markPattern.clear();
-            m_term->setHighlightPattern(QString());
-            if (m_engine) m_engine->setHighlightPattern(QString());
+            m_activePane->clearMark();
             if (m_buttons) m_buttons->setMarkActive(false);
         }
     });
     connect(m_findBar, &FindBar::closeRequested, this, [this]() {
-        if (m_term) {
-            m_term->clearFind();
-            m_term->setFocus();
+        if (auto *term = terminal()) {
+            term->clearFind();
+            term->setFocus();
         }
         m_findBar->hide();
     });
-    connect(m_term, &TerminalWidget::findIndexChanged,
-            m_findBar, &FindBar::setMatchInfo);
 
-    // Ctrl+F (⌘F on mac via Qt::CTRL portable constant) opens the bar.
+    // Ctrl+F opens the bar.
     auto *findShortcut = new QShortcut(
         QKeySequence(QKeySequence::Find), this);
     findShortcut->setContext(Qt::WidgetWithChildrenShortcut);
@@ -129,114 +137,301 @@ SessionTab::SessionTab(ISession *session, const profile_t &profile,
             prefs.value(QStringLiteral("ui/showButtonBar"), true).toBool());
     }
 
-    // Engine listens to the session backend
-    m_engine = new AutomationEngine(session, profile, m_displayName, this);
+    // Initial pane wraps the session passed in by MainWindow. We do
+    // NOT emit paneAdded() for the first pane: the caller (MainWindow)
+    // already attaches its status-bar + snapshot hooks to the session
+    // directly before constructing SessionTab, and firing a signal from
+    // within a constructor cannot reach slots that haven't connected yet.
+    Pane *first = createPane(session);
+    m_rootSplitter->addWidget(first);
+    m_panes.append(first);
+    setActivePane(first);
 
-    // Per-session output log (file in profile.common.log_dir).
-    if (entry.log_enabled) {
-        const QString host = (entry.type == SESSION_TYPE_SSH)
-            ? QString::fromLocal8Bit(entry.ssh.host)
-            : QString::fromLocal8Bit(entry.serial.device);
-        m_logger = new ::SessionLogger(
-            QString::fromLocal8Bit(profile.common.log_dir),
-            m_displayName, host, this);
-        connect(session, &ISession::bytesReceived,
-                m_logger, &::SessionLogger::onBytesReceived);
-    }
+    // Track focus at the application level so the active pane always
+    // reflects whichever terminal the user last touched.
+    connect(qApp, &QApplication::focusChanged,
+            this, &SessionTab::onAppFocusChanged);
 
-    // Wire data flow:
-    //   session -> terminal     (queued: GUI thread runs the event loop)
-    //   terminal -> session     (DIRECT: the worker thread is stuck in a
-    //                            tight read/write loop and never pumps its
-    //                            event loop, so a queued sendBytes/resize
-    //                            would never be delivered. Both target
-    //                            slots are mutex-protected, so calling them
-    //                            directly from the GUI thread is safe.)
-    connect(session, &ISession::bytesReceived,
-            m_term, &TerminalWidget::feedBytes);
-    connect(m_term, &TerminalWidget::outputBytes,
-            session, &ISession::sendBytes,
-            Qt::DirectConnection);
-    connect(m_term, &TerminalWidget::gridResized,
-            session, &ISession::resize,
-            Qt::DirectConnection);
-
-    // Session lives on its own QThread — setParent across threads is
-    // rejected by Qt, so SessionTab owns it manually and deletes it in
-    // the destructor after stop() joins the worker thread.
-
-    m_term->setFocus(Qt::OtherFocusReason);
+    first->terminal()->setFocus(Qt::OtherFocusReason);
 }
 
 SessionTab::~SessionTab()
 {
-    if (m_session) {
-        m_session->stop();
-        delete m_session;
-        m_session = nullptr;
+    // Suppress auto-reconnect on all panes — the tab is being destroyed.
+    for (Pane *p : m_panes) {
+        if (p) p->suppressAutoReconnect();
+    }
+    // Pane destructors take care of joining worker threads.
+}
+
+TerminalWidget *SessionTab::terminal() const
+{
+    return m_activePane ? m_activePane->terminal() : nullptr;
+}
+
+ISession *SessionTab::session() const
+{
+    return m_activePane ? m_activePane->session() : nullptr;
+}
+
+Pane *SessionTab::createPane(ISession *session)
+{
+    auto *mw = qobject_cast<MainWindow*>(window());
+    auto *pane = new Pane(mw, m_profile, m_entry, session, this);
+
+    // Relay session lifecycle from Pane up to the tab so MainWindow
+    // can keep its snapshot + status-bar hooks in sync.
+    connect(pane, &Pane::sessionAboutToChange,
+            this, &SessionTab::sessionAboutToChange);
+    connect(pane, &Pane::sessionRebound,
+            this, &SessionTab::sessionRebound);
+
+    wirePaneBroadcast(pane);
+    return pane;
+}
+
+void SessionTab::wirePaneBroadcast(Pane *pane)
+{
+    // Broadcast dispatcher: when enabled, mirror this pane's outgoing
+    // bytes (keys, IME, paste, mouse reports) to every other pane.
+    connect(pane->terminal(), &TerminalWidget::outputBytes, this,
+            [this, src = pane](const QByteArray &b) {
+        if (!m_broadcastEnabled) return;
+        for (Pane *p : m_panes) {
+            if (p == src || !p->session()) continue;
+            p->session()->sendBytes(b);
+        }
+    });
+}
+
+void SessionTab::addPaneToSplitter(Pane *newPane, Pane *afterPane,
+                                   Qt::Orientation orient)
+{
+    if (!afterPane) {
+        m_rootSplitter->addWidget(newPane);
+        return;
+    }
+    auto *parentSplit = qobject_cast<QSplitter*>(afterPane->parentWidget());
+    if (!parentSplit) {
+        m_rootSplitter->addWidget(newPane);
+        return;
+    }
+
+    if (parentSplit->orientation() == orient) {
+        parentSplit->setHandleWidth(1);
+        const int idx = parentSplit->indexOf(afterPane);
+        parentSplit->insertWidget(idx + 1, newPane);
+        // Equalise sizes across the parent splitter.
+        QList<int> sizes;
+        const int total = (orient == Qt::Horizontal
+                            ? parentSplit->width() : parentSplit->height());
+        const int each = (parentSplit->count() > 0)
+            ? total / parentSplit->count() : total;
+        for (int i = 0; i < parentSplit->count(); ++i) sizes.append(each);
+        parentSplit->setSizes(sizes);
+    } else {
+        // Orientation differs: wrap the active pane in a new splitter so
+        // the tree grows recursively.
+        const int idx = parentSplit->indexOf(afterPane);
+        auto *nested = new QSplitter(orient, parentSplit);
+        nested->setChildrenCollapsible(false);
+        nested->setHandleWidth(1);
+        // Move afterPane into the nested splitter.
+        afterPane->setParent(nested);
+        nested->addWidget(afterPane);
+        nested->addWidget(newPane);
+        const int total = (orient == Qt::Horizontal
+                            ? nested->width() : nested->height());
+        const int half = (total > 0) ? total / 2 : 200;
+        nested->setSizes({half, half});
+        parentSplit->insertWidget(idx, nested);
     }
 }
 
+void SessionTab::splitActive(Qt::Orientation orient)
+{
+    auto *mw = qobject_cast<MainWindow*>(window());
+    if (!mw || !m_activePane) return;
+
+    // Duplicate the active pane's profile for the new session.
+    const session_entry_t entry = m_activePane->entry();
+    ISession *fresh = mw->makeSessionFor(mw->profile(), entry);
+    if (!fresh) return;
+
+    Pane *newPane = createPane(fresh);
+    addPaneToSplitter(newPane, m_activePane, orient);
+    m_panes.append(newPane);
+
+    emit paneAdded(newPane);
+
+    if (m_broadcastEnabled)
+        newPane->setBroadcastMember(true);
+
+    if (auto *term = newPane->terminal()) {
+        term->setFocus(Qt::OtherFocusReason);
+        fresh->resize(term->cols(), term->rows());
+    }
+    fresh->start();
+    setActivePane(newPane);
+}
+
+void SessionTab::closeActivePane()
+{
+    if (!m_activePane) return;
+    if (m_panes.size() == 1) {
+        // Last pane — close the whole tab.
+        emit tabEmpty();
+        return;
+    }
+    Pane *target = m_activePane;
+    removePane(target);
+}
+
+void SessionTab::removePane(Pane *pane)
+{
+    if (!pane) return;
+
+    emit paneRemoving(pane);
+
+    pane->suppressAutoReconnect();
+    m_panes.removeAll(pane);
+
+    auto *parentSplit = qobject_cast<QSplitter*>(pane->parentWidget());
+    pane->setParent(nullptr);
+    pane->deleteLater();
+
+    // Flatten a splitter that now has a single child, unless it's the
+    // root splitter (we keep the root even if it holds just one pane).
+    while (parentSplit && parentSplit != m_rootSplitter &&
+           parentSplit->count() == 1) {
+        auto *only = parentSplit->widget(0);
+        auto *grand = qobject_cast<QSplitter*>(parentSplit->parentWidget());
+        if (!grand) break;
+        const int idx = grand->indexOf(parentSplit);
+        only->setParent(grand);
+        grand->insertWidget(idx, only);
+        parentSplit->setParent(nullptr);
+        parentSplit->deleteLater();
+        parentSplit = grand;
+    }
+
+    // Pick a surviving pane as the active one.
+    if (!m_panes.isEmpty()) {
+        Pane *next = m_panes.first();
+        setActivePane(next);
+        if (next->terminal())
+            next->terminal()->setFocus(Qt::OtherFocusReason);
+    } else {
+        m_activePane = nullptr;
+        emit tabEmpty();
+    }
+}
+
+void SessionTab::setActivePane(Pane *pane)
+{
+    if (m_activePane == pane) return;
+    if (m_activePane) m_activePane->setActive(false);
+    m_activePane = pane;
+    if (m_activePane) {
+        m_activePane->setActive(true);
+        // Reset FindBar counts — different stream, different matches.
+        if (m_findBar) {
+            if (auto *t = m_activePane->terminal()) t->clearFind();
+        }
+        if (m_buttons) {
+            m_buttons->setMarkActive(!m_activePane->markPattern().isEmpty());
+        }
+    }
+}
+
+void SessionTab::onAppFocusChanged(QWidget *, QWidget *now)
+{
+    if (!now) return;
+    for (Pane *p : m_panes) {
+        if (!p) continue;
+        if (p == now || p->isAncestorOf(now)) {
+            setActivePane(p);
+            return;
+        }
+    }
+}
+
+void SessionTab::setBroadcastEnabled(bool on)
+{
+    if (m_broadcastEnabled == on) return;
+    m_broadcastEnabled = on;
+    refreshBroadcastBadges();
+}
+
+void SessionTab::refreshBroadcastBadges()
+{
+    for (Pane *p : m_panes) {
+        if (p) p->setBroadcastMember(m_broadcastEnabled);
+    }
+}
+
+// -------- Button / FindBar / Loop / Mark handlers -------------------------
+
 void SessionTab::onButtonAction(const QString &actionString)
 {
-    if (m_engine)
-        m_engine->executeAction(actionString);
+    if (m_activePane && m_activePane->engine())
+        m_activePane->engine()->executeAction(actionString);
 }
 
 void SessionTab::onCommandEntered(const QString &cmd)
 {
-    if (!m_session) return;
+    if (!m_activePane || !m_activePane->session()) return;
     QByteArray bytes = cmd.toUtf8();
     bytes.append('\r');
-    m_session->sendBytes(bytes);
-    // Keep focus in the command line; the user moves it elsewhere by
-    // clicking the terminal or another widget.
+    m_activePane->session()->sendBytes(bytes);
 }
 
 void SessionTab::showFindBar(bool markPreset)
 {
     if (!m_findBar) return;
     m_findBar->show();
+    const QString markPat = m_activePane ? m_activePane->markPattern() : QString();
     if (markPreset) {
-        m_findBar->setPattern(m_markPattern);
-        m_findBar->setMarkActive(!m_markPattern.isEmpty());
+        m_findBar->setPattern(markPat);
+        m_findBar->setMarkActive(!markPat.isEmpty());
     } else {
-        m_findBar->setMarkActive(!m_markPattern.isEmpty());
+        m_findBar->setMarkActive(!markPat.isEmpty());
     }
     m_findBar->focusInput();
-    // Trigger a search with the current text (if any) so the count updates.
-    if (m_term && !m_findBar->pattern().isEmpty()) {
-        const int total = m_term->findAll(m_findBar->pattern(),
-                                          m_findBar->caseSensitive(),
-                                          m_findBar->regex());
-        m_findBar->setMatchInfo(m_term->findCurrentIndex(), total);
+    if (auto *term = terminal()) {
+        if (!m_findBar->pattern().isEmpty()) {
+            const int total = term->findAll(m_findBar->pattern(),
+                                            m_findBar->caseSensitive(),
+                                            m_findBar->regex());
+            m_findBar->setMatchInfo(term->findCurrentIndex(), total);
+        }
+        // Forward find-index updates to the bar for whichever pane is active.
+        connect(term, &TerminalWidget::findIndexChanged,
+                m_findBar, &FindBar::setMatchInfo,
+                Qt::UniqueConnection);
     }
 }
 
 void SessionTab::configureMark()
 {
-    // Legacy entry point — route to the shared Find/Mark bar.
     showFindBar(true);
 }
 
 void SessionTab::clearMark()
 {
-    m_markPattern.clear();
-    if (m_engine) m_engine->setHighlightPattern(QString());
-    if (m_term)   m_term->setHighlightPattern(QString());
+    if (m_activePane) m_activePane->clearMark();
     if (m_buttons) m_buttons->setMarkActive(false);
 }
 
 void SessionTab::onMarkClicked()
 {
-    // If mark is active, skip so double-click can fire clearMark().
-    if (!m_markPattern.isEmpty()) return;
+    if (m_activePane && !m_activePane->markPattern().isEmpty()) return;
     configureMark();
 }
 
 void SessionTab::onMarkRightClicked()
 {
-    if (m_markPattern.isEmpty())
+    if (!m_activePane || m_activePane->markPattern().isEmpty())
         configureMark();
     else
         clearMark();
@@ -244,7 +439,7 @@ void SessionTab::onMarkRightClicked()
 
 void SessionTab::onMarkDoubleClicked()
 {
-    if (!m_markPattern.isEmpty())
+    if (m_activePane && !m_activePane->markPattern().isEmpty())
         clearMark();
     else
         configureMark();
@@ -288,9 +483,7 @@ void SessionTab::stopLoop()
 
 void SessionTab::onLoopClicked()
 {
-    // Left click: start the loop. If nothing is configured yet, prompt
-    // first and then start.
-    if (m_loopTimer.isActive()) return;       // already running
+    if (m_loopTimer.isActive()) return;
     if (m_loopAction.isEmpty() || m_loopIntervalSec <= 0)
         configureLoop();
     startLoop();
@@ -298,8 +491,6 @@ void SessionTab::onLoopClicked()
 
 void SessionTab::onLoopRightClicked()
 {
-    // Right click while running → cancel.
-    // Right click while idle    → open the configuration dialog.
     if (m_loopTimer.isActive())
         stopLoop();
     else
@@ -308,7 +499,6 @@ void SessionTab::onLoopRightClicked()
 
 void SessionTab::onLoopDoubleClicked()
 {
-    // Double click: stop if running, otherwise configure+start.
     if (m_loopTimer.isActive()) {
         stopLoop();
     } else {
@@ -319,21 +509,19 @@ void SessionTab::onLoopDoubleClicked()
 
 void SessionTab::onLoopTick()
 {
-    if (m_engine && !m_loopAction.isEmpty())
-        m_engine->executeAction(m_loopAction + QStringLiteral("\\r"));
+    if (m_activePane && m_activePane->engine() && !m_loopAction.isEmpty())
+        m_activePane->engine()->executeAction(
+            m_loopAction + QStringLiteral("\\r"));
     if (m_buttons)
         m_buttons->flashLoopingButton();
 }
 
 void SessionTab::onButtonLoopRequested(const QString &action)
 {
-    // If the same action is already looping, stop it.
     if (m_loopTimer.isActive() && m_loopAction == action) {
         stopLoop();
         return;
     }
-
-    // If a different loop is running, stop it first.
     if (m_loopTimer.isActive())
         stopLoop();
 
@@ -357,6 +545,9 @@ void SessionTab::onHelpRequested()
            "<li>Bottom buttons send their action when clicked.</li>"
            "<li><b>loop</b> repeats a command on an interval.</li>"
            "<li><b>mark</b> highlights a substring in incoming output.</li>"
+           "<li>Ctrl+Shift+H / V splits the active pane.</li>"
+           "<li>Ctrl+Shift+W closes the active pane.</li>"
+           "<li>Ctrl+Shift+B toggles input broadcast across panes.</li>"
            "<li>Resize the window to update the remote PTY size.</li>"
            "<li>Settings &rarr; Preferences (Ctrl+,) edits everything.</li>"
            "</ul>"));

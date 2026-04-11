@@ -9,6 +9,7 @@
 #include "SessionEditDialog.h"
 #include "SessionHistory.h"
 #include "SessionManagerDialog.h"
+#include "Pane.h"
 #include "SessionTab.h"
 #include "LogSettingsDialog.h"
 #include "SettingsDialog.h"
@@ -322,6 +323,51 @@ void MainWindow::createMenus()
     viewMenu->addAction(m_actViewCmdLine);
     viewMenu->addAction(m_actViewButtons);
     viewMenu->addAction(m_actViewStatus);
+    viewMenu->addSeparator();
+
+    // Split / broadcast actions operate on the current tab.
+    auto *actSplitH = new QAction(tr("Split Pane &Horizontally"), this);
+    actSplitH->setShortcut(QKeySequence(QStringLiteral("Ctrl+Shift+H")));
+    connect(actSplitH, &QAction::triggered, this, [this] {
+        if (auto *tab = qobject_cast<tscrt::SessionTab*>(m_tabs->currentWidget()))
+            tab->splitActive(Qt::Horizontal);
+    });
+    viewMenu->addAction(actSplitH);
+
+    auto *actSplitV = new QAction(tr("Split Pane &Vertically"), this);
+    actSplitV->setShortcut(QKeySequence(QStringLiteral("Ctrl+Shift+V")));
+    connect(actSplitV, &QAction::triggered, this, [this] {
+        if (auto *tab = qobject_cast<tscrt::SessionTab*>(m_tabs->currentWidget()))
+            tab->splitActive(Qt::Vertical);
+    });
+    viewMenu->addAction(actSplitV);
+
+    auto *actClosePane = new QAction(tr("Close &Pane"), this);
+    actClosePane->setShortcut(QKeySequence(QStringLiteral("Ctrl+Shift+W")));
+    connect(actClosePane, &QAction::triggered, this, [this] {
+        if (auto *tab = qobject_cast<tscrt::SessionTab*>(m_tabs->currentWidget()))
+            tab->closeActivePane();
+    });
+    viewMenu->addAction(actClosePane);
+
+    auto *actBroadcast = new QAction(tr("&Broadcast Input"), this);
+    actBroadcast->setCheckable(true);
+    actBroadcast->setShortcut(QKeySequence(QStringLiteral("Ctrl+Shift+B")));
+    connect(actBroadcast, &QAction::toggled, this, [this](bool on) {
+        if (auto *tab = qobject_cast<tscrt::SessionTab*>(m_tabs->currentWidget()))
+            tab->setBroadcastEnabled(on);
+    });
+    viewMenu->addAction(actBroadcast);
+
+    // Reset the broadcast toggle to reflect the current tab when the
+    // user switches tabs.
+    connect(m_tabs, &QTabWidget::currentChanged, this, [this, actBroadcast](int) {
+        auto *tab = qobject_cast<tscrt::SessionTab*>(m_tabs->currentWidget());
+        actBroadcast->blockSignals(true);
+        actBroadcast->setChecked(tab && tab->broadcastEnabled());
+        actBroadcast->blockSignals(false);
+    });
+
     viewMenu->addSeparator();
     m_actFullScreen = new QAction(tr("&Full Screen\tF11"), this);
     m_actFullScreen->setCheckable(true);
@@ -1283,6 +1329,19 @@ void MainWindow::newSession()
     openSessionByIndex(m_profile.session_count - 1);
 }
 
+ISession *MainWindow::makeSessionFor(const profile_t &p, const session_entry_t &entry)
+{
+    Q_UNUSED(p);
+    if (entry.type == SESSION_TYPE_SSH) {
+        auto *ssh = new SshSession(entry.ssh, QString::fromLocal8Bit(entry.name));
+        if (entry.ssh_keepalive_sec > 0)
+            ssh->setKeepalive(entry.ssh_keepalive_sec);
+        ssh->setTcpKeepalive(entry.ssh_tcp_keepalive != 0);
+        return ssh;
+    }
+    return new SerialSession(entry.serial, QString::fromLocal8Bit(entry.name));
+}
+
 void MainWindow::openSessionByIndex(int profileIndex)
 {
     if (profileIndex < 0 || profileIndex >= m_profile.session_count)
@@ -1312,9 +1371,11 @@ void MainWindow::openSessionByIndex(int profileIndex)
             }
         }
 
-        session = new SshSession(sshCfg, QString::fromLocal8Bit(s.name));
+        session_entry_t resolved = s;
+        resolved.ssh = sshCfg;
+        session = makeSessionFor(m_profile, resolved);
     } else {
-        session = new SerialSession(s.serial, QString::fromLocal8Bit(s.name));
+        session = makeSessionFor(m_profile, s);
     }
 
     auto *tab = new tscrt::SessionTab(session, m_profile, s, m_tabs);
@@ -1333,26 +1394,54 @@ void MainWindow::openSessionByIndex(int profileIndex)
                 .arg(s.serial.baudrate));
     }
 
-    connect(session, &ISession::connecting, this, [this, name = QString::fromLocal8Bit(s.name)] {
-        statusBar()->showMessage(tr("Connecting to %1...").arg(name));
-    });
-    connect(session, &ISession::connected, this, [this, name = QString::fromLocal8Bit(s.name)] {
-        statusBar()->showMessage(tr("Connected: %1").arg(name), 3000);
-    });
-    connect(session, &ISession::errorOccurred, this, [this](const QString &msg) {
-        QMessageBox::warning(this, tr("Session error"), msg);
-        statusBar()->showMessage(tr("Error: %1").arg(msg), 5000);
-    });
-    connect(session, &ISession::disconnected, this, [this, name = QString::fromLocal8Bit(s.name)](const QString &reason) {
-        statusBar()->showMessage(tr("Disconnected: %1 (%2)").arg(name, reason), 5000);
-    });
+    const QString sessionName = QString::fromLocal8Bit(s.name);
+    auto attachSessionHooks = [this, sessionName](ISession *sess) {
+        connect(sess, &ISession::connecting, this, [this, sessionName] {
+            statusBar()->showMessage(tr("Connecting to %1...").arg(sessionName));
+        });
+        connect(sess, &ISession::connected, this, [this, sessionName] {
+            statusBar()->showMessage(tr("Connected: %1").arg(sessionName), 3000);
+        });
+        connect(sess, &ISession::errorOccurred, this, [this](const QString &msg) {
+            QMessageBox::warning(this, tr("Session error"), msg);
+            statusBar()->showMessage(tr("Error: %1").arg(msg), 5000);
+        });
+        connect(sess, &ISession::disconnected, this,
+                [this, sessionName](const QString &reason) {
+            statusBar()->showMessage(
+                tr("Disconnected: %1 (%2)").arg(sessionName, reason), 5000);
+        });
+        if (m_snapshotMgr)
+            m_snapshotMgr->attachSession(sess, sessionName);
+    };
+    attachSessionHooks(session);
 
     connect(tab, &tscrt::SessionTab::buttonEditRequested,
             this, &MainWindow::editButtonSlot);
-
-    // Hook into the snapshot manager so rules fire on this session.
-    if (m_snapshotMgr)
-        m_snapshotMgr->attachSession(session, QString::fromLocal8Bit(s.name));
+    connect(tab, &tscrt::SessionTab::sessionAboutToChange, this,
+            [this](ISession *oldSession) {
+        if (m_snapshotMgr && oldSession)
+            m_snapshotMgr->detachSession(oldSession);
+    });
+    connect(tab, &tscrt::SessionTab::sessionRebound, this,
+            [attachSessionHooks](ISession *newSession) {
+        attachSessionHooks(newSession);
+    });
+    connect(tab, &tscrt::SessionTab::paneAdded, this,
+            [attachSessionHooks](tscrt::Pane *pane) {
+        if (pane && pane->session())
+            attachSessionHooks(pane->session());
+    });
+    connect(tab, &tscrt::SessionTab::paneRemoving, this,
+            [this](tscrt::Pane *pane) {
+        if (m_snapshotMgr && pane && pane->session())
+            m_snapshotMgr->detachSession(pane->session());
+    });
+    connect(tab, &tscrt::SessionTab::tabEmpty, this,
+            [this, tab] {
+        const int i = m_tabs->indexOf(tab);
+        if (i >= 0) onTabCloseRequested(i);
+    });
 
     tab->setProperty("tscrtProfileIndex", profileIndex);
     const int idx = m_tabs->addTab(tab, QString::fromLocal8Bit(s.name));
@@ -1410,10 +1499,15 @@ void MainWindow::onTabCloseRequested(int index)
     if (index < 0)
         return;
     QWidget *page = m_tabs->widget(index);
-    if (m_snapshotMgr) {
-        auto *tab = qobject_cast<tscrt::SessionTab *>(page);
-        if (tab && tab->session())
-            m_snapshotMgr->detachSession(tab->session());
+    auto *tab = qobject_cast<tscrt::SessionTab *>(page);
+    if (tab && m_snapshotMgr) {
+        // Detach every pane's session before the tab goes away, not
+        // just the active one — SnapshotManager would otherwise hold
+        // dangling pointers to the other panes.
+        for (tscrt::Pane *p : tab->panes()) {
+            if (p && p->session())
+                m_snapshotMgr->detachSession(p->session());
+        }
     }
     m_tabs->removeTab(index);
     if (page)
