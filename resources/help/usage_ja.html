@@ -6,6 +6,7 @@
 <ul>
   <li><a href="#sessions">セッション</a></li>
   <li><a href="#tabs">タブ</a></li>
+  <li><a href="#panes">分割ペイン / 入力ブロードキャスト / 自動再接続</a></li>
   <li><a href="#buttons">ボタン（例付き）</a></li>
   <li><a href="#snapshots">スナップショット（例付き）</a></li>
   <li><a href="#rules">自動化ルール</a></li>
@@ -30,6 +31,49 @@
   <li>接続ごとにタブが 1 つ割り当てられます。タブ名の横にある小さな <b>&times;</b> でそのタブだけを閉じます。</li>
   <li><kbd>F11</kbd> でフルスクリーン モードを切り替え（ドックとメニューバーを隠す）。</li>
   <li>セッションごとにコマンド入力欄とボタンバーの表示／非表示をセッション エディターで指定できます。</li>
+</ul>
+
+<h2 id="panes">分割ペイン / 入力ブロードキャスト / 自動再接続</h2>
+
+<h3>分割ペイン</h3>
+<p>1 つのタブ内でターミナルを横／縦に分割し、複数のセッションを同時に扱えます。分割時はアクティブ ペインと同じプロファイルでセッションが新規に作られるので、同じホストに複数のシェルを開いたり、片方でログを監視しながらもう片方でコマンドを入力する用途に向きます。</p>
+<ul>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> — 横分割（左右）</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> — 縦分割（上下）</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> — アクティブ ペインを閉じる。最後のペインを閉じるとタブ自体が閉じます。</li>
+  <li>分割は再帰的です。横分割の片側を縦に分割すれば格子状のレイアウトになります。</li>
+  <li>アクティブ ペインは <span style="color:#3a80ff"><b>1px の青い枠線</b></span>で表示されます。マウス クリックやキーボード フォーカスの移動で自動的に切り替わります。</li>
+  <li>ペイン間の境界線をドラッグしてサイズを調整できます。</li>
+  <li>FindBar / Mark / Loop / コマンド入力欄は常に <b>アクティブ ペイン</b>に対して動作します。</li>
+</ul>
+
+<h3>入力ブロードキャスト</h3>
+<p>複数のサーバーを同時に管理する際、同じコマンドを 1 度入力するだけですべてのペインに送信します。</p>
+<ul>
+  <li><b>View &rarr; Broadcast Input</b> または <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> で切り替えます。</li>
+  <li>有効化すると、現在のタブのすべてのペインが <span style="color:#e05a00"><b>オレンジの枠線</b></span>になります。</li>
+  <li>キー入力、貼り付け（<kbd>Ctrl</kbd>+<kbd>V</kbd>）、IME による日本語入力、マウスレポートが他のすべてのペインのセッションへ同時に送信されます。</li>
+  <li>切り替えは <b>タブ単位</b>です。タブを切り替えるとメニューのチェック表示もそのタブの状態に更新されます。</li>
+  <li>注意: 異なるシェル／デバイスに同じキーを送ると意図しない結果になる可能性があるため、同じ OS／同じディレクトリ／同じシェルなど揃った環境で使うのが安全です。</li>
+</ul>
+
+<h3>自動再接続 + Keepalive</h3>
+<p>ネットワークが一時的に切断された際に自動で再接続し、NAT／ファイアウォール 越しの無応答切断を防ぐ機能です。</p>
+<p><b>設定場所:</b> <i>Sessions &rarr; Manage sessions&hellip;</i> &rarr; セッション編集ダイアログ下部の <b>Advanced</b> グループ</p>
+<ul>
+  <li><b>Auto reconnect</b> — 切断時に自動再接続を有効化します。ユーザーが手動で閉じたタブは再接続しません。</li>
+  <li><b>Max attempts</b> — 最大再試行回数。<code>0</code>（unlimited）で無制限。</li>
+  <li><b>Base delay (ms)</b> — 最初の再試行までの待機時間。以後は指数バックオフ（2 倍ずつ）で増加し、30 秒で頭打ちになります。0〜250 ms のランダム ジッターが加わるので一斉再試行を回避できます。<br>例（base 500）: <code>500 ms → 1 s → 2 s → 4 s → 8 s → 16 s → 30 s → 30 s …</code></li>
+  <li><b>SSH keepalive (s)</b>（SSH のみ）— libssh2 keepalive の間隔。<code>0</code> = off。推奨は 30 s。SSH プロトコル レベルで定期的に ping を送信し、NAT セッションの期限切れやステートフル ファイアウォールによる切断を防ぎます。</li>
+  <li><b>TCP keepalive</b>（SSH のみ）— TCP ソケットに <code>SO_KEEPALIVE</code> を設定。OS レベルでデッド リンクを検出するので、SSH keepalive と併用するとより速く検出できます。</li>
+</ul>
+<p><b>再接続中の挙動:</b></p>
+<ul>
+  <li>再接続が始まるとステータス バーに <i>"Reconnecting &lt;session&gt; in N s (attempt M/Max)..."</i> が表示されます。</li>
+  <li>再接続が成功すると<b>スクロールバックは保持</b>されます — 同じ TerminalWidget に新しいセッションを再アタッチする方式なので、画面の履歴は失われません。</li>
+  <li>再試行回数の上限に達すると <i>"Reconnect failed for &lt;session&gt;: ..."</i> が表示され、以後試行しません。</li>
+  <li>シリアル セッションも自動再接続に対応しますが、同じデバイス パス（<code>COM3</code> など）に限られます。USB 抜き差しでポート番号が変わると失敗します。</li>
+  <li>分割タブ内の各ペインは <b>独立した</b>再接続状態を持ちます。1 つのペインが再試行中でも他のペインには影響しません。</li>
 </ul>
 
 <h2 id="buttons">ボタン</h2>
@@ -172,6 +216,11 @@ command 3: \p4\r          delay: 1000   (1 秒待機 → "4" → Enter)</pre>
   <li><kbd>Ctrl</kbd>+<kbd>W</kbd> — 現在のタブを閉じる</li>
   <li><kbd>F11</kbd> — フルスクリーン切替</li>
   <li><kbd>Ctrl</kbd>+<kbd>L</kbd> — コマンド入力欄にフォーカス</li>
+  <li><kbd>Ctrl</kbd>+<kbd>F</kbd> — 検索 / Mark バーを開く</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> — アクティブ ペインを横分割</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> — アクティブ ペインを縦分割</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> — アクティブ ペインを閉じる</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> — 入力ブロードキャストを切替</li>
   <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> — スナップショット管理を開く</li>
 </ul>
 

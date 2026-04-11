@@ -6,6 +6,7 @@
 <ul>
   <li><a href="#sessions">Sessions</a></li>
   <li><a href="#tabs">Tabs</a></li>
+  <li><a href="#panes">Split panes / Input broadcast / Auto-reconnect</a></li>
   <li><a href="#buttons">Buttons (with examples)</a></li>
   <li><a href="#snapshots">Snapshots (with examples)</a></li>
   <li><a href="#rules">Automation rules</a></li>
@@ -30,6 +31,49 @@
   <li>Each open connection lives in its own tab. The tab title shows the session name; a small <b>&times;</b> next to the name closes just that tab.</li>
   <li>A tab can run in <b>fullscreen mode</b> (hides dock and menu bar) — toggle with <kbd>F11</kbd>.</li>
   <li>Per session you can hide/show the command line widget and the button bar from the session editor.</li>
+</ul>
+
+<h2 id="panes">Split panes / Input broadcast / Auto-reconnect</h2>
+
+<h3>Split panes</h3>
+<p>A single tab can hold several terminal panes arranged in a recursive splitter tree. Splitting reuses the active pane's profile so the new pane lands on the same host — handy for running multiple shells against one server, or for watching a log on one side while typing commands on the other.</p>
+<ul>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> — split the active pane horizontally (side by side).</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> — split the active pane vertically (top / bottom).</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> — close the active pane. Closing the last pane closes the whole tab.</li>
+  <li>Splits are recursive: a horizontal split followed by a vertical split inside one half produces a grid layout.</li>
+  <li>The active pane is marked with a <span style="color:#3a80ff"><b>1 px blue border</b></span>. Mouse clicks and keyboard focus updates the active pane automatically.</li>
+  <li>Drag the splitter handle between panes to resize.</li>
+  <li>The Find bar, Mark, Loop and command line always act on the <b>active pane</b>.</li>
+</ul>
+
+<h3>Input broadcast</h3>
+<p>Mirror keystrokes across multiple panes — useful when administering a fleet of servers and you want to type a command once and have every host receive it.</p>
+<ul>
+  <li>Toggle with <b>View &rarr; Broadcast Input</b> or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd>.</li>
+  <li>While enabled, every pane in the current tab gets an <span style="color:#e05a00"><b>orange border</b></span>.</li>
+  <li>Keystrokes, paste (<kbd>Ctrl</kbd>+<kbd>V</kbd>), IME input (e.g. CJK composition) and mouse reports from one pane are forwarded to every other pane's session.</li>
+  <li>The toggle is <b>per-tab</b>. Switching tabs updates the menu's check state to reflect that tab.</li>
+  <li>Caveat: sending the same input to dissimilar shells/devices can produce unexpected results. Use this with panes in the same OS / shell / working directory.</li>
+</ul>
+
+<h3>Auto-reconnect and SSH keepalive</h3>
+<p>Reconnect automatically when the network drops, and stop NAT/firewall idle timeouts from killing your sessions.</p>
+<p><b>Where:</b> <i>Sessions &rarr; Manage sessions&hellip;</i> &rarr; edit a session &rarr; <b>Advanced</b> group at the bottom of the dialog.</p>
+<ul>
+  <li><b>Auto reconnect</b> — try to restore the session after a drop. A tab the user closes manually will not reconnect.</li>
+  <li><b>Max attempts</b> — give-up cap. <code>0</code> (unlimited) keeps retrying forever.</li>
+  <li><b>Base delay (ms)</b> — initial backoff. Each subsequent attempt doubles, up to a 30 s ceiling, with 0–250 ms random jitter so reconnects don't synchronise.<br>Example with base 500: <code>500 ms → 1 s → 2 s → 4 s → 8 s → 16 s → 30 s → 30 s …</code></li>
+  <li><b>SSH keepalive (s)</b> (SSH only) — libssh2 keepalive interval. <code>0</code> = off; recommended 30 s. Sends a periodic ping at the SSH protocol level so NAT and stateful firewalls don't drop the flow.</li>
+  <li><b>TCP keepalive</b> (SSH only) — sets <code>SO_KEEPALIVE</code> on the underlying socket. Detects dead links at the OS level; combine it with SSH keepalive for the fastest detection.</li>
+</ul>
+<p><b>Behaviour during a reconnect:</b></p>
+<ul>
+  <li>The status bar shows <i>"Reconnecting &lt;session&gt; in N s (attempt M/Max)..."</i>.</li>
+  <li>The original <b>scrollback is preserved</b> — the new session re-attaches to the same TerminalWidget so you don't lose the on-screen history.</li>
+  <li>Hitting the attempt cap shows <i>"Reconnect failed for &lt;session&gt;: ..."</i> and stops trying.</li>
+  <li>Serial sessions auto-reconnect too, but only against the same device path (e.g. <code>COM3</code>). Re-plugging a USB adapter that gets a different port number will not auto-recover.</li>
+  <li>Each pane in a split tab carries its <b>own independent</b> reconnect state — one pane retrying does not affect the others.</li>
 </ul>
 
 <h2 id="buttons">Buttons</h2>
@@ -174,6 +218,11 @@ command 3: \p4\r          delay: 1000  (pause 1 s, then "4", then Enter)</pre>
   <li><kbd>Ctrl</kbd>+<kbd>W</kbd> — close current tab</li>
   <li><kbd>F11</kbd> — toggle fullscreen</li>
   <li><kbd>Ctrl</kbd>+<kbd>L</kbd> — focus command line</li>
+  <li><kbd>Ctrl</kbd>+<kbd>F</kbd> — open Find / Mark bar</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> — split active pane horizontally</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> — split active pane vertically</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> — close active pane</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> — toggle input broadcast</li>
   <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> — manage snapshots</li>
 </ul>
 
