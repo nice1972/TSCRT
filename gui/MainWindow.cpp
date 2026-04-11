@@ -3,6 +3,7 @@
 #include "ButtonBar.h"
 #include "CommandLineWidget.h"
 #include "Credentials.h"
+#include "HelpDialog.h"
 #include "ISession.h"
 #include "SerialSession.h"
 #include "SessionEditDialog.h"
@@ -11,6 +12,7 @@
 #include "SessionTab.h"
 #include "LogSettingsDialog.h"
 #include "SettingsDialog.h"
+#include "SnapshotBrowserDialog.h"
 #include "SnapshotManager.h"
 #include "SnapshotsDialog.h"
 #include "SshSession.h"
@@ -367,6 +369,13 @@ void MainWindow::createMenus()
     settingsMenu->addAction(m_actReload);
 
     auto *helpMenu = menuBar()->addMenu(tr("&Help"));
+    auto *actUsage = new QAction(tr("&Usage guide..."), this);
+    connect(actUsage, &QAction::triggered, this, [this] {
+        HelpDialog dlg(this);
+        dlg.exec();
+    });
+    helpMenu->addAction(actUsage);
+    helpMenu->addSeparator();
     m_actAbout = new QAction(tr("&About TSCRT..."), this);
     connect(m_actAbout, &QAction::triggered, this, &MainWindow::showAboutDialog);
     helpMenu->addAction(m_actAbout);
@@ -843,6 +852,13 @@ void MainWindow::rebuildSnapshotsMenu()
     m_snapshotsMenu->addAction(rulesAct);
 
     m_snapshotsMenu->addSeparator();
+
+    auto *browseAct = new QAction(tr("&Browse snapshots..."), this);
+    connect(browseAct, &QAction::triggered, this, [this] {
+        SnapshotBrowserDialog dlg(m_profile, this);
+        dlg.exec();
+    });
+    m_snapshotsMenu->addAction(browseAct);
 
     auto *openFolderAct = new QAction(tr("Open snapshot &folder"), this);
     connect(openFolderAct, &QAction::triggered,

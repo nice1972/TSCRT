@@ -1,0 +1,181 @@
+<html>
+<head><meta charset="utf-8"><title>TSCRT Usage Guide</title></head>
+<body style="font-family:Segoe UI,Arial,sans-serif; font-size:10pt; color:#e0e0e0; background:#1e1e1e;">
+<h1>TSCRT Usage Guide</h1>
+<p>TSCRT is a terminal emulator for SSH2 and serial consoles. This guide walks through every major feature. Jump to a section:</p>
+<ul>
+  <li><a href="#sessions">Sessions</a></li>
+  <li><a href="#tabs">Tabs</a></li>
+  <li><a href="#buttons">Buttons (with examples)</a></li>
+  <li><a href="#snapshots">Snapshots (with examples)</a></li>
+  <li><a href="#rules">Automation rules</a></li>
+  <li><a href="#triggers">Triggers, periodics, startup actions</a></li>
+  <li><a href="#smtp">SMTP (email delivery)</a></li>
+  <li><a href="#logs">Logs</a></li>
+  <li><a href="#profile">Profile import / export</a></li>
+  <li><a href="#shortcuts">Keyboard shortcuts</a></li>
+</ul>
+
+<h2 id="sessions">Sessions</h2>
+<p>A <b>session</b> is a connection definition — either SSH or serial.</p>
+<ul>
+  <li><b>Sessions &rarr; Manage sessions&hellip;</b> — add, edit, duplicate, or delete sessions. Sessions are grouped in a tree in the left dock.</li>
+  <li><b>SSH</b> requires host, port, username, and either a password or a private-key file.</li>
+  <li><b>Serial</b> requires a device name (e.g. <code>COM3</code> on Windows, <code>/dev/ttyUSB0</code> on Linux/macOS), baud rate, data bits, stop bits, parity, and flow control.</li>
+  <li>Double-click a session in the left dock to open it in a new tab.</li>
+</ul>
+
+<h2 id="tabs">Tabs</h2>
+<ul>
+  <li>Each open connection lives in its own tab. The tab title shows the session name; a small <b>&times;</b> next to the name closes just that tab.</li>
+  <li>A tab can run in <b>fullscreen mode</b> (hides dock and menu bar) — toggle with <kbd>F11</kbd>.</li>
+  <li>Per session you can hide/show the command line widget and the button bar from the session editor.</li>
+</ul>
+
+<h2 id="buttons">Buttons</h2>
+<p>The bottom button bar holds up to 20 user-defined action buttons. Clicking a button sends its action string to the active session. Right-click a button to edit the slot.</p>
+
+<h3>Action string syntax</h3>
+<p>An action string is plain text plus escape sequences:</p>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><th>Escape</th><th>Meaning</th></tr>
+<tr><td><code>\r</code></td><td>Carriage return (Enter)</td></tr>
+<tr><td><code>\n</code></td><td>Line feed</td></tr>
+<tr><td><code>\t</code></td><td>Tab</td></tr>
+<tr><td><code>\b</code></td><td>Backspace</td></tr>
+<tr><td><code>\e</code></td><td>Escape (0x1B)</td></tr>
+<tr><td><code>\p</code></td><td>Pause 1 second before continuing</td></tr>
+<tr><td><code>\\</code></td><td>Literal backslash</td></tr>
+</table>
+
+<h3>Examples</h3>
+<p><b>1. Send a single command</b> — label <i>uptime</i>, action:</p>
+<pre>uptime\r</pre>
+<p>Types <code>uptime</code> and presses Enter.</p>
+
+<p><b>2. Multi-step login on a serial console</b> — label <i>login</i>, action:</p>
+<pre>\r\padmin\rs3cret\r</pre>
+<p>Sends Enter, waits 1 s, sends <code>admin</code>+Enter, then <code>s3cret</code>+Enter.</p>
+
+<p><b>3. Send a Ctrl key</b> — label <i>^C</i>, action:</p>
+<pre>\x03</pre>
+<p>Arbitrary bytes can be embedded with <code>\xNN</code> hex escapes.</p>
+
+<p><b>4. Cancel, then run a diagnostic</b> — label <i>diag</i>, action:</p>
+<pre>\e\pshow interfaces\r</pre>
+<p>Sends ESC, pauses 1 s, then runs <code>show interfaces</code>.</p>
+
+<h3>Loop and mark buttons</h3>
+<p>Two special buttons sit to the right of the user buttons:</p>
+<ul>
+  <li><b>Loop</b> — right-click a user button and choose <i>Loop this button</i> to repeat its action on an interval. The Loop button flashes in sync with each tick; click Loop to stop.</li>
+  <li><b>Mark</b> — inserts a timestamped marker line into the session log, handy when reviewing captures later. Left click = mark now, right click = edit label.</li>
+</ul>
+
+<h2 id="snapshots">Snapshots</h2>
+<p>A <b>snapshot</b> is a named sequence of commands that TSCRT runs on a session, captures the output of, and writes to a timestamped file under the snapshot folder. Optionally it can email the result.</p>
+
+<h3>Configuring a snapshot</h3>
+<p>Open <b>Snapshots &rarr; Manage snapshots&hellip;</b>. For each snapshot, configure:</p>
+<ul>
+  <li><b>Name / description</b> — shown in the Snapshots menu.</li>
+  <li><b>Commands</b> — ordered list. Each row has:
+    <ul>
+      <li><b>Command</b>: action string (same syntax as buttons, e.g. <code>show version\r</code>)</li>
+      <li><b>Delay (ms)</b>: minimum wait after sending, to let the device respond</li>
+      <li><b>Expect prompt</b>: optional regex that ends the step early once matched</li>
+      <li><b>Max wait (ms)</b>: upper bound when <i>Expect prompt</i> is set</li>
+    </ul>
+  </li>
+  <li><b>Recipients</b> — one email address per line.</li>
+  <li><b>Subject template</b> — may use <code>{session}</code>, <code>{snapshot}</code>, <code>{timestamp}</code> placeholders.</li>
+  <li><b>Send email</b> / <b>Attach file</b> — whether to mail the result and whether the capture is attached or pasted in the body.</li>
+</ul>
+
+<h3>Running snapshots</h3>
+<ul>
+  <li>Menu: <b>Snapshots &rarr; &lt;snapshot name&gt;</b> runs it on the currently focused session.</li>
+  <li>Output files land under <i>log dir</i><code>/snapshots/</code>. Open that folder with <b>Snapshots &rarr; Open snapshot folder</b>, or browse them inside TSCRT via <b>Snapshots &rarr; Browse snapshots&hellip;</b>.</li>
+  <li>Inside the browser, right-click a file to <b>Send to administrator</b> — the file is attached and mailed to the SMTP <i>From</i> address (your configured admin account).</li>
+</ul>
+
+<h3>Examples</h3>
+<p><b>1. Linux health check</b></p>
+<pre>name         : linux-health
+description  : Load / disk / memory snapshot
+command 1    : uptime\r               delay: 500
+command 2    : df -h\r                delay: 500
+command 3    : free -m\r              delay: 500
+command 4    : dmesg | tail -n 20\r   delay: 800
+subject_tmpl : [TSCRT] {session} health {timestamp}
+recipients   : ops@example.com
+send_email   : yes
+attach_file  : yes</pre>
+
+<p><b>2. Cisco-style switch config grab, using <i>expect_prompt</i> to avoid paging</b></p>
+<pre>name         : switch-config
+command 1    : terminal length 0\r    delay: 200
+command 2    : show running-config\r  delay: 0
+               expect_prompt: #\s*$   max_wait: 15000
+command 3    : show version\r        delay: 0
+               expect_prompt: #\s*$   max_wait: 5000
+subject_tmpl : config-backup {session} {timestamp}</pre>
+<p>The regex <code>#\s*$</code> matches the switch prompt at the end of a line so the step ends the moment output is complete.</p>
+
+<p><b>3. Multi-step with pauses</b></p>
+<pre>command 1: \e             delay: 300    (send ESC)
+command 2: menu\r         delay: 500
+command 3: \p4\r          delay: 1000  (pause 1 s, then "4", then Enter)</pre>
+
+<h2 id="rules">Automation rules</h2>
+<p><b>Snapshots &rarr; Automation rules&hellip;</b> ties snapshots to triggers. Three kinds:</p>
+<ul>
+  <li><b>on_connect</b> — runs the named snapshot once as soon as the session connects.</li>
+  <li><b>cron</b> — standard 5-field cron (<code>m h dom mon dow</code>). Example: <code>*/15 * * * *</code> runs every 15 minutes.</li>
+  <li><b>pattern</b> — runs the snapshot when the session's incoming bytes match a regex, throttled by a cooldown in seconds.</li>
+</ul>
+<p>Rules can be scoped to a specific session name, or left blank to apply to all sessions.</p>
+
+<h2 id="triggers">Triggers, periodics, startup actions</h2>
+<p>Configured in <b>Settings &rarr; Preferences</b>:</p>
+<ul>
+  <li><b>Triggers</b> — when a session's output matches a regex, send an action string. Useful for auto-ack prompts.</li>
+  <li><b>Periodics</b> — send an action every N seconds to a named session (keepalives, polling).</li>
+  <li><b>Startup actions</b> — send an action once right after a session connects.</li>
+</ul>
+
+<h2 id="smtp">SMTP</h2>
+<p><b>Settings &rarr; SMTP&hellip;</b> configures outgoing mail used by snapshots and the <i>Send to administrator</i> action.</p>
+<ul>
+  <li><b>Host / port</b> — e.g. <code>smtp.gmail.com</code> / <code>587</code>.</li>
+  <li><b>Security</b> — <i>None</i>, <i>STARTTLS</i>, or <i>SMTPS</i> (implicit TLS).</li>
+  <li><b>Username / password</b> — password is encrypted at rest.</li>
+  <li><b>From address / name</b> — appears in the <i>From</i> header. <b>This is also the "administrator" address</b> used by <i>Send to administrator</i>.</li>
+  <li><b>Timeout (s)</b> — per-step socket timeout.</li>
+</ul>
+
+<h2 id="logs">Logs</h2>
+<ul>
+  <li><b>Logs &rarr; Open log folder</b> — session log files live here, one timestamped file per session.</li>
+  <li>Snapshot captures land in the <code>snapshots/</code> subfolder.</li>
+  <li>Per-session logging is enabled in the session editor (<i>Log enabled</i>).</li>
+</ul>
+
+<h2 id="profile">Profile import / export</h2>
+<p>The profile holds sessions, buttons, snapshots, rules, and SMTP settings.</p>
+<ul>
+  <li><b>File &rarr; Export profile&hellip;</b> — full or partial (pick which sections to include).</li>
+  <li><b>File &rarr; Import profile&hellip;</b> — merges into the current profile; conflicts are reported.</li>
+</ul>
+
+<h2 id="shortcuts">Keyboard shortcuts</h2>
+<ul>
+  <li><kbd>Ctrl</kbd>+<kbd>T</kbd> — new tab from the current session</li>
+  <li><kbd>Ctrl</kbd>+<kbd>W</kbd> — close current tab</li>
+  <li><kbd>F11</kbd> — toggle fullscreen</li>
+  <li><kbd>Ctrl</kbd>+<kbd>L</kbd> — focus command line</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> — manage snapshots</li>
+</ul>
+
+</body>
+</html>

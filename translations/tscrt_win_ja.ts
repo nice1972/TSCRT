@@ -10,6 +10,19 @@
     </message>
 </context>
 <context>
+    <name>HelpDialog</name>
+    <message>
+        <location filename="../gui/HelpDialog.cpp" line="13"/>
+        <source>TSCRT — Usage guide</source>
+        <translation>TSCRT — 使い方ガイド</translation>
+    </message>
+    <message>
+        <location filename="../gui/HelpDialog.cpp" line="30"/>
+        <source>&lt;p&gt;Usage guide not available for language &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;言語 &lt;b&gt;%1&lt;/b&gt; の使い方ガイドはありません。&lt;/p&gt;</translation>
+    </message>
+</context>
+<context>
     <name>LogSettingsDialog</name>
     <message>
         <location filename="../gui/LogSettingsDialog.cpp" line="30"/>
@@ -40,423 +53,433 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="213"/>
-        <location filename="../gui/MainWindow.cpp" line="218"/>
+        <location filename="../gui/MainWindow.cpp" line="216"/>
+        <location filename="../gui/MainWindow.cpp" line="221"/>
         <source>Profile error</source>
         <translation>プロファイルエラー</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="214"/>
+        <location filename="../gui/MainWindow.cpp" line="217"/>
         <source>Cannot initialize profile directory.</source>
         <translation>プロファイルディレクトリを初期化できません。</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="219"/>
+        <location filename="../gui/MainWindow.cpp" line="222"/>
         <source>Failed to load profile; defaults will be used.</source>
         <translation>プロファイル読込失敗。既定値を使用します。</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="225"/>
+        <location filename="../gui/MainWindow.cpp" line="228"/>
         <source>&amp;File</source>
         <translation>ファイル(&amp;F)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="227"/>
+        <location filename="../gui/MainWindow.cpp" line="230"/>
         <source>&amp;Close tab</source>
         <translation>タブを閉じる(&amp;C)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="228"/>
+        <location filename="../gui/MainWindow.cpp" line="231"/>
         <source>Ctrl+Shift+W</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="235"/>
+        <location filename="../gui/MainWindow.cpp" line="238"/>
         <source>&amp;Export</source>
         <translation>エクスポート(&amp;E)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="236"/>
-        <location filename="../gui/MainWindow.cpp" line="247"/>
+        <location filename="../gui/MainWindow.cpp" line="239"/>
+        <location filename="../gui/MainWindow.cpp" line="250"/>
         <source>&amp;Full profile...</source>
         <translation>完全プロファイル(&amp;F)...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="238"/>
-        <location filename="../gui/MainWindow.cpp" line="249"/>
+        <location filename="../gui/MainWindow.cpp" line="241"/>
+        <location filename="../gui/MainWindow.cpp" line="252"/>
         <source>&amp;Sessions only...</source>
         <translation>セッションのみ(&amp;S)...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="241"/>
-        <location filename="../gui/MainWindow.cpp" line="252"/>
+        <location filename="../gui/MainWindow.cpp" line="244"/>
+        <location filename="../gui/MainWindow.cpp" line="255"/>
         <source>S&amp;napshots only...</source>
         <translation>スナップショットのみ(&amp;N)...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="246"/>
+        <location filename="../gui/MainWindow.cpp" line="249"/>
         <source>&amp;Import</source>
         <translation>インポート(&amp;I)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="259"/>
+        <location filename="../gui/MainWindow.cpp" line="262"/>
         <source>&amp;Logs</source>
         <translation>ログ(&amp;L)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="261"/>
+        <location filename="../gui/MainWindow.cpp" line="264"/>
         <source>&amp;Open log folder</source>
         <translation>ログフォルダを開く(&amp;O)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="268"/>
+        <location filename="../gui/MainWindow.cpp" line="271"/>
         <source>&amp;Log settings...</source>
         <translation>ログ設定(&amp;L)...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="276"/>
+        <location filename="../gui/MainWindow.cpp" line="279"/>
         <source>E&amp;xit</source>
         <translation>終了(&amp;X)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="281"/>
+        <location filename="../gui/MainWindow.cpp" line="284"/>
         <source>&amp;Sessions</source>
         <translation>セッション(&amp;S)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="283"/>
+        <location filename="../gui/MainWindow.cpp" line="286"/>
         <source>S&amp;napshots</source>
         <translation>スナップショット(&amp;N)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="285"/>
+        <location filename="../gui/MainWindow.cpp" line="288"/>
         <source>&amp;View</source>
         <translation>表示(&amp;V)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="288"/>
+        <location filename="../gui/MainWindow.cpp" line="291"/>
         <source>Show &amp;Command Line</source>
         <translation>コマンドラインを表示(&amp;C)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="290"/>
+        <location filename="../gui/MainWindow.cpp" line="293"/>
         <source>Show Action &amp;Buttons</source>
         <translation>アクションボタンを表示(&amp;B)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="292"/>
+        <location filename="../gui/MainWindow.cpp" line="295"/>
         <source>Show &amp;Status Bar</source>
         <translation>ステータスバーを表示(&amp;S)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="313"/>
+        <location filename="../gui/MainWindow.cpp" line="316"/>
         <source>&amp;Full Screen	F11</source>
         <translation>全画面(&amp;F)	F11</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="319"/>
+        <location filename="../gui/MainWindow.cpp" line="322"/>
         <source>Se&amp;ttings</source>
         <translation>設定(&amp;T)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="320"/>
+        <location filename="../gui/MainWindow.cpp" line="323"/>
         <source>&amp;Preferences...</source>
         <translation>環境設定(&amp;P)...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="321"/>
+        <location filename="../gui/MainWindow.cpp" line="324"/>
         <source>Ctrl+,</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="325"/>
+        <location filename="../gui/MainWindow.cpp" line="328"/>
         <source>&amp;Language</source>
         <translation>言語(&amp;L)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="344"/>
+        <location filename="../gui/MainWindow.cpp" line="359"/>
         <source>&amp;Reload profile</source>
         <translation>プロファイル再読込(&amp;R)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="345"/>
+        <location filename="../gui/MainWindow.cpp" line="360"/>
         <source>F5</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="352"/>
+        <location filename="../gui/MainWindow.cpp" line="367"/>
         <source>Profile reloaded.</source>
         <translation>プロファイルを再読込しました。</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="356"/>
+        <location filename="../gui/MainWindow.cpp" line="371"/>
         <source>&amp;Help</source>
         <translation>ヘルプ(&amp;H)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="357"/>
+        <location filename="../gui/MainWindow.cpp" line="372"/>
+        <source>&amp;Usage guide...</source>
+        <translation>使い方ガイド(&amp;U)...</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="379"/>
         <source>&amp;About TSCRT...</source>
         <translation>TSCRT について(&amp;A)...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="364"/>
+        <location filename="../gui/MainWindow.cpp" line="386"/>
         <source>Session Manager</source>
         <translation>セッションマネージャー</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="420"/>
+        <location filename="../gui/MainWindow.cpp" line="442"/>
         <source>Ready · libssh2 %1 · libvterm %2.%3</source>
         <translation>準備完了 · libssh2 %1 · libvterm %2.%3</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="488"/>
+        <location filename="../gui/MainWindow.cpp" line="510"/>
         <source>Open</source>
         <translation>開く</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="490"/>
+        <location filename="../gui/MainWindow.cpp" line="512"/>
         <source>Rename...</source>
         <translation>名前を変更...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="491"/>
+        <location filename="../gui/MainWindow.cpp" line="513"/>
         <source>Edit...</source>
         <translation>編集...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="492"/>
+        <location filename="../gui/MainWindow.cpp" line="514"/>
         <source>Delete</source>
         <translation>削除</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="494"/>
+        <location filename="../gui/MainWindow.cpp" line="516"/>
         <source>Copy</source>
         <translation>コピー</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="495"/>
-        <location filename="../gui/MainWindow.cpp" line="633"/>
+        <location filename="../gui/MainWindow.cpp" line="517"/>
+        <location filename="../gui/MainWindow.cpp" line="655"/>
         <source>Paste</source>
         <translation>貼り付け</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="524"/>
+        <location filename="../gui/MainWindow.cpp" line="546"/>
         <source>Rename session</source>
         <translation>セッション名を変更</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="525"/>
+        <location filename="../gui/MainWindow.cpp" line="547"/>
         <source>New name:</source>
         <translation>新しい名前:</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="529"/>
-        <location filename="../gui/MainWindow.cpp" line="1369"/>
+        <location filename="../gui/MainWindow.cpp" line="551"/>
+        <location filename="../gui/MainWindow.cpp" line="1428"/>
         <source>Rename</source>
         <translation>名前を変更</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="529"/>
-        <location filename="../gui/MainWindow.cpp" line="569"/>
+        <location filename="../gui/MainWindow.cpp" line="551"/>
+        <location filename="../gui/MainWindow.cpp" line="591"/>
         <source>Name cannot be empty.</source>
         <translation>名前を空にできません。</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="539"/>
-        <location filename="../gui/MainWindow.cpp" line="583"/>
-        <location filename="../gui/MainWindow.cpp" line="608"/>
-        <location filename="../gui/MainWindow.cpp" line="662"/>
-        <location filename="../gui/MainWindow.cpp" line="846"/>
-        <location filename="../gui/MainWindow.cpp" line="864"/>
-        <location filename="../gui/MainWindow.cpp" line="905"/>
-        <location filename="../gui/MainWindow.cpp" line="1204"/>
-        <location filename="../gui/MainWindow.cpp" line="1498"/>
-        <location filename="../gui/MainWindow.cpp" line="1516"/>
-        <location filename="../gui/MainWindow.cpp" line="1568"/>
+        <location filename="../gui/MainWindow.cpp" line="561"/>
+        <location filename="../gui/MainWindow.cpp" line="605"/>
+        <location filename="../gui/MainWindow.cpp" line="630"/>
+        <location filename="../gui/MainWindow.cpp" line="684"/>
+        <location filename="../gui/MainWindow.cpp" line="875"/>
+        <location filename="../gui/MainWindow.cpp" line="893"/>
+        <location filename="../gui/MainWindow.cpp" line="934"/>
+        <location filename="../gui/MainWindow.cpp" line="1233"/>
+        <location filename="../gui/MainWindow.cpp" line="1557"/>
+        <location filename="../gui/MainWindow.cpp" line="1575"/>
+        <location filename="../gui/MainWindow.cpp" line="1627"/>
         <source>Save failed</source>
         <translation>保存失敗</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="540"/>
-        <location filename="../gui/MainWindow.cpp" line="584"/>
-        <location filename="../gui/MainWindow.cpp" line="609"/>
-        <location filename="../gui/MainWindow.cpp" line="663"/>
-        <location filename="../gui/MainWindow.cpp" line="1569"/>
+        <location filename="../gui/MainWindow.cpp" line="562"/>
+        <location filename="../gui/MainWindow.cpp" line="606"/>
+        <location filename="../gui/MainWindow.cpp" line="631"/>
+        <location filename="../gui/MainWindow.cpp" line="685"/>
+        <location filename="../gui/MainWindow.cpp" line="1628"/>
         <source>Could not write profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="569"/>
+        <location filename="../gui/MainWindow.cpp" line="591"/>
         <source>Edit</source>
         <translation>編集</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="596"/>
+        <location filename="../gui/MainWindow.cpp" line="618"/>
         <source>Delete session</source>
         <translation>セッション削除</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="597"/>
+        <location filename="../gui/MainWindow.cpp" line="619"/>
         <source>Delete session &quot;%1&quot;?</source>
         <translation>セッション &quot;%1&quot; を削除しますか?</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="624"/>
+        <location filename="../gui/MainWindow.cpp" line="646"/>
         <source>Copied session &quot;%1&quot;.</source>
         <translation>セッション &quot;%1&quot; をコピーしました。</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="634"/>
+        <location filename="../gui/MainWindow.cpp" line="656"/>
         <source>Profile already holds the maximum number of sessions (%1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="712"/>
+        <location filename="../gui/MainWindow.cpp" line="734"/>
         <source>SSH Sessions</source>
         <translation>SSH セッション</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="717"/>
+        <location filename="../gui/MainWindow.cpp" line="739"/>
         <source>Serial Sessions</source>
         <translation>シリアルセッション</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="752"/>
+        <location filename="../gui/MainWindow.cpp" line="774"/>
         <source>&amp;New</source>
         <translation>新規(&amp;N)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="753"/>
+        <location filename="../gui/MainWindow.cpp" line="775"/>
         <source>Ctrl+Shift+N</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="757"/>
+        <location filename="../gui/MainWindow.cpp" line="779"/>
         <source>&amp;Sessions...</source>
         <translation>セッション管理(&amp;S)...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="758"/>
+        <location filename="../gui/MainWindow.cpp" line="780"/>
         <source>Ctrl+Shift+M</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="765"/>
+        <location filename="../gui/MainWindow.cpp" line="787"/>
         <source>(no sessions defined)</source>
         <translation>(セッション未定義)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="775"/>
+        <location filename="../gui/MainWindow.cpp" line="797"/>
         <source>SSH · %1 (%2@%3:%4)</source>
         <translation>SSH · %1 (%2@%3:%4)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="781"/>
+        <location filename="../gui/MainWindow.cpp" line="803"/>
         <source>Serial · %1 (%2 %3 baud)</source>
         <translation>シリアル · %1 (%2 %3 baud)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="800"/>
+        <location filename="../gui/MainWindow.cpp" line="822"/>
         <source>&amp;Run on current session</source>
         <translation>現在のセッションで実行(&amp;R)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="802"/>
-        <location filename="../gui/MainWindow.cpp" line="1377"/>
+        <location filename="../gui/MainWindow.cpp" line="824"/>
+        <location filename="../gui/MainWindow.cpp" line="1436"/>
         <source>(no snapshots defined)</source>
         <translation>(スナップショット未定義)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="810"/>
+        <location filename="../gui/MainWindow.cpp" line="832"/>
         <source>Ctrl+Shift+S</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="822"/>
+        <location filename="../gui/MainWindow.cpp" line="844"/>
         <source>&amp;Manage snapshots...</source>
         <translation>スナップショット管理(&amp;M)...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="827"/>
+        <location filename="../gui/MainWindow.cpp" line="849"/>
         <source>&amp;Automation rules...</source>
         <translation>自動化ルール(&amp;A)...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="834"/>
+        <location filename="../gui/MainWindow.cpp" line="856"/>
+        <source>&amp;Browse snapshots...</source>
+        <translation>スナップショットを閲覧(&amp;B)...</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="863"/>
         <source>Open snapshot &amp;folder</source>
         <translation>スナップショットフォルダを開く(&amp;F)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="847"/>
-        <location filename="../gui/MainWindow.cpp" line="865"/>
-        <location filename="../gui/MainWindow.cpp" line="906"/>
-        <location filename="../gui/MainWindow.cpp" line="1205"/>
-        <location filename="../gui/MainWindow.cpp" line="1499"/>
-        <location filename="../gui/MainWindow.cpp" line="1517"/>
+        <location filename="../gui/MainWindow.cpp" line="876"/>
+        <location filename="../gui/MainWindow.cpp" line="894"/>
+        <location filename="../gui/MainWindow.cpp" line="935"/>
+        <location filename="../gui/MainWindow.cpp" line="1234"/>
+        <location filename="../gui/MainWindow.cpp" line="1558"/>
+        <location filename="../gui/MainWindow.cpp" line="1576"/>
         <source>Could not write profile to:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="853"/>
-        <location filename="../gui/MainWindow.cpp" line="871"/>
+        <location filename="../gui/MainWindow.cpp" line="882"/>
+        <location filename="../gui/MainWindow.cpp" line="900"/>
         <source>Snapshots saved.</source>
         <translation>スナップショットを保存しました。</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="890"/>
+        <location filename="../gui/MainWindow.cpp" line="919"/>
         <source>Logs</source>
         <translation>ログ</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="891"/>
+        <location filename="../gui/MainWindow.cpp" line="920"/>
         <source>Log directory is not configured yet.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="911"/>
+        <location filename="../gui/MainWindow.cpp" line="940"/>
         <source>Log settings saved.</source>
         <translation>ログ設定を保存しました。</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="919"/>
-        <location filename="../gui/MainWindow.cpp" line="936"/>
-        <location filename="../gui/MainWindow.cpp" line="941"/>
-        <location filename="../gui/MainWindow.cpp" line="1020"/>
-        <location filename="../gui/MainWindow.cpp" line="1025"/>
-        <location filename="../gui/MainWindow.cpp" line="1104"/>
-        <location filename="../gui/MainWindow.cpp" line="1109"/>
+        <location filename="../gui/MainWindow.cpp" line="948"/>
+        <location filename="../gui/MainWindow.cpp" line="965"/>
+        <location filename="../gui/MainWindow.cpp" line="970"/>
+        <location filename="../gui/MainWindow.cpp" line="1049"/>
+        <location filename="../gui/MainWindow.cpp" line="1054"/>
+        <location filename="../gui/MainWindow.cpp" line="1133"/>
+        <location filename="../gui/MainWindow.cpp" line="1138"/>
         <source>Export</source>
         <translation>エクスポート</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="920"/>
+        <location filename="../gui/MainWindow.cpp" line="949"/>
         <source>Failed to flush the current profile before exporting.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="930"/>
+        <location filename="../gui/MainWindow.cpp" line="959"/>
         <source>Export profile</source>
         <translation>プロファイルエクスポート</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="931"/>
-        <location filename="../gui/MainWindow.cpp" line="955"/>
-        <location filename="../gui/MainWindow.cpp" line="1007"/>
-        <location filename="../gui/MainWindow.cpp" line="1038"/>
-        <location filename="../gui/MainWindow.cpp" line="1087"/>
-        <location filename="../gui/MainWindow.cpp" line="1124"/>
+        <location filename="../gui/MainWindow.cpp" line="960"/>
+        <location filename="../gui/MainWindow.cpp" line="984"/>
+        <location filename="../gui/MainWindow.cpp" line="1036"/>
+        <location filename="../gui/MainWindow.cpp" line="1067"/>
+        <location filename="../gui/MainWindow.cpp" line="1116"/>
+        <location filename="../gui/MainWindow.cpp" line="1153"/>
         <source>TSCRT profile (*.profile);;All files (*)</source>
         <translation>TSCRT プロファイル (*.profile);;すべてのファイル (*)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="937"/>
+        <location filename="../gui/MainWindow.cpp" line="966"/>
         <source>Could not copy profile to:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="942"/>
+        <location filename="../gui/MainWindow.cpp" line="971"/>
         <source>Profile exported to:
 %1
 
@@ -464,20 +487,20 @@ Note: SSH and SMTP passwords are DPAPI-encrypted for the current Windows user an
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="948"/>
-        <location filename="../gui/MainWindow.cpp" line="1031"/>
-        <location filename="../gui/MainWindow.cpp" line="1117"/>
+        <location filename="../gui/MainWindow.cpp" line="977"/>
+        <location filename="../gui/MainWindow.cpp" line="1060"/>
+        <location filename="../gui/MainWindow.cpp" line="1146"/>
         <source>Exported: %1</source>
         <translation>エクスポート: %1</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="954"/>
-        <location filename="../gui/MainWindow.cpp" line="958"/>
+        <location filename="../gui/MainWindow.cpp" line="983"/>
+        <location filename="../gui/MainWindow.cpp" line="987"/>
         <source>Import profile</source>
         <translation>プロファイルインポート</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="959"/>
+        <location filename="../gui/MainWindow.cpp" line="988"/>
         <source>This will replace your current profile with:
 %1
 
@@ -485,48 +508,48 @@ Open session tabs will keep running on the old profile; new tabs use the importe
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="972"/>
-        <location filename="../gui/MainWindow.cpp" line="980"/>
-        <location filename="../gui/MainWindow.cpp" line="1043"/>
-        <location filename="../gui/MainWindow.cpp" line="1066"/>
-        <location filename="../gui/MainWindow.cpp" line="1074"/>
-        <location filename="../gui/MainWindow.cpp" line="1129"/>
-        <location filename="../gui/MainWindow.cpp" line="1169"/>
-        <location filename="../gui/MainWindow.cpp" line="1176"/>
+        <location filename="../gui/MainWindow.cpp" line="1001"/>
+        <location filename="../gui/MainWindow.cpp" line="1009"/>
+        <location filename="../gui/MainWindow.cpp" line="1072"/>
+        <location filename="../gui/MainWindow.cpp" line="1095"/>
+        <location filename="../gui/MainWindow.cpp" line="1103"/>
+        <location filename="../gui/MainWindow.cpp" line="1158"/>
+        <location filename="../gui/MainWindow.cpp" line="1198"/>
+        <location filename="../gui/MainWindow.cpp" line="1205"/>
         <source>Import</source>
         <translation>インポート</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="973"/>
+        <location filename="../gui/MainWindow.cpp" line="1002"/>
         <source>Could not create backup at:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="981"/>
+        <location filename="../gui/MainWindow.cpp" line="1010"/>
         <source>Could not copy new profile to:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="993"/>
+        <location filename="../gui/MainWindow.cpp" line="1022"/>
         <source>Profile imported from: %1 (backup at %2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1006"/>
+        <location filename="../gui/MainWindow.cpp" line="1035"/>
         <source>Export sessions</source>
         <translation>セッションエクスポート</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1021"/>
-        <location filename="../gui/MainWindow.cpp" line="1105"/>
+        <location filename="../gui/MainWindow.cpp" line="1050"/>
+        <location filename="../gui/MainWindow.cpp" line="1134"/>
         <source>Could not write subset profile to:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1026"/>
+        <location filename="../gui/MainWindow.cpp" line="1055"/>
         <source>Exported %1 session(s) to:
 %2
 
@@ -534,35 +557,35 @@ SSH passwords stored as DPAPI ciphertext will not decrypt on another Windows acc
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1037"/>
+        <location filename="../gui/MainWindow.cpp" line="1066"/>
         <source>Import sessions</source>
         <translation>セッションインポート</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1044"/>
-        <location filename="../gui/MainWindow.cpp" line="1130"/>
+        <location filename="../gui/MainWindow.cpp" line="1073"/>
+        <location filename="../gui/MainWindow.cpp" line="1159"/>
         <source>Could not parse profile file:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1067"/>
-        <location filename="../gui/MainWindow.cpp" line="1170"/>
+        <location filename="../gui/MainWindow.cpp" line="1096"/>
+        <location filename="../gui/MainWindow.cpp" line="1199"/>
         <source>Could not write merged profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1075"/>
+        <location filename="../gui/MainWindow.cpp" line="1104"/>
         <source>Imported %1 new session(s); skipped %2 duplicate name(s).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1086"/>
+        <location filename="../gui/MainWindow.cpp" line="1115"/>
         <source>Export snapshots</source>
         <translation>スナップショットエクスポート</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1110"/>
+        <location filename="../gui/MainWindow.cpp" line="1139"/>
         <source>Exported %1 snapshot(s) and %2 rule(s) to:
 %3
 
@@ -570,144 +593,149 @@ The SMTP password is DPAPI-encrypted and will not decrypt on another Windows acc
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1123"/>
+        <location filename="../gui/MainWindow.cpp" line="1152"/>
         <source>Import snapshots</source>
         <translation>スナップショットインポート</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1177"/>
+        <location filename="../gui/MainWindow.cpp" line="1206"/>
         <source>Imported %1 snapshot(s) (%2 duplicates skipped) and %3 rule(s).%4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1179"/>
+        <location filename="../gui/MainWindow.cpp" line="1208"/>
         <source>
 SMTP settings were also imported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1186"/>
+        <location filename="../gui/MainWindow.cpp" line="1215"/>
         <source>Save session</source>
         <translation>セッション保存</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1187"/>
+        <location filename="../gui/MainWindow.cpp" line="1216"/>
         <source>Cannot save: profile already holds %1 sessions (max).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1239"/>
+        <location filename="../gui/MainWindow.cpp" line="1268"/>
         <source>Session &quot;%1&quot; saved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1262"/>
+        <location filename="../gui/MainWindow.cpp" line="1291"/>
         <source>SSH Password</source>
         <translation>SSH パスワード</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1263"/>
+        <location filename="../gui/MainWindow.cpp" line="1292"/>
         <source>Password for %1@%2:</source>
         <translation>%1@%2 のパスワード:</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1298"/>
+        <location filename="../gui/MainWindow.cpp" line="1327"/>
         <source>Connecting to %1...</source>
         <translation>%1 に接続中...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1301"/>
+        <location filename="../gui/MainWindow.cpp" line="1330"/>
         <source>Connected: %1</source>
         <translation>接続済み: %1</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1304"/>
+        <location filename="../gui/MainWindow.cpp" line="1333"/>
         <source>Session error</source>
         <translation>セッションエラー</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1305"/>
+        <location filename="../gui/MainWindow.cpp" line="1334"/>
         <source>Error: %1</source>
         <translation>エラー: %1</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1308"/>
+        <location filename="../gui/MainWindow.cpp" line="1337"/>
         <source>Disconnected: %1 (%2)</source>
         <translation>切断: %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1370"/>
+        <location filename="../gui/MainWindow.cpp" line="1361"/>
+        <source>Close tab</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="1429"/>
         <source>Duplicate</source>
         <translation>複製</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1374"/>
+        <location filename="../gui/MainWindow.cpp" line="1433"/>
         <source>Run Snapshot</source>
         <translation>スナップショット実行</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1391"/>
+        <location filename="../gui/MainWindow.cpp" line="1450"/>
         <source>Unpin</source>
         <translation>ピン留め解除</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1391"/>
+        <location filename="../gui/MainWindow.cpp" line="1450"/>
         <source>Pin</source>
         <translation>ピン留め</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1393"/>
+        <location filename="../gui/MainWindow.cpp" line="1452"/>
         <source>Close</source>
         <translation>閉じる</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1426"/>
+        <location filename="../gui/MainWindow.cpp" line="1485"/>
         <source>Rename Tab</source>
         <translation>タブ名を変更</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1426"/>
+        <location filename="../gui/MainWindow.cpp" line="1485"/>
         <source>Tab name:</source>
         <translation>タブ名:</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1506"/>
+        <location filename="../gui/MainWindow.cpp" line="1565"/>
         <source>Preferences saved.</source>
         <translation>環境設定を保存しました。</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1524"/>
+        <location filename="../gui/MainWindow.cpp" line="1583"/>
         <source>Sessions saved.</source>
         <translation>セッションを保存しました。</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1544"/>
-        <location filename="../gui/MainWindow.cpp" line="1548"/>
+        <location filename="../gui/MainWindow.cpp" line="1603"/>
+        <location filename="../gui/MainWindow.cpp" line="1607"/>
         <source>Edit button</source>
         <translation>ボタン編集</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1545"/>
+        <location filename="../gui/MainWindow.cpp" line="1604"/>
         <source>Label:</source>
         <translation>ラベル:</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1549"/>
+        <location filename="../gui/MainWindow.cpp" line="1608"/>
         <source>Action (escape: \r \n \t \b \e \p \\):</source>
         <translation>アクション (エスケープ: \r \n \t \b \e \p \\):</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1651"/>
+        <location filename="../gui/MainWindow.cpp" line="1710"/>
         <source>About TSCRT</source>
         <translation>TSCRT について</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1655"/>
+        <location filename="../gui/MainWindow.cpp" line="1714"/>
         <source>&lt;h2&gt;TSCRT&lt;/h2&gt;&lt;p&gt;&lt;b&gt;Version %1&lt;/b&gt;&lt;br/&gt;Built %2&lt;/p&gt;&lt;p&gt;A terminal emulator for SSH2 and serial consoles.&lt;/p&gt;&lt;p style=&quot;color:#888;&quot;&gt;Qt %3 &amp;middot; libssh2 %4 &amp;middot; libvterm %5.%6&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1670"/>
+        <location filename="../gui/MainWindow.cpp" line="1729"/>
         <source>Copyright &amp;copy; 2026 TePSEG Co., Ltd. (Republic of Korea)&lt;br/&gt;Developer: &lt;a href=&quot;mailto:ygjeon@tepseg.com&quot;&gt;ygjeon@tepseg.com&lt;/a&gt;&lt;br/&gt;Released under the GNU General Public License (GPL).</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1255,6 +1283,122 @@ Would you like to keep it for inspection?</source>
         <location filename="../gui/SettingsDialog.cpp" line="547"/>
         <source>Send failed: %1</source>
         <translation>送信失敗: %1</translation>
+    </message>
+</context>
+<context>
+    <name>SnapshotBrowserDialog</name>
+    <message>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="28"/>
+        <source>Snapshot browser</source>
+        <translation>スナップショット ブラウザ</translation>
+    </message>
+    <message>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="41"/>
+        <source>Snapshot folder is not configured.</source>
+        <translation>スナップショット フォルダが設定されていません。</translation>
+    </message>
+    <message>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="56"/>
+        <source>Refresh</source>
+        <translation>更新</translation>
+    </message>
+    <message>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="58"/>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="127"/>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="184"/>
+        <source>Send to administrator</source>
+        <translation>管理者に送信</translation>
+    </message>
+    <message>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="124"/>
+        <source>Open</source>
+        <translation>開く</translation>
+    </message>
+    <message>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="125"/>
+        <source>Reveal in file manager</source>
+        <translation>ファイル マネージャで表示</translation>
+    </message>
+    <message>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="129"/>
+        <source>Delete</source>
+        <translation>削除</translation>
+    </message>
+    <message>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="167"/>
+        <source>Delete snapshot</source>
+        <translation>スナップショットを削除</translation>
+    </message>
+    <message>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="168"/>
+        <source>Delete &quot;%1&quot;?</source>
+        <translation>&quot;%1&quot; を削除しますか?</translation>
+    </message>
+    <message>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="173"/>
+        <source>Delete failed</source>
+        <translation>削除に失敗</translation>
+    </message>
+    <message>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="174"/>
+        <source>Could not delete %1</source>
+        <translation>%1 を削除できません</translation>
+    </message>
+    <message>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="185"/>
+        <source>Select a snapshot file first.</source>
+        <translation>まずスナップショット ファイルを選択してください。</translation>
+    </message>
+    <message>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="190"/>
+        <source>SMTP not configured</source>
+        <translation>SMTP 未設定</translation>
+    </message>
+    <message>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="191"/>
+        <source>Configure an SMTP server under Settings → SMTP before using this action.</source>
+        <translation>この機能を使う前に 設定 → SMTP で SMTP サーバを設定してください。</translation>
+    </message>
+    <message>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="198"/>
+        <source>No administrator address</source>
+        <translation>管理者アドレスがありません</translation>
+    </message>
+    <message>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="199"/>
+        <source>The SMTP &quot;From&quot; address is empty. Set it in Settings → SMTP; that address is used as the administrator recipient.</source>
+        <translation>SMTP &quot;From&quot; アドレスが空です。設定 → SMTP で設定してください。このアドレスが管理者の宛先として使われます。</translation>
+    </message>
+    <message>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="208"/>
+        <source>[TSCRT] Snapshot %1</source>
+        <translation>[TSCRT] スナップショット %1</translation>
+    </message>
+    <message>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="209"/>
+        <source>The attached TSCRT snapshot file was forwarded by %1 at %2.
+
+File: %3
+</source>
+        <translation>添付の TSCRT スナップショット ファイルは %1 により %2 に転送されました。
+
+ファイル: %3
+</translation>
+    </message>
+    <message>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="228"/>
+        <source>Sent</source>
+        <translation>送信しました</translation>
+    </message>
+    <message>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="229"/>
+        <source>Snapshot &quot;%1&quot; sent to %2.</source>
+        <translation>スナップショット &quot;%1&quot; を %2 に送信しました。</translation>
+    </message>
+    <message>
+        <location filename="../gui/SnapshotBrowserDialog.cpp" line="236"/>
+        <source>Send failed</source>
+        <translation>送信に失敗</translation>
     </message>
 </context>
 <context>

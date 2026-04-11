@@ -1,0 +1,179 @@
+<html>
+<head><meta charset="utf-8"><title>TSCRT 使用说明</title></head>
+<body style="font-family:'Microsoft YaHei',Segoe UI,sans-serif; font-size:10pt; color:#e0e0e0; background:#1e1e1e;">
+<h1>TSCRT 使用指南</h1>
+<p>TSCRT 是一款面向 SSH2 与串口控制台的终端仿真器。本指南介绍所有主要功能。</p>
+<ul>
+  <li><a href="#sessions">会话(Sessions)</a></li>
+  <li><a href="#tabs">标签页(Tabs)</a></li>
+  <li><a href="#buttons">按钮(Buttons)（含示例）</a></li>
+  <li><a href="#snapshots">快照(Snapshots)（含示例）</a></li>
+  <li><a href="#rules">自动化规则</a></li>
+  <li><a href="#triggers">触发器 / 周期任务 / 启动动作</a></li>
+  <li><a href="#smtp">SMTP（邮件发送）</a></li>
+  <li><a href="#logs">日志</a></li>
+  <li><a href="#profile">配置文件导入 / 导出</a></li>
+  <li><a href="#shortcuts">快捷键</a></li>
+</ul>
+
+<h2 id="sessions">会话</h2>
+<p><b>会话</b>是一条 SSH 或串口连接的定义。</p>
+<ul>
+  <li><b>Sessions &rarr; Manage sessions&hellip;</b> 可添加、编辑、复制、删除会话。会话按分组在左侧停靠栏的树中显示。</li>
+  <li><b>SSH</b> 需要主机、端口、用户名，以及密码或私钥文件。</li>
+  <li><b>串口</b> 需要设备名（Windows 如 <code>COM3</code>，Linux/macOS 如 <code>/dev/ttyUSB0</code>）、波特率、数据位、停止位、校验位和流控。</li>
+  <li>双击左侧停靠栏中的会话以在新标签页中打开。</li>
+</ul>
+
+<h2 id="tabs">标签页</h2>
+<ul>
+  <li>每个连接占一个标签页。标签名旁边的小 <b>&times;</b> 只关闭该标签。</li>
+  <li><kbd>F11</kbd> 切换全屏模式（隐藏停靠栏和菜单栏）。</li>
+  <li>每个会话可以在会话编辑器中设置是否显示命令行和按钮栏。</li>
+</ul>
+
+<h2 id="buttons">按钮</h2>
+<p>底部按钮栏最多可放置 20 个用户自定义按钮。点击按钮会将其动作字符串发送到当前活动会话；右键点击按钮可编辑该槽位。</p>
+
+<h3>动作字符串语法</h3>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><th>转义</th><th>含义</th></tr>
+<tr><td><code>\r</code></td><td>回车 (Enter)</td></tr>
+<tr><td><code>\n</code></td><td>换行</td></tr>
+<tr><td><code>\t</code></td><td>制表符</td></tr>
+<tr><td><code>\b</code></td><td>退格</td></tr>
+<tr><td><code>\e</code></td><td>ESC (0x1B)</td></tr>
+<tr><td><code>\p</code></td><td>暂停 1 秒</td></tr>
+<tr><td><code>\\</code></td><td>反斜杠字面量</td></tr>
+</table>
+
+<h3>示例</h3>
+<p><b>1. 发送一条命令</b> — 标签 <i>uptime</i>，动作:</p>
+<pre>uptime\r</pre>
+<p>输入 <code>uptime</code> 然后按回车。</p>
+
+<p><b>2. 串口控制台登录自动化</b> — 标签 <i>login</i>，动作:</p>
+<pre>\r\padmin\rs3cret\r</pre>
+<p>依次发送：回车 → 等待 1 秒 → <code>admin</code>+回车 → <code>s3cret</code>+回车。</p>
+
+<p><b>3. 发送 Ctrl 键</b> — 标签 <i>^C</i>，动作:</p>
+<pre>\x03</pre>
+<p>可用 <code>\xNN</code> 十六进制转义嵌入任意字节。</p>
+
+<p><b>4. 取消后执行诊断</b> — 标签 <i>diag</i>，动作:</p>
+<pre>\e\pshow interfaces\r</pre>
+<p>发送 ESC → 等待 1 秒 → 执行 <code>show interfaces</code>。</p>
+
+<h3>Loop / Mark 特殊按钮</h3>
+<ul>
+  <li><b>Loop</b> — 右键点击任一用户按钮并选择 <i>Loop this button</i>，即可按固定间隔重复其动作。每次触发时 Loop 按钮会闪烁；再次点击 Loop 即可停止。</li>
+  <li><b>Mark</b> — 在会话日志中插入带时间戳的标记行。左键立即标记，右键编辑标签文字。</li>
+</ul>
+
+<h2 id="snapshots">快照</h2>
+<p><b>快照</b>是一组有序命令的集合，TSCRT 会在会话上依次执行它们、捕获输出，并保存为带时间戳的文件；并可选地通过邮件发送结果。</p>
+
+<h3>配置快照</h3>
+<p>打开 <b>Snapshots &rarr; Manage snapshots&hellip;</b>，为每个快照配置：</p>
+<ul>
+  <li><b>名称 / 描述</b> — 显示在 Snapshots 菜单中。</li>
+  <li><b>Commands</b> — 有序命令列表。每行包括：
+    <ul>
+      <li><b>Command</b>：动作字符串（与按钮同样的语法，例如 <code>show version\r</code>）</li>
+      <li><b>Delay (ms)</b>：发送后的最小等待时间，留出设备响应时间</li>
+      <li><b>Expect prompt</b>：可选正则表达式，匹配后提前结束该步骤</li>
+      <li><b>Max wait (ms)</b>：设置了 Expect prompt 时的最长等待时间</li>
+    </ul>
+  </li>
+  <li><b>Recipients</b> — 每行一个收件人邮箱。</li>
+  <li><b>Subject template</b> — 可使用 <code>{session}</code>、<code>{snapshot}</code>、<code>{timestamp}</code> 占位符。</li>
+  <li><b>Send email / Attach file</b> — 是否发送邮件，以及以附件发送还是直接放入正文。</li>
+</ul>
+
+<h3>运行方式</h3>
+<ul>
+  <li>菜单 <b>Snapshots &rarr; &lt;快照名&gt;</b> 在当前活动会话上运行。</li>
+  <li>输出文件保存到 <i>log dir</i><code>/snapshots/</code> 下。可通过 <b>Snapshots &rarr; Open snapshot folder</b> 用资源管理器打开，或通过 <b>Snapshots &rarr; Browse snapshots&hellip;</b> 在 TSCRT 内置浏览器中查看。</li>
+  <li>在内置浏览器中右键点击文件选择 <b>Send to administrator</b>，即可将该文件作为附件发送到 SMTP 的 <i>From</i> 地址（邮件服务器上注册的管理员账户）。</li>
+</ul>
+
+<h3>示例</h3>
+<p><b>1. Linux 健康检查</b></p>
+<pre>name         : linux-health
+description  : 负载 / 磁盘 / 内存 快照
+command 1    : uptime\r               delay: 500
+command 2    : df -h\r                delay: 500
+command 3    : free -m\r              delay: 500
+command 4    : dmesg | tail -n 20\r   delay: 800
+subject_tmpl : [TSCRT] {session} health {timestamp}
+recipients   : ops@example.com
+send_email   : yes
+attach_file  : yes</pre>
+
+<p><b>2. Cisco 交换机配置备份 — 用 expect_prompt 规避分页</b></p>
+<pre>name         : switch-config
+command 1    : terminal length 0\r    delay: 200
+command 2    : show running-config\r  delay: 0
+               expect_prompt: #\s*$   max_wait: 15000
+command 3    : show version\r         delay: 0
+               expect_prompt: #\s*$   max_wait: 5000
+subject_tmpl : config-backup {session} {timestamp}</pre>
+<p>正则 <code>#\s*$</code> 匹配行尾的交换机提示符，输出完成即刻进入下一步。</p>
+
+<p><b>3. 含多段等待的示例</b></p>
+<pre>command 1: \e             delay: 300    (发送 ESC)
+command 2: menu\r         delay: 500
+command 3: \p4\r          delay: 1000   (等待 1 秒后发送 "4"+回车)</pre>
+
+<h2 id="rules">自动化规则</h2>
+<p><b>Snapshots &rarr; Automation rules&hellip;</b> 将快照绑定到触发条件。有三种：</p>
+<ul>
+  <li><b>on_connect</b> — 会话连接时立即执行一次。</li>
+  <li><b>cron</b> — 标准五字段 cron（<code>m h dom mon dow</code>）。例：<code>*/15 * * * *</code> 每 15 分钟执行一次。</li>
+  <li><b>pattern</b> — 当会话的接收数据与正则匹配时执行。可通过秒级冷却时间防止过度触发。</li>
+</ul>
+<p>规则可以限定到特定会话名，也可以留空以应用到所有会话。</p>
+
+<h2 id="triggers">触发器 / 周期任务 / 启动动作</h2>
+<p>在 <b>Settings &rarr; Preferences</b> 中配置：</p>
+<ul>
+  <li><b>Triggers</b> — 当会话输出匹配某正则时发送动作字符串。适合自动应答提示。</li>
+  <li><b>Periodics</b> — 每 N 秒向指定会话发送一次动作（心跳、轮询等）。</li>
+  <li><b>Startup actions</b> — 会话连接后立即发送一次动作。</li>
+</ul>
+
+<h2 id="smtp">SMTP</h2>
+<p><b>Settings &rarr; SMTP&hellip;</b> 配置快照发送邮件和 <i>Send to administrator</i> 所使用的发送服务器。</p>
+<ul>
+  <li><b>Host / Port</b> — 如 <code>smtp.gmail.com</code> / <code>587</code>。</li>
+  <li><b>Security</b> — 可选 None、STARTTLS、SMTPS（隐式 TLS）。</li>
+  <li><b>Username / Password</b> — 密码加密存储。</li>
+  <li><b>From address / name</b> — 出现在 <i>From</i> 头中；<b>这个地址同时作为"管理员"地址</b>，供 <i>Send to administrator</i> 使用。</li>
+  <li><b>Timeout (s)</b> — 每步套接字超时。</li>
+</ul>
+
+<h2 id="logs">日志</h2>
+<ul>
+  <li><b>Logs &rarr; Open log folder</b> 打开日志目录，每个会话生成一份带时间戳的日志文件。</li>
+  <li>快照结果文件保存在 <code>snapshots/</code> 子目录。</li>
+  <li>是否按会话记录日志在会话编辑器中通过 <i>Log enabled</i> 开启。</li>
+</ul>
+
+<h2 id="profile">配置文件导入 / 导出</h2>
+<p>配置文件包含会话、按钮、快照、规则以及 SMTP 设置。</p>
+<ul>
+  <li><b>File &rarr; Export profile&hellip;</b> — 可选择全部或部分区段导出。</li>
+  <li><b>File &rarr; Import profile&hellip;</b> — 合并到当前配置文件，冲突会被报告。</li>
+</ul>
+
+<h2 id="shortcuts">快捷键</h2>
+<ul>
+  <li><kbd>Ctrl</kbd>+<kbd>T</kbd> — 以当前会话新建标签页</li>
+  <li><kbd>Ctrl</kbd>+<kbd>W</kbd> — 关闭当前标签页</li>
+  <li><kbd>F11</kbd> — 切换全屏</li>
+  <li><kbd>Ctrl</kbd>+<kbd>L</kbd> — 聚焦命令行</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> — 打开快照管理</li>
+</ul>
+
+</body>
+</html>

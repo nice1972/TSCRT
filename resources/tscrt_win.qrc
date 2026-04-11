@@ -6,4 +6,10 @@
     <qresource prefix="/images">
         <file alias="airix_bg.png">airix_bg.png</file>
     </qresource>
+    <qresource prefix="/help">
+        <file alias="usage_en.html">help/usage_en.html</file>
+        <file alias="usage_ko.html">help/usage_ko.html</file>
+        <file alias="usage_ja.html">help/usage_ja.html</file>
+        <file alias="usage_zh.html">help/usage_zh.html</file>
+    </qresource>
 </RCC>

@@ -1,0 +1,179 @@
+<html>
+<head><meta charset="utf-8"><title>TSCRT 使い方</title></head>
+<body style="font-family:'Meiryo',Segoe UI,sans-serif; font-size:10pt; color:#e0e0e0; background:#1e1e1e;">
+<h1>TSCRT 使い方ガイド</h1>
+<p>TSCRT は SSH2 およびシリアルコンソール用のターミナルエミュレーターです。主要な機能を章ごとに解説します。</p>
+<ul>
+  <li><a href="#sessions">セッション</a></li>
+  <li><a href="#tabs">タブ</a></li>
+  <li><a href="#buttons">ボタン（例付き）</a></li>
+  <li><a href="#snapshots">スナップショット（例付き）</a></li>
+  <li><a href="#rules">自動化ルール</a></li>
+  <li><a href="#triggers">トリガー / 定期実行 / 起動時アクション</a></li>
+  <li><a href="#smtp">SMTP（メール送信）</a></li>
+  <li><a href="#logs">ログ</a></li>
+  <li><a href="#profile">プロファイルのインポート / エクスポート</a></li>
+  <li><a href="#shortcuts">キーボードショートカット</a></li>
+</ul>
+
+<h2 id="sessions">セッション</h2>
+<p><b>セッション</b>とは、SSH あるいはシリアル接続の定義です。</p>
+<ul>
+  <li><b>Sessions &rarr; Manage sessions&hellip;</b> でセッションを追加・編集・複製・削除できます。左ドックのツリーでフォルダ別に整理されます。</li>
+  <li><b>SSH</b> はホスト、ポート、ユーザ名、パスワードまたは秘密鍵ファイルが必要です。</li>
+  <li><b>シリアル</b> はデバイス名（Windows の <code>COM3</code>、Linux/macOS の <code>/dev/ttyUSB0</code> など）、ボーレート、データビット、ストップビット、パリティ、フロー制御が必要です。</li>
+  <li>左ドックのセッションをダブルクリックすると新しいタブで開きます。</li>
+</ul>
+
+<h2 id="tabs">タブ</h2>
+<ul>
+  <li>接続ごとにタブが 1 つ割り当てられます。タブ名の横にある小さな <b>&times;</b> でそのタブだけを閉じます。</li>
+  <li><kbd>F11</kbd> でフルスクリーン モードを切り替え（ドックとメニューバーを隠す）。</li>
+  <li>セッションごとにコマンド入力欄とボタンバーの表示／非表示をセッション エディターで指定できます。</li>
+</ul>
+
+<h2 id="buttons">ボタン</h2>
+<p>画面下部のボタンバーには最大 20 個のユーザー定義ボタンを配置できます。ボタンをクリックすると、設定されたアクション文字列がアクティブなセッションへ送信されます。ボタンを右クリックでスロットを編集できます。</p>
+
+<h3>アクション文字列の文法</h3>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><th>エスケープ</th><th>意味</th></tr>
+<tr><td><code>\r</code></td><td>キャリッジリターン（Enter）</td></tr>
+<tr><td><code>\n</code></td><td>ラインフィード</td></tr>
+<tr><td><code>\t</code></td><td>タブ</td></tr>
+<tr><td><code>\b</code></td><td>バックスペース</td></tr>
+<tr><td><code>\e</code></td><td>ESC (0x1B)</td></tr>
+<tr><td><code>\p</code></td><td>1 秒待機</td></tr>
+<tr><td><code>\\</code></td><td>バックスラッシュ リテラル</td></tr>
+</table>
+
+<h3>例</h3>
+<p><b>1. 単一コマンドの送信</b> — ラベル <i>uptime</i>、アクション:</p>
+<pre>uptime\r</pre>
+<p><code>uptime</code> と入力して Enter を押します。</p>
+
+<p><b>2. シリアルコンソールのログイン自動化</b> — ラベル <i>login</i>、アクション:</p>
+<pre>\r\padmin\rs3cret\r</pre>
+<p>Enter → 1 秒待機 → <code>admin</code>+Enter → <code>s3cret</code>+Enter の順で送信します。</p>
+
+<p><b>3. Ctrl キーの送信</b> — ラベル <i>^C</i>、アクション:</p>
+<pre>\x03</pre>
+<p><code>\xNN</code> の 16 進エスケープで任意のバイトを挿入できます。</p>
+
+<p><b>4. キャンセル後に診断コマンドを実行</b> — ラベル <i>diag</i>、アクション:</p>
+<pre>\e\pshow interfaces\r</pre>
+<p>ESC 送信 → 1 秒待機 → <code>show interfaces</code> を実行。</p>
+
+<h3>Loop / Mark 特殊ボタン</h3>
+<ul>
+  <li><b>Loop</b> — ユーザー ボタンを右クリックして <i>Loop this button</i> を選ぶと、そのアクションを一定間隔で繰り返します。毎ティックごとに Loop ボタンが点滅し、Loop を再度クリックすると停止します。</li>
+  <li><b>Mark</b> — セッション ログにタイムスタンプ付きマーカー行を挿入します。左クリックで即座にマーク、右クリックでラベル編集。</li>
+</ul>
+
+<h2 id="snapshots">スナップショット</h2>
+<p><b>スナップショット</b>は、名前の付いたコマンド列をセッションで順次実行し、その出力をタイムスタンプ付きファイルとして保存する機能です。オプションでメール送信もできます。</p>
+
+<h3>スナップショットの設定</h3>
+<p><b>Snapshots &rarr; Manage snapshots&hellip;</b> で以下の項目を設定します。</p>
+<ul>
+  <li><b>名前 / 説明</b> — Snapshots メニューに表示されます。</li>
+  <li><b>Commands</b> — 順序付きリスト。各行に次の項目があります。
+    <ul>
+      <li><b>Command</b>: アクション文字列（ボタンと同じ文法。例: <code>show version\r</code>）</li>
+      <li><b>Delay (ms)</b>: 送信後の最小待機時間（デバイスの応答時間）</li>
+      <li><b>Expect prompt</b>: 正規表現 — マッチすればその段階を早期終了</li>
+      <li><b>Max wait (ms)</b>: Expect prompt 使用時の最大待機時間</li>
+    </ul>
+  </li>
+  <li><b>Recipients</b> — 1 行に 1 つの宛先メールアドレス。</li>
+  <li><b>Subject template</b> — <code>{session}</code>、<code>{snapshot}</code>、<code>{timestamp}</code> のプレースホルダーが使えます。</li>
+  <li><b>Send email / Attach file</b> — メール送信の有無と、本文埋め込み vs 添付の選択。</li>
+</ul>
+
+<h3>実行方法</h3>
+<ul>
+  <li><b>Snapshots &rarr; &lt;スナップショット名&gt;</b> メニューでアクティブなセッションに対して実行します。</li>
+  <li>結果ファイルは <i>log dir</i><code>/snapshots/</code> 以下に保存されます。<b>Snapshots &rarr; Open snapshot folder</b> でエクスプローラーを開くか、<b>Snapshots &rarr; Browse snapshots&hellip;</b> で TSCRT 内蔵ブラウザを開けます。</li>
+  <li>内蔵ブラウザでファイルを右クリックし <b>Send to administrator</b> を選ぶと、SMTP の <i>From</i> アドレス（メール サーバーに登録された管理者アカウント）へファイルを添付して送信します。</li>
+</ul>
+
+<h3>例</h3>
+<p><b>1. Linux ヘルスチェック</b></p>
+<pre>name         : linux-health
+description  : 負荷 / ディスク / メモリ スナップショット
+command 1    : uptime\r               delay: 500
+command 2    : df -h\r                delay: 500
+command 3    : free -m\r              delay: 500
+command 4    : dmesg | tail -n 20\r   delay: 800
+subject_tmpl : [TSCRT] {session} health {timestamp}
+recipients   : ops@example.com
+send_email   : yes
+attach_file  : yes</pre>
+
+<p><b>2. Cisco スイッチの設定バックアップ — expect_prompt でページング回避</b></p>
+<pre>name         : switch-config
+command 1    : terminal length 0\r    delay: 200
+command 2    : show running-config\r  delay: 0
+               expect_prompt: #\s*$   max_wait: 15000
+command 3    : show version\r         delay: 0
+               expect_prompt: #\s*$   max_wait: 5000
+subject_tmpl : config-backup {session} {timestamp}</pre>
+<p>正規表現 <code>#\s*$</code> は行末のスイッチ プロンプトに一致するため、出力が終わった瞬間に次のステップへ進みます。</p>
+
+<p><b>3. 多段の待機を含む例</b></p>
+<pre>command 1: \e             delay: 300    (ESC 送信)
+command 2: menu\r         delay: 500
+command 3: \p4\r          delay: 1000   (1 秒待機 → "4" → Enter)</pre>
+
+<h2 id="rules">自動化ルール</h2>
+<p><b>Snapshots &rarr; Automation rules&hellip;</b> でスナップショットをトリガーに紐付けます。3 種類あります。</p>
+<ul>
+  <li><b>on_connect</b> — セッション接続時に 1 回実行。</li>
+  <li><b>cron</b> — 5 フィールド cron（<code>m h dom mon dow</code>）。例: <code>*/15 * * * *</code> は 15 分ごと。</li>
+  <li><b>pattern</b> — セッションからの受信データが正規表現に一致したときに実行。秒単位のクールダウンで過剰発火を防ぎます。</li>
+</ul>
+<p>ルールは特定セッション名に限定することも、空欄にして全セッションに適用することもできます。</p>
+
+<h2 id="triggers">トリガー / 定期実行 / 起動時アクション</h2>
+<p><b>Settings &rarr; Preferences</b> で設定します。</p>
+<ul>
+  <li><b>Triggers</b> — セッション出力が正規表現に一致したときアクション文字列を送信します。プロンプト自動応答などに便利。</li>
+  <li><b>Periodics</b> — 指定セッションに N 秒ごとにアクションを送信します（keepalive、ポーリングなど）。</li>
+  <li><b>Startup actions</b> — セッション接続直後に 1 度だけアクションを送信します。</li>
+</ul>
+
+<h2 id="smtp">SMTP</h2>
+<p><b>Settings &rarr; SMTP&hellip;</b> で、スナップショットのメール送信と <i>Send to administrator</i> が使用する送信サーバーを設定します。</p>
+<ul>
+  <li><b>Host / Port</b> — 例: <code>smtp.gmail.com</code> / <code>587</code>。</li>
+  <li><b>Security</b> — None、STARTTLS、SMTPS（暗黙 TLS）から選択。</li>
+  <li><b>Username / Password</b> — パスワードは暗号化されて保存されます。</li>
+  <li><b>From address / name</b> — <i>From</i> ヘッダーに使用され、<b>このアドレスが「管理者」アドレス</b>として <i>Send to administrator</i> で利用されます。</li>
+  <li><b>Timeout (s)</b> — ソケット操作ごとのタイムアウト。</li>
+</ul>
+
+<h2 id="logs">ログ</h2>
+<ul>
+  <li><b>Logs &rarr; Open log folder</b> でログ ディレクトリを開きます。セッションごとにタイムスタンプ付きファイルが作成されます。</li>
+  <li>スナップショットの結果ファイルは <code>snapshots/</code> サブフォルダに保存されます。</li>
+  <li>セッションごとのログ有効化はセッション エディターの <i>Log enabled</i> で切り替えます。</li>
+</ul>
+
+<h2 id="profile">プロファイルのインポート / エクスポート</h2>
+<p>プロファイルにはセッション、ボタン、スナップショット、ルール、SMTP 設定が含まれます。</p>
+<ul>
+  <li><b>File &rarr; Export profile&hellip;</b> — 全体または一部のセクションのみを選択してエクスポート。</li>
+  <li><b>File &rarr; Import profile&hellip;</b> — 現在のプロファイルにマージ。競合があれば報告されます。</li>
+</ul>
+
+<h2 id="shortcuts">キーボードショートカット</h2>
+<ul>
+  <li><kbd>Ctrl</kbd>+<kbd>T</kbd> — 現在のセッションで新しいタブを開く</li>
+  <li><kbd>Ctrl</kbd>+<kbd>W</kbd> — 現在のタブを閉じる</li>
+  <li><kbd>F11</kbd> — フルスクリーン切替</li>
+  <li><kbd>Ctrl</kbd>+<kbd>L</kbd> — コマンド入力欄にフォーカス</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> — スナップショット管理を開く</li>
+</ul>
+
+</body>
+</html>

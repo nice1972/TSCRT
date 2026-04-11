@@ -44,6 +44,7 @@ TRANSLATIONS = {
     "&amp;Manage snapshots...":      {"ko": "스냅샷 관리(&amp;M)...", "ja": "スナップショット管理(&amp;M)...", "zh": "管理快照(&amp;M)..."},
     "&amp;Automation rules...":      {"ko": "자동화 규칙(&amp;A)...", "ja": "自動化ルール(&amp;A)...",       "zh": "自动化规则(&amp;A)..."},
     "Open snapshot &amp;folder":     {"ko": "스냅샷 폴더 열기(&amp;F)", "ja": "スナップショットフォルダを開く(&amp;F)", "zh": "打开快照文件夹(&amp;F)"},
+    "&amp;Browse snapshots...":      {"ko": "스냅샷 탐색(&amp;B)...", "ja": "スナップショットを閲覧(&amp;B)...", "zh": "浏览快照(&amp;B)..."},
     "(no snapshots defined)":        {"ko": "(정의된 스냅샷 없음)",   "ja": "(スナップショット未定義)", "zh": "(未定义快照)"},
     "(no sessions defined)":         {"ko": "(정의된 세션 없음)",     "ja": "(セッション未定義)",      "zh": "(未定义会话)"},
 
@@ -64,6 +65,44 @@ TRANSLATIONS = {
     "&amp;Help":                     {"ko": "도움말(&amp;H)",         "ja": "ヘルプ(&amp;H)",        "zh": "帮助(&amp;H)"},
     "&amp;About TSCRT...":           {"ko": "TSCRT 정보(&amp;A)...",  "ja": "TSCRT について(&amp;A)...", "zh": "关于 TSCRT(&amp;A)..."},
     "About TSCRT":                   {"ko": "TSCRT 정보",             "ja": "TSCRT について",        "zh": "关于 TSCRT"},
+    "&amp;Usage guide...":           {"ko": "사용 설명서(&amp;U)...", "ja": "使い方ガイド(&amp;U)...", "zh": "使用指南(&amp;U)..."},
+    "TSCRT — Usage guide":           {"ko": "TSCRT — 사용 설명서",   "ja": "TSCRT — 使い方ガイド",   "zh": "TSCRT — 使用指南"},
+    "&lt;p&gt;Usage guide not available for language &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;":
+        {"ko": "&lt;p&gt;언어 &lt;b&gt;%1&lt;/b&gt;에 대한 사용 설명서가 없습니다.&lt;/p&gt;",
+         "ja": "&lt;p&gt;言語 &lt;b&gt;%1&lt;/b&gt; の使い方ガイドはありません。&lt;/p&gt;",
+         "zh": "&lt;p&gt;未提供语言 &lt;b&gt;%1&lt;/b&gt; 的使用指南。&lt;/p&gt;"},
+
+    # ---- Snapshot browser ----
+    "Snapshot browser":              {"ko": "스냅샷 탐색기",          "ja": "スナップショット ブラウザ", "zh": "快照浏览器"},
+    "Snapshot folder is not configured.": {"ko": "스냅샷 폴더가 설정되지 않았습니다.", "ja": "スナップショット フォルダが設定されていません。", "zh": "未配置快照文件夹。"},
+    "Refresh":                       {"ko": "새로 고침",              "ja": "更新",                  "zh": "刷新"},
+    "Send to administrator":         {"ko": "관리자에게 보내기",      "ja": "管理者に送信",          "zh": "发送给管理员"},
+    "Open":                          {"ko": "열기",                   "ja": "開く",                  "zh": "打开"},
+    "Reveal in file manager":        {"ko": "파일 탐색기에서 표시",   "ja": "ファイル マネージャで表示", "zh": "在文件管理器中显示"},
+    "Delete":                        {"ko": "삭제",                   "ja": "削除",                  "zh": "删除"},
+    "Delete snapshot":               {"ko": "스냅샷 삭제",            "ja": "スナップショットを削除", "zh": "删除快照"},
+    "Delete &quot;%1&quot;?":        {"ko": "&quot;%1&quot;을(를) 삭제할까요?", "ja": "&quot;%1&quot; を削除しますか?", "zh": "要删除 &quot;%1&quot; 吗?"},
+    "Delete failed":                 {"ko": "삭제 실패",              "ja": "削除に失敗",            "zh": "删除失败"},
+    "Could not delete %1":           {"ko": "%1 을(를) 삭제할 수 없습니다", "ja": "%1 を削除できません", "zh": "无法删除 %1"},
+    "Select a snapshot file first.": {"ko": "먼저 스냅샷 파일을 선택하세요.", "ja": "まずスナップショット ファイルを選択してください。", "zh": "请先选择一个快照文件。"},
+    "SMTP not configured":           {"ko": "SMTP 미설정",            "ja": "SMTP 未設定",           "zh": "未配置 SMTP"},
+    "Configure an SMTP server under Settings → SMTP before using this action.":
+        {"ko": "이 기능을 사용하기 전에 설정 → SMTP 에서 SMTP 서버를 설정하세요.",
+         "ja": "この機能を使う前に 設定 → SMTP で SMTP サーバを設定してください。",
+         "zh": "使用此功能前，请在 设置 → SMTP 中配置 SMTP 服务器。"},
+    "No administrator address":      {"ko": "관리자 주소 없음",        "ja": "管理者アドレスがありません", "zh": "没有管理员地址"},
+    "The SMTP &quot;From&quot; address is empty. Set it in Settings → SMTP; that address is used as the administrator recipient.":
+        {"ko": "SMTP &quot;From&quot; 주소가 비어 있습니다. 설정 → SMTP 에서 지정하세요. 이 주소가 관리자 수신자로 사용됩니다.",
+         "ja": "SMTP &quot;From&quot; アドレスが空です。設定 → SMTP で設定してください。このアドレスが管理者の宛先として使われます。",
+         "zh": "SMTP &quot;From&quot; 地址为空。请在 设置 → SMTP 中设置。此地址将作为管理员收件人。"},
+    "[TSCRT] Snapshot %1":           {"ko": "[TSCRT] 스냅샷 %1",      "ja": "[TSCRT] スナップショット %1", "zh": "[TSCRT] 快照 %1"},
+    "The attached TSCRT snapshot file was forwarded by %1 at %2.\n\nFile: %3\n":
+        {"ko": "첨부된 TSCRT 스냅샷 파일은 %1 이(가) %2 에 전달했습니다.\n\n파일: %3\n",
+         "ja": "添付の TSCRT スナップショット ファイルは %1 により %2 に転送されました。\n\nファイル: %3\n",
+         "zh": "附件中的 TSCRT 快照文件由 %1 于 %2 转发。\n\n文件: %3\n"},
+    "Sent":                          {"ko": "전송됨",                 "ja": "送信しました",          "zh": "已发送"},
+    "Snapshot &quot;%1&quot; sent to %2.": {"ko": "스냅샷 &quot;%1&quot; 을(를) %2 에 전송했습니다.", "ja": "スナップショット &quot;%1&quot; を %2 に送信しました。", "zh": "已将快照 &quot;%1&quot; 发送给 %2。"},
+    "Send failed":                   {"ko": "전송 실패",              "ja": "送信に失敗",            "zh": "发送失败"},
 
     # ---- Status bar messages ----
     "Ready · libssh2 %1 · libvterm %2.%3":
