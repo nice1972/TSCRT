@@ -9,6 +9,7 @@
 #include "SessionHistory.h"
 #include "SessionManagerDialog.h"
 #include "SessionTab.h"
+#include "LogSettingsDialog.h"
 #include "SettingsDialog.h"
 #include "SnapshotManager.h"
 #include "SnapshotsDialog.h"
@@ -21,9 +22,13 @@
 #include <QApplication>
 #include <QByteArray>
 #include <QCloseEvent>
+#include <QDateTime>
 #include <QDesktopServices>
 #include <QDir>
 #include <QDockWidget>
+#include <QFile>
+#include <QFileDialog>
+#include <QFileInfo>
 #include <QUrl>
 #include <QFont>
 #include <QFrame>
@@ -224,6 +229,16 @@ void MainWindow::createMenus()
 
     fileMenu->addSeparator();
 
+    auto *actExport = new QAction(tr("&Export profile..."), this);
+    connect(actExport, &QAction::triggered, this, &MainWindow::exportProfile);
+    fileMenu->addAction(actExport);
+
+    auto *actImport = new QAction(tr("&Import profile..."), this);
+    connect(actImport, &QAction::triggered, this, &MainWindow::importProfile);
+    fileMenu->addAction(actImport);
+
+    fileMenu->addSeparator();
+
     m_actQuit = new QAction(tr("E&xit"), this);
     m_actQuit->setShortcut(QKeySequence::Quit);
     connect(m_actQuit, &QAction::triggered, this, &QWidget::close);
@@ -232,6 +247,21 @@ void MainWindow::createMenus()
     m_sessionsMenu = menuBar()->addMenu(tr("&Sessions"));
 
     m_snapshotsMenu = menuBar()->addMenu(tr("S&napshots"));
+
+    m_logsMenu = menuBar()->addMenu(tr("&Logs"));
+    {
+        auto *openAct = new QAction(tr("&Open log folder"), this);
+        connect(openAct, &QAction::triggered,
+                this, &MainWindow::openLogFolder);
+        m_logsMenu->addAction(openAct);
+
+        m_logsMenu->addSeparator();
+
+        auto *settingsAct = new QAction(tr("&Log settings..."), this);
+        connect(settingsAct, &QAction::triggered,
+                this, &MainWindow::showLogSettingsDialog);
+        m_logsMenu->addAction(settingsAct);
+    }
 
     m_viewMenu = menuBar()->addMenu(tr("&View"));
     auto *viewMenu = m_viewMenu;
@@ -832,6 +862,119 @@ void MainWindow::openSnapshotFolder()
         d.mkpath(QStringLiteral("snapshots"));
     d.cd(QStringLiteral("snapshots"));
     QDesktopServices::openUrl(QUrl::fromLocalFile(d.absolutePath()));
+}
+
+void MainWindow::openLogFolder()
+{
+    const QString dir = QString::fromLocal8Bit(m_profile.common.log_dir);
+    if (dir.isEmpty()) {
+        QMessageBox::information(this, tr("Logs"),
+            tr("Log directory is not configured yet."));
+        return;
+    }
+    QDir d(dir);
+    if (!d.exists()) d.mkpath(QStringLiteral("."));
+    QDesktopServices::openUrl(QUrl::fromLocalFile(d.absolutePath()));
+}
+
+void MainWindow::showLogSettingsDialog()
+{
+    LogSettingsDialog dlg(m_profile, this);
+    if (dlg.exec() == QDialog::Accepted) {
+        m_profile = dlg.profile();
+        if (profile_save(&m_profile) != 0) {
+            QMessageBox::warning(this, tr("Save failed"),
+                tr("Could not write profile to:\n%1")
+                    .arg(QString::fromLocal8Bit(m_profile.profile_path)));
+            return;
+        }
+        if (m_snapshotMgr) m_snapshotMgr->setProfile(m_profile);
+        statusBar()->showMessage(tr("Log settings saved."), 2500);
+    }
+}
+
+void MainWindow::exportProfile()
+{
+    // Flush any in-memory changes before we copy the file off disk.
+    if (profile_save(&m_profile) != 0) {
+        QMessageBox::warning(this, tr("Export"),
+            tr("Failed to flush the current profile before exporting."));
+        return;
+    }
+
+    const QString src = QString::fromLocal8Bit(m_profile.profile_path);
+    const QString stamp = QDateTime::currentDateTime()
+        .toString(QStringLiteral("yyyyMMdd_HHmmss"));
+    const QString suggested = QStringLiteral("tscrt-%1.profile").arg(stamp);
+
+    const QString dst = QFileDialog::getSaveFileName(
+        this, tr("Export profile"), suggested,
+        tr("TSCRT profile (*.profile);;All files (*)"));
+    if (dst.isEmpty()) return;
+
+    QFile::remove(dst);   // QFile::copy() refuses to overwrite
+    if (!QFile::copy(src, dst)) {
+        QMessageBox::warning(this, tr("Export"),
+            tr("Could not copy profile to:\n%1").arg(dst));
+        return;
+    }
+
+    QMessageBox::information(this, tr("Export"),
+        tr("Profile exported to:\n%1\n\n"
+           "Note: SSH and SMTP passwords are DPAPI-encrypted for the "
+           "current Windows user and will not decrypt on another "
+           "account or machine — re-enter them after importing.")
+            .arg(dst));
+    statusBar()->showMessage(
+        tr("Exported: %1").arg(QFileInfo(dst).fileName()), 4000);
+}
+
+void MainWindow::importProfile()
+{
+    const QString src = QFileDialog::getOpenFileName(
+        this, tr("Import profile"), QString(),
+        tr("TSCRT profile (*.profile);;All files (*)"));
+    if (src.isEmpty()) return;
+
+    const auto choice = QMessageBox::warning(this, tr("Import profile"),
+        tr("This will replace your current profile with:\n%1\n\n"
+           "Open session tabs will keep running on the old profile; "
+           "new tabs use the imported one. The previous profile will "
+           "be backed up as tscrt.profile.bak. Continue?").arg(src),
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    if (choice != QMessageBox::Yes) return;
+
+    const QString dst    = QString::fromLocal8Bit(m_profile.profile_path);
+    const QString backup = dst + QStringLiteral(".bak");
+
+    // Backup existing.
+    QFile::remove(backup);
+    if (QFile::exists(dst) && !QFile::copy(dst, backup)) {
+        QMessageBox::warning(this, tr("Import"),
+            tr("Could not create backup at:\n%1").arg(backup));
+        return;
+    }
+
+    // Replace.
+    QFile::remove(dst);
+    if (!QFile::copy(src, dst)) {
+        QMessageBox::warning(this, tr("Import"),
+            tr("Could not copy new profile to:\n%1").arg(dst));
+        return;
+    }
+
+    // Reload into memory.
+    loadProfile();
+    if (m_snapshotMgr) m_snapshotMgr->setProfile(m_profile);
+    rebuildSessionsMenu();
+    rebuildSnapshotsMenu();
+    rebuildSessionTree();
+
+    statusBar()->showMessage(
+        tr("Profile imported from: %1 (backup at %2)")
+            .arg(QFileInfo(src).fileName(),
+                 QFileInfo(backup).fileName()),
+        6000);
 }
 
 bool MainWindow::appendSessionToProfile(session_entry_t entry)

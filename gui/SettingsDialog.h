@@ -69,7 +69,6 @@ private:
     profile_t        m_p{};
 
     // Common
-    QLineEdit       *m_logDir       = nullptr;
     QComboBox       *m_termType     = nullptr;
     QComboBox       *m_encoding     = nullptr;
     QSpinBox        *m_scrollback   = nullptr;

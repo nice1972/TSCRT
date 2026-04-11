@@ -72,8 +72,6 @@ QWidget *SettingsDialog::buildCommonTab()
     auto *page = new QWidget(this);
     auto *form = new QFormLayout(page);
 
-    m_logDir = new QLineEdit(fromCStr(m_p.common.log_dir), page);
-
     m_termType = new QComboBox(page);
     m_termType->addItems({
         QStringLiteral("xterm-256color"),
@@ -117,26 +115,20 @@ QWidget *SettingsDialog::buildCommonTab()
     m_scrollback->setRange(0, 10'000'000);
     m_scrollback->setValue(m_p.common.scrollback);
 
-    auto *logRow = new QHBoxLayout;
-    logRow->addWidget(m_logDir, 1);
-    auto *logBrowse = new QPushButton(tr("Browse..."), page);
-    logRow->addWidget(logBrowse);
-    connect(logBrowse, &QPushButton::clicked, this, [this] {
-        const QString d = QFileDialog::getExistingDirectory(this,
-            tr("Session log directory"), m_logDir->text());
-        if (!d.isEmpty())
-            m_logDir->setText(QDir::toNativeSeparators(d));
-    });
-    form->addRow(tr("Session log directory:"), logRow);
     form->addRow(tr("Terminal type:"), m_termType);
     form->addRow(tr("Encoding:"),      m_encoding);
     form->addRow(tr("Scrollback:"),    m_scrollback);
+
+    auto *hint = new QLabel(
+        tr("Log directory is configured under the <b>Logs</b> menu."), page);
+    hint->setStyleSheet(QStringLiteral("color: #666;"));
+    form->addRow(QString(), hint);
+
     return page;
 }
 
 void SettingsDialog::commitCommon()
 {
-    setStr(m_p.common.log_dir,       sizeof(m_p.common.log_dir),       m_logDir->text());
     setStr(m_p.common.terminal_type, sizeof(m_p.common.terminal_type), m_termType->currentText());
     setStr(m_p.common.encoding,      sizeof(m_p.common.encoding),      m_encoding->currentText());
     m_p.common.scrollback = m_scrollback->value();

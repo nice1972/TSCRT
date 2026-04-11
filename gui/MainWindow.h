@@ -60,6 +60,10 @@ private slots:
     void showSnapshotsDialog();
     void showSnapshotRulesDialog();
     void openSnapshotFolder();
+    void showLogSettingsDialog();
+    void openLogFolder();
+    void exportProfile();
+    void importProfile();
     void rebuildSessionTree();
     void toggleButtonBars(bool visible);
     void toggleCmdLines(bool visible);
@@ -98,6 +102,7 @@ private:
     QLabel        *m_lblGrid     = nullptr;
     QMenu         *m_sessionsMenu  = nullptr;
     QMenu         *m_snapshotsMenu = nullptr;
+    QMenu         *m_logsMenu      = nullptr;
     QMenu         *m_viewMenu      = nullptr;
     QAction       *m_actSettings = nullptr;
     QAction       *m_actQuit     = nullptr;

@@ -77,6 +77,8 @@ set(GUI_SOURCES
     gui/SnapshotManager.cpp
     gui/SnapshotsDialog.h
     gui/SnapshotsDialog.cpp
+    gui/LogSettingsDialog.h
+    gui/LogSettingsDialog.cpp
     gui/CronSchedule.h
     gui/CronSchedule.cpp
 )
