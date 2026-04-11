@@ -59,6 +59,8 @@
 #include <libssh2.h>
 #include <vterm.h>
 
+#include <cstring>
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     setWindowTitle(QStringLiteral("TSCRT"));
@@ -229,26 +231,32 @@ void MainWindow::createMenus()
 
     fileMenu->addSeparator();
 
-    auto *actExport = new QAction(tr("&Export profile..."), this);
-    connect(actExport, &QAction::triggered, this, &MainWindow::exportProfile);
-    fileMenu->addAction(actExport);
+    // Export ▸
+    auto *exportMenu = fileMenu->addMenu(tr("&Export"));
+    auto *actExportAll = exportMenu->addAction(tr("&Full profile..."));
+    connect(actExportAll, &QAction::triggered, this, &MainWindow::exportProfile);
+    auto *actExportSessions = exportMenu->addAction(tr("&Sessions only..."));
+    connect(actExportSessions, &QAction::triggered,
+            this, &MainWindow::exportSessions);
+    auto *actExportSnapshots = exportMenu->addAction(tr("S&napshots only..."));
+    connect(actExportSnapshots, &QAction::triggered,
+            this, &MainWindow::exportSnapshots);
 
-    auto *actImport = new QAction(tr("&Import profile..."), this);
-    connect(actImport, &QAction::triggered, this, &MainWindow::importProfile);
-    fileMenu->addAction(actImport);
+    // Import ▸
+    auto *importMenu = fileMenu->addMenu(tr("&Import"));
+    auto *actImportAll = importMenu->addAction(tr("&Full profile..."));
+    connect(actImportAll, &QAction::triggered, this, &MainWindow::importProfile);
+    auto *actImportSessions = importMenu->addAction(tr("&Sessions only..."));
+    connect(actImportSessions, &QAction::triggered,
+            this, &MainWindow::importSessions);
+    auto *actImportSnapshots = importMenu->addAction(tr("S&napshots only..."));
+    connect(actImportSnapshots, &QAction::triggered,
+            this, &MainWindow::importSnapshots);
 
     fileMenu->addSeparator();
 
-    m_actQuit = new QAction(tr("E&xit"), this);
-    m_actQuit->setShortcut(QKeySequence::Quit);
-    connect(m_actQuit, &QAction::triggered, this, &QWidget::close);
-    fileMenu->addAction(m_actQuit);
-
-    m_sessionsMenu = menuBar()->addMenu(tr("&Sessions"));
-
-    m_snapshotsMenu = menuBar()->addMenu(tr("S&napshots"));
-
-    m_logsMenu = menuBar()->addMenu(tr("&Logs"));
+    // Logs ▸
+    m_logsMenu = fileMenu->addMenu(tr("&Logs"));
     {
         auto *openAct = new QAction(tr("&Open log folder"), this);
         connect(openAct, &QAction::triggered,
@@ -262,6 +270,17 @@ void MainWindow::createMenus()
                 this, &MainWindow::showLogSettingsDialog);
         m_logsMenu->addAction(settingsAct);
     }
+
+    fileMenu->addSeparator();
+
+    m_actQuit = new QAction(tr("E&xit"), this);
+    m_actQuit->setShortcut(QKeySequence::Quit);
+    connect(m_actQuit, &QAction::triggered, this, &QWidget::close);
+    fileMenu->addAction(m_actQuit);
+
+    m_sessionsMenu = menuBar()->addMenu(tr("&Sessions"));
+
+    m_snapshotsMenu = menuBar()->addMenu(tr("S&napshots"));
 
     m_viewMenu = menuBar()->addMenu(tr("&View"));
     auto *viewMenu = m_viewMenu;
@@ -305,21 +324,33 @@ void MainWindow::createMenus()
 
     auto *langMenu = settingsMenu->addMenu(tr("&Language"));
     auto *enAct = langMenu->addAction(QStringLiteral("English"));
-    auto *koAct = langMenu->addAction(QStringLiteral("Korean"));
+    auto *koAct = langMenu->addAction(QStringLiteral("한국어"));
+    auto *jaAct = langMenu->addAction(QStringLiteral("日本語"));
+    auto *zhAct = langMenu->addAction(QStringLiteral("中文"));
     enAct->setCheckable(true);
     koAct->setCheckable(true);
+    jaAct->setCheckable(true);
+    zhAct->setCheckable(true);
     {
         QSettings prefs;
         const QString cur = prefs.value(QStringLiteral("ui/language"),
                                         QStringLiteral("en")).toString();
         enAct->setChecked(cur == QLatin1String("en"));
         koAct->setChecked(cur == QLatin1String("ko"));
+        jaAct->setChecked(cur == QLatin1String("ja"));
+        zhAct->setChecked(cur == QLatin1String("zh"));
     }
     connect(enAct, &QAction::triggered, this, [this] {
         setUiLanguage(QStringLiteral("en"));
     });
     connect(koAct, &QAction::triggered, this, [this] {
         setUiLanguage(QStringLiteral("ko"));
+    });
+    connect(jaAct, &QAction::triggered, this, [this] {
+        setUiLanguage(QStringLiteral("ja"));
+    });
+    connect(zhAct, &QAction::triggered, this, [this] {
+        setUiLanguage(QStringLiteral("zh"));
     });
 
     m_actReload = new QAction(tr("&Reload profile"), this);
@@ -975,6 +1006,190 @@ void MainWindow::importProfile()
             .arg(QFileInfo(src).fileName(),
                  QFileInfo(backup).fileName()),
         6000);
+}
+
+void MainWindow::exportSessions()
+{
+    const QString stamp = QDateTime::currentDateTime()
+        .toString(QStringLiteral("yyyyMMdd_HHmmss"));
+    const QString suggested =
+        QStringLiteral("tscrt-sessions-%1.profile").arg(stamp);
+    const QString dst = QFileDialog::getSaveFileName(
+        this, tr("Export sessions"), suggested,
+        tr("TSCRT profile (*.profile);;All files (*)"));
+    if (dst.isEmpty()) return;
+
+    // Build a subset profile that only contains the sessions.
+    profile_t subset{};
+    memcpy(subset.base_dir,     m_profile.base_dir,     sizeof(subset.base_dir));
+    memcpy(subset.profile_path, m_profile.profile_path, sizeof(subset.profile_path));
+    subset.common      = m_profile.common;
+    subset.session_count = m_profile.session_count;
+    memcpy(subset.sessions, m_profile.sessions,
+           sizeof(session_entry_t) * m_profile.session_count);
+
+    if (profile_save_to(&subset, dst.toLocal8Bit().constData()) != 0) {
+        QMessageBox::warning(this, tr("Export"),
+            tr("Could not write subset profile to:\n%1").arg(dst));
+        return;
+    }
+
+    QMessageBox::information(this, tr("Export"),
+        tr("Exported %1 session(s) to:\n%2\n\n"
+           "SSH passwords stored as DPAPI ciphertext will not decrypt "
+           "on another Windows account — re-enter them after importing.")
+            .arg(m_profile.session_count).arg(dst));
+    statusBar()->showMessage(
+        tr("Exported: %1").arg(QFileInfo(dst).fileName()), 4000);
+}
+
+void MainWindow::importSessions()
+{
+    const QString src = QFileDialog::getOpenFileName(
+        this, tr("Import sessions"), QString(),
+        tr("TSCRT profile (*.profile);;All files (*)"));
+    if (src.isEmpty()) return;
+
+    profile_t imported{};
+    if (profile_load_from(&imported, src.toLocal8Bit().constData()) != 0) {
+        QMessageBox::warning(this, tr("Import"),
+            tr("Could not parse profile file:\n%1").arg(src));
+        return;
+    }
+
+    int added = 0, skipped = 0;
+    for (int i = 0; i < imported.session_count; ++i) {
+        if (m_profile.session_count >= MAX_SESSIONS) break;
+
+        bool dup = false;
+        for (int j = 0; j < m_profile.session_count; ++j) {
+            if (strcmp(m_profile.sessions[j].name,
+                       imported.sessions[i].name) == 0) {
+                dup = true; break;
+            }
+        }
+        if (dup) { skipped++; continue; }
+
+        m_profile.sessions[m_profile.session_count++] = imported.sessions[i];
+        added++;
+    }
+
+    if (profile_save(&m_profile) != 0) {
+        QMessageBox::warning(this, tr("Import"),
+            tr("Could not write merged profile."));
+        return;
+    }
+    if (m_snapshotMgr) m_snapshotMgr->setProfile(m_profile);
+    rebuildSessionsMenu();
+    rebuildSessionTree();
+
+    QMessageBox::information(this, tr("Import"),
+        tr("Imported %1 new session(s); skipped %2 duplicate name(s).")
+            .arg(added).arg(skipped));
+}
+
+void MainWindow::exportSnapshots()
+{
+    const QString stamp = QDateTime::currentDateTime()
+        .toString(QStringLiteral("yyyyMMdd_HHmmss"));
+    const QString suggested =
+        QStringLiteral("tscrt-snapshots-%1.profile").arg(stamp);
+    const QString dst = QFileDialog::getSaveFileName(
+        this, tr("Export snapshots"), suggested,
+        tr("TSCRT profile (*.profile);;All files (*)"));
+    if (dst.isEmpty()) return;
+
+    profile_t subset{};
+    memcpy(subset.base_dir,     m_profile.base_dir,     sizeof(subset.base_dir));
+    memcpy(subset.profile_path, m_profile.profile_path, sizeof(subset.profile_path));
+    subset.common = m_profile.common;
+
+    subset.snapshot_count      = m_profile.snapshot_count;
+    memcpy(subset.snapshots, m_profile.snapshots,
+           sizeof(snapshot_entry_t) * m_profile.snapshot_count);
+    subset.snapshot_rule_count = m_profile.snapshot_rule_count;
+    memcpy(subset.snapshot_rules, m_profile.snapshot_rules,
+           sizeof(snapshot_rule_t) * m_profile.snapshot_rule_count);
+    subset.smtp = m_profile.smtp;
+
+    if (profile_save_to(&subset, dst.toLocal8Bit().constData()) != 0) {
+        QMessageBox::warning(this, tr("Export"),
+            tr("Could not write subset profile to:\n%1").arg(dst));
+        return;
+    }
+
+    QMessageBox::information(this, tr("Export"),
+        tr("Exported %1 snapshot(s) and %2 rule(s) to:\n%3\n\n"
+           "The SMTP password is DPAPI-encrypted and will not decrypt "
+           "on another Windows account — re-enter it after importing.")
+            .arg(m_profile.snapshot_count)
+            .arg(m_profile.snapshot_rule_count)
+            .arg(dst));
+    statusBar()->showMessage(
+        tr("Exported: %1").arg(QFileInfo(dst).fileName()), 4000);
+}
+
+void MainWindow::importSnapshots()
+{
+    const QString src = QFileDialog::getOpenFileName(
+        this, tr("Import snapshots"), QString(),
+        tr("TSCRT profile (*.profile);;All files (*)"));
+    if (src.isEmpty()) return;
+
+    profile_t imported{};
+    if (profile_load_from(&imported, src.toLocal8Bit().constData()) != 0) {
+        QMessageBox::warning(this, tr("Import"),
+            tr("Could not parse profile file:\n%1").arg(src));
+        return;
+    }
+
+    int addedSnaps = 0, skippedSnaps = 0;
+    for (int i = 0; i < imported.snapshot_count; ++i) {
+        if (m_profile.snapshot_count >= MAX_SNAPSHOTS) break;
+
+        bool dup = false;
+        for (int j = 0; j < m_profile.snapshot_count; ++j) {
+            if (strcmp(m_profile.snapshots[j].name,
+                       imported.snapshots[i].name) == 0) {
+                dup = true; break;
+            }
+        }
+        if (dup) { skippedSnaps++; continue; }
+
+        m_profile.snapshots[m_profile.snapshot_count++] = imported.snapshots[i];
+        addedSnaps++;
+    }
+
+    int addedRules = 0;
+    for (int i = 0; i < imported.snapshot_rule_count; ++i) {
+        if (m_profile.snapshot_rule_count >= MAX_SNAPSHOT_RULES) break;
+        m_profile.snapshot_rules[m_profile.snapshot_rule_count++] =
+            imported.snapshot_rules[i];
+        addedRules++;
+    }
+
+    // SMTP: only overwrite when the current profile has no host set,
+    // so importing a snapshot bundle doesn't silently clobber the
+    // user's existing mail credentials.
+    bool smtpImported = false;
+    if (m_profile.smtp.host[0] == '\0' && imported.smtp.host[0] != '\0') {
+        m_profile.smtp = imported.smtp;
+        smtpImported = true;
+    }
+
+    if (profile_save(&m_profile) != 0) {
+        QMessageBox::warning(this, tr("Import"),
+            tr("Could not write merged profile."));
+        return;
+    }
+    if (m_snapshotMgr) m_snapshotMgr->setProfile(m_profile);
+    rebuildSnapshotsMenu();
+
+    QMessageBox::information(this, tr("Import"),
+        tr("Imported %1 snapshot(s) (%2 duplicates skipped) and %3 rule(s).%4")
+            .arg(addedSnaps).arg(skippedSnaps).arg(addedRules)
+            .arg(smtpImported ? tr("\nSMTP settings were also imported.")
+                              : QString()));
 }
 
 bool MainWindow::appendSessionToProfile(session_entry_t entry)

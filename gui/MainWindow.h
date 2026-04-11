@@ -64,6 +64,10 @@ private slots:
     void openLogFolder();
     void exportProfile();
     void importProfile();
+    void exportSessions();
+    void importSessions();
+    void exportSnapshots();
+    void importSnapshots();
     void rebuildSessionTree();
     void toggleButtonBars(bool visible);
     void toggleCmdLines(bool visible);

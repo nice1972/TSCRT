@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="ko_KR" sourcelanguage="en">
+<TS version="2.1" language="ja_JP" sourcelanguage="en">
 <context>
     <name>CommandLineWidget</name>
     <message>
         <location filename="../gui/CommandLineWidget.cpp" line="12"/>
         <source>Type a command and press Enter…</source>
-        <translation>명령을 입력하고 Enter를 누르세요…</translation>
+        <translation>コマンドを入力して Enter を押してください…</translation>
     </message>
 </context>
 <context>
@@ -14,40 +14,56 @@
     <message>
         <location filename="../gui/LogSettingsDialog.cpp" line="30"/>
         <source>Log settings</source>
-        <translation>로그 설정</translation>
+        <translation>ログ設定</translation>
     </message>
     <message>
         <location filename="../gui/LogSettingsDialog.cpp" line="37"/>
         <source>Session logs (and snapshot captures) are saved under the directory below. Each session writes its own timestamped file; snapshots go into a &lt;b&gt;snapshots/&lt;/b&gt; subfolder.</source>
-        <translation>세션 로그(와 스냅샷 캡처)는 아래 디렉터리에 저장됩니다. 각 세션은 타임스탬프가 붙은 파일을 기록하며, 스냅샷은 &lt;b&gt;snapshots/&lt;/b&gt; 하위 폴더에 저장됩니다.</translation>
+        <translation>セッションログ(およびスナップショット)は以下のディレクトリに保存されます。各セッションはタイムスタンプ付きファイルを作成し、スナップショットは &lt;b&gt;snapshots/&lt;/b&gt; サブフォルダに保存されます。</translation>
     </message>
     <message>
         <location filename="../gui/LogSettingsDialog.cpp" line="50"/>
         <source>Browse...</source>
-        <translation>찾아보기...</translation>
+        <translation>参照...</translation>
     </message>
     <message>
         <location filename="../gui/LogSettingsDialog.cpp" line="52"/>
         <source>Log directory:</source>
-        <translation>로그 디렉터리:</translation>
+        <translation>ログディレクトリ:</translation>
     </message>
     <message>
         <location filename="../gui/LogSettingsDialog.cpp" line="57"/>
         <source>Session log directory</source>
-        <translation>세션 로그 디렉터리</translation>
+        <translation>セッションログディレクトリ</translation>
     </message>
 </context>
 <context>
     <name>MainWindow</name>
     <message>
+        <location filename="../gui/MainWindow.cpp" line="213"/>
+        <location filename="../gui/MainWindow.cpp" line="218"/>
+        <source>Profile error</source>
+        <translation>プロファイルエラー</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="214"/>
+        <source>Cannot initialize profile directory.</source>
+        <translation>プロファイルディレクトリを初期化できません。</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="219"/>
+        <source>Failed to load profile; defaults will be used.</source>
+        <translation>プロファイル読込失敗。既定値を使用します。</translation>
+    </message>
+    <message>
         <location filename="../gui/MainWindow.cpp" line="225"/>
         <source>&amp;File</source>
-        <translation>파일(&amp;F)</translation>
+        <translation>ファイル(&amp;F)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="227"/>
         <source>&amp;Close tab</source>
-        <translation>탭 닫기(&amp;C)</translation>
+        <translation>タブを閉じる(&amp;C)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="228"/>
@@ -57,95 +73,95 @@
     <message>
         <location filename="../gui/MainWindow.cpp" line="235"/>
         <source>&amp;Export</source>
-        <translation>내보내기(&amp;E)</translation>
+        <translation>エクスポート(&amp;E)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="236"/>
         <location filename="../gui/MainWindow.cpp" line="247"/>
         <source>&amp;Full profile...</source>
-        <translation>전체 프로파일(&amp;F)...</translation>
+        <translation>完全プロファイル(&amp;F)...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="238"/>
         <location filename="../gui/MainWindow.cpp" line="249"/>
         <source>&amp;Sessions only...</source>
-        <translation>세션만(&amp;S)...</translation>
+        <translation>セッションのみ(&amp;S)...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="241"/>
         <location filename="../gui/MainWindow.cpp" line="252"/>
         <source>S&amp;napshots only...</source>
-        <translation>스냅샷만(&amp;N)...</translation>
+        <translation>スナップショットのみ(&amp;N)...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="246"/>
         <source>&amp;Import</source>
-        <translation>가져오기(&amp;I)</translation>
+        <translation>インポート(&amp;I)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="259"/>
         <source>&amp;Logs</source>
-        <translation>로그(&amp;L)</translation>
+        <translation>ログ(&amp;L)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="261"/>
         <source>&amp;Open log folder</source>
-        <translation>로그 폴더 열기(&amp;O)</translation>
+        <translation>ログフォルダを開く(&amp;O)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="268"/>
         <source>&amp;Log settings...</source>
-        <translation>로그 설정(&amp;L)...</translation>
+        <translation>ログ設定(&amp;L)...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="276"/>
         <source>E&amp;xit</source>
-        <translation>종료(&amp;X)</translation>
+        <translation>終了(&amp;X)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="281"/>
         <source>&amp;Sessions</source>
-        <translation>세션(&amp;S)</translation>
+        <translation>セッション(&amp;S)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="283"/>
         <source>S&amp;napshots</source>
-        <translation>스냅샷(&amp;N)</translation>
+        <translation>スナップショット(&amp;N)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="285"/>
         <source>&amp;View</source>
-        <translation>보기(&amp;V)</translation>
+        <translation>表示(&amp;V)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="288"/>
         <source>Show &amp;Command Line</source>
-        <translation>명령줄 표시(&amp;C)</translation>
+        <translation>コマンドラインを表示(&amp;C)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="290"/>
         <source>Show Action &amp;Buttons</source>
-        <translation>액션 버튼 표시(&amp;B)</translation>
+        <translation>アクションボタンを表示(&amp;B)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="292"/>
         <source>Show &amp;Status Bar</source>
-        <translation>상태 표시줄 표시(&amp;S)</translation>
+        <translation>ステータスバーを表示(&amp;S)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="313"/>
         <source>&amp;Full Screen	F11</source>
-        <translation>전체 화면(&amp;F)	F11</translation>
+        <translation>全画面(&amp;F)	F11</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="319"/>
         <source>Se&amp;ttings</source>
-        <translation>설정(&amp;T)</translation>
+        <translation>設定(&amp;T)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="320"/>
         <source>&amp;Preferences...</source>
-        <translation>환경설정(&amp;P)...</translation>
+        <translation>環境設定(&amp;P)...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="321"/>
@@ -155,12 +171,12 @@
     <message>
         <location filename="../gui/MainWindow.cpp" line="325"/>
         <source>&amp;Language</source>
-        <translation>언어(&amp;L)</translation>
+        <translation>言語(&amp;L)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="344"/>
         <source>&amp;Reload profile</source>
-        <translation>프로파일 다시 읽기(&amp;R)</translation>
+        <translation>プロファイル再読込(&amp;R)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="345"/>
@@ -168,108 +184,97 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="356"/>
-        <source>&amp;Help</source>
-        <translation>도움말(&amp;H)</translation>
-    </message>
-    <message>
-        <location filename="../gui/MainWindow.cpp" line="1651"/>
-        <source>About TSCRT</source>
-        <translation>TSCRT 정보</translation>
-    </message>
-    <message>
-        <location filename="../gui/MainWindow.cpp" line="765"/>
-        <source>(no sessions defined)</source>
-        <translation>(정의된 세션 없음)</translation>
-    </message>
-    <message>
         <location filename="../gui/MainWindow.cpp" line="352"/>
         <source>Profile reloaded.</source>
-        <translation>프로파일을 다시 읽었습니다.</translation>
+        <translation>プロファイルを再読込しました。</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="213"/>
-        <location filename="../gui/MainWindow.cpp" line="218"/>
-        <source>Profile error</source>
-        <translation>프로파일 오류</translation>
-    </message>
-    <message>
-        <location filename="../gui/MainWindow.cpp" line="214"/>
-        <source>Cannot initialize profile directory.</source>
-        <translation>프로파일 디렉터리를 초기화할 수 없습니다.</translation>
-    </message>
-    <message>
-        <location filename="../gui/MainWindow.cpp" line="219"/>
-        <source>Failed to load profile; defaults will be used.</source>
-        <translation>프로파일 로드 실패. 기본값을 사용합니다.</translation>
+        <location filename="../gui/MainWindow.cpp" line="356"/>
+        <source>&amp;Help</source>
+        <translation>ヘルプ(&amp;H)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="357"/>
         <source>&amp;About TSCRT...</source>
-        <translation>TSCRT 정보(&amp;A)...</translation>
+        <translation>TSCRT について(&amp;A)...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="364"/>
         <source>Session Manager</source>
-        <translation>세션 관리자</translation>
+        <translation>セッションマネージャー</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="420"/>
         <source>Ready · libssh2 %1 · libvterm %2.%3</source>
-        <translation>준비됨 · libssh2 %1 · libvterm %2.%3</translation>
+        <translation>準備完了 · libssh2 %1 · libvterm %2.%3</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="488"/>
         <source>Open</source>
-        <translation>열기</translation>
+        <translation>開く</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="490"/>
         <source>Rename...</source>
-        <translation>이름 바꾸기...</translation>
+        <translation>名前を変更...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="491"/>
         <source>Edit...</source>
-        <translation>편집...</translation>
+        <translation>編集...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="492"/>
         <source>Delete</source>
-        <translation>삭제</translation>
+        <translation>削除</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="494"/>
         <source>Copy</source>
-        <translation>복사</translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="495"/>
         <location filename="../gui/MainWindow.cpp" line="633"/>
         <source>Paste</source>
-        <translation>붙여넣기</translation>
+        <translation>貼り付け</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="524"/>
         <source>Rename session</source>
-        <translation>세션 이름 바꾸기</translation>
+        <translation>セッション名を変更</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="525"/>
         <source>New name:</source>
-        <translation>새 이름:</translation>
+        <translation>新しい名前:</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="529"/>
         <location filename="../gui/MainWindow.cpp" line="1369"/>
         <source>Rename</source>
-        <translation>이름 바꾸기</translation>
+        <translation>名前を変更</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="529"/>
         <location filename="../gui/MainWindow.cpp" line="569"/>
         <source>Name cannot be empty.</source>
-        <translation>이름이 비어 있을 수 없습니다.</translation>
+        <translation>名前を空にできません。</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="539"/>
+        <location filename="../gui/MainWindow.cpp" line="583"/>
+        <location filename="../gui/MainWindow.cpp" line="608"/>
+        <location filename="../gui/MainWindow.cpp" line="662"/>
+        <location filename="../gui/MainWindow.cpp" line="846"/>
+        <location filename="../gui/MainWindow.cpp" line="864"/>
+        <location filename="../gui/MainWindow.cpp" line="905"/>
+        <location filename="../gui/MainWindow.cpp" line="1204"/>
+        <location filename="../gui/MainWindow.cpp" line="1498"/>
+        <location filename="../gui/MainWindow.cpp" line="1516"/>
+        <location filename="../gui/MainWindow.cpp" line="1568"/>
+        <source>Save failed</source>
+        <translation>保存失敗</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="540"/>
@@ -283,22 +288,22 @@
     <message>
         <location filename="../gui/MainWindow.cpp" line="569"/>
         <source>Edit</source>
-        <translation>편집</translation>
+        <translation>編集</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="596"/>
         <source>Delete session</source>
-        <translation>세션 삭제</translation>
+        <translation>セッション削除</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="597"/>
         <source>Delete session &quot;%1&quot;?</source>
-        <translation>세션 &quot;%1&quot;을(를) 삭제하시겠습니까?</translation>
+        <translation>セッション &quot;%1&quot; を削除しますか?</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="624"/>
         <source>Copied session &quot;%1&quot;.</source>
-        <translation>세션 &quot;%1&quot;을(를) 복사했습니다.</translation>
+        <translation>セッション &quot;%1&quot; をコピーしました。</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="634"/>
@@ -308,17 +313,17 @@
     <message>
         <location filename="../gui/MainWindow.cpp" line="712"/>
         <source>SSH Sessions</source>
-        <translation>SSH 세션</translation>
+        <translation>SSH セッション</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="717"/>
         <source>Serial Sessions</source>
-        <translation>시리얼 세션</translation>
+        <translation>シリアルセッション</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="752"/>
         <source>&amp;New</source>
-        <translation>새로 만들기(&amp;N)</translation>
+        <translation>新規(&amp;N)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="753"/>
@@ -328,12 +333,17 @@
     <message>
         <location filename="../gui/MainWindow.cpp" line="757"/>
         <source>&amp;Sessions...</source>
-        <translation>세션 관리(&amp;S)...</translation>
+        <translation>セッション管理(&amp;S)...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="758"/>
         <source>Ctrl+Shift+M</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="765"/>
+        <source>(no sessions defined)</source>
+        <translation>(セッション未定義)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="775"/>
@@ -343,18 +353,18 @@
     <message>
         <location filename="../gui/MainWindow.cpp" line="781"/>
         <source>Serial · %1 (%2 %3 baud)</source>
-        <translation>시리얼 · %1 (%2 %3 baud)</translation>
+        <translation>シリアル · %1 (%2 %3 baud)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="800"/>
         <source>&amp;Run on current session</source>
-        <translation>현재 세션에서 실행(&amp;R)</translation>
+        <translation>現在のセッションで実行(&amp;R)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="802"/>
         <location filename="../gui/MainWindow.cpp" line="1377"/>
         <source>(no snapshots defined)</source>
-        <translation>(정의된 스냅샷 없음)</translation>
+        <translation>(スナップショット未定義)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="810"/>
@@ -364,17 +374,17 @@
     <message>
         <location filename="../gui/MainWindow.cpp" line="822"/>
         <source>&amp;Manage snapshots...</source>
-        <translation>스냅샷 관리(&amp;M)...</translation>
+        <translation>スナップショット管理(&amp;M)...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="827"/>
         <source>&amp;Automation rules...</source>
-        <translation>자동화 규칙(&amp;A)...</translation>
+        <translation>自動化ルール(&amp;A)...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="834"/>
         <source>Open snapshot &amp;folder</source>
-        <translation>스냅샷 폴더 열기(&amp;F)</translation>
+        <translation>スナップショットフォルダを開く(&amp;F)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="847"/>
@@ -391,12 +401,12 @@
         <location filename="../gui/MainWindow.cpp" line="853"/>
         <location filename="../gui/MainWindow.cpp" line="871"/>
         <source>Snapshots saved.</source>
-        <translation>스냅샷이 저장되었습니다.</translation>
+        <translation>スナップショットを保存しました。</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="890"/>
         <source>Logs</source>
-        <translation>로그</translation>
+        <translation>ログ</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="891"/>
@@ -406,7 +416,7 @@
     <message>
         <location filename="../gui/MainWindow.cpp" line="911"/>
         <source>Log settings saved.</source>
-        <translation>로그 설정이 저장되었습니다.</translation>
+        <translation>ログ設定を保存しました。</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="919"/>
@@ -417,7 +427,7 @@
         <location filename="../gui/MainWindow.cpp" line="1104"/>
         <location filename="../gui/MainWindow.cpp" line="1109"/>
         <source>Export</source>
-        <translation>내보내기</translation>
+        <translation>エクスポート</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="920"/>
@@ -427,7 +437,7 @@
     <message>
         <location filename="../gui/MainWindow.cpp" line="930"/>
         <source>Export profile</source>
-        <translation>프로파일 내보내기</translation>
+        <translation>プロファイルエクスポート</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="931"/>
@@ -437,7 +447,7 @@
         <location filename="../gui/MainWindow.cpp" line="1087"/>
         <location filename="../gui/MainWindow.cpp" line="1124"/>
         <source>TSCRT profile (*.profile);;All files (*)</source>
-        <translation>TSCRT 프로파일 (*.profile);;모든 파일 (*)</translation>
+        <translation>TSCRT プロファイル (*.profile);;すべてのファイル (*)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="937"/>
@@ -458,13 +468,13 @@ Note: SSH and SMTP passwords are DPAPI-encrypted for the current Windows user an
         <location filename="../gui/MainWindow.cpp" line="1031"/>
         <location filename="../gui/MainWindow.cpp" line="1117"/>
         <source>Exported: %1</source>
-        <translation>내보냄: %1</translation>
+        <translation>エクスポート: %1</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="954"/>
         <location filename="../gui/MainWindow.cpp" line="958"/>
         <source>Import profile</source>
-        <translation>프로파일 가져오기</translation>
+        <translation>プロファイルインポート</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="959"/>
@@ -484,7 +494,7 @@ Open session tabs will keep running on the old profile; new tabs use the importe
         <location filename="../gui/MainWindow.cpp" line="1169"/>
         <location filename="../gui/MainWindow.cpp" line="1176"/>
         <source>Import</source>
-        <translation>가져오기</translation>
+        <translation>インポート</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="973"/>
@@ -506,7 +516,7 @@ Open session tabs will keep running on the old profile; new tabs use the importe
     <message>
         <location filename="../gui/MainWindow.cpp" line="1006"/>
         <source>Export sessions</source>
-        <translation>세션 내보내기</translation>
+        <translation>セッションエクスポート</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1021"/>
@@ -526,7 +536,7 @@ SSH passwords stored as DPAPI ciphertext will not decrypt on another Windows acc
     <message>
         <location filename="../gui/MainWindow.cpp" line="1037"/>
         <source>Import sessions</source>
-        <translation>세션 가져오기</translation>
+        <translation>セッションインポート</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1044"/>
@@ -549,7 +559,7 @@ SSH passwords stored as DPAPI ciphertext will not decrypt on another Windows acc
     <message>
         <location filename="../gui/MainWindow.cpp" line="1086"/>
         <source>Export snapshots</source>
-        <translation>스냅샷 내보내기</translation>
+        <translation>スナップショットエクスポート</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1110"/>
@@ -562,7 +572,7 @@ The SMTP password is DPAPI-encrypted and will not decrypt on another Windows acc
     <message>
         <location filename="../gui/MainWindow.cpp" line="1123"/>
         <source>Import snapshots</source>
-        <translation>스냅샷 가져오기</translation>
+        <translation>スナップショットインポート</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1177"/>
@@ -578,7 +588,7 @@ SMTP settings were also imported.</source>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1186"/>
         <source>Save session</source>
-        <translation>세션 저장</translation>
+        <translation>セッション保存</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1187"/>
@@ -593,58 +603,103 @@ SMTP settings were also imported.</source>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1262"/>
         <source>SSH Password</source>
-        <translation>SSH 비밀번호</translation>
+        <translation>SSH パスワード</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1263"/>
         <source>Password for %1@%2:</source>
-        <translation>%1@%2의 비밀번호:</translation>
+        <translation>%1@%2 のパスワード:</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1298"/>
         <source>Connecting to %1...</source>
-        <translation>%1에 연결 중...</translation>
+        <translation>%1 に接続中...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1301"/>
         <source>Connected: %1</source>
-        <translation>연결됨: %1</translation>
+        <translation>接続済み: %1</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1304"/>
         <source>Session error</source>
-        <translation>세션 오류</translation>
+        <translation>セッションエラー</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1305"/>
         <source>Error: %1</source>
-        <translation>오류: %1</translation>
+        <translation>エラー: %1</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1308"/>
         <source>Disconnected: %1 (%2)</source>
-        <translation>연결 끊김: %1 (%2)</translation>
+        <translation>切断: %1 (%2)</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="1370"/>
+        <source>Duplicate</source>
+        <translation>複製</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="1374"/>
+        <source>Run Snapshot</source>
+        <translation>スナップショット実行</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="1391"/>
+        <source>Unpin</source>
+        <translation>ピン留め解除</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="1391"/>
+        <source>Pin</source>
+        <translation>ピン留め</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="1393"/>
+        <source>Close</source>
+        <translation>閉じる</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="1426"/>
+        <source>Rename Tab</source>
+        <translation>タブ名を変更</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="1426"/>
+        <source>Tab name:</source>
+        <translation>タブ名:</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="1506"/>
+        <source>Preferences saved.</source>
+        <translation>環境設定を保存しました。</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1524"/>
         <source>Sessions saved.</source>
-        <translation>세션이 저장되었습니다.</translation>
+        <translation>セッションを保存しました。</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1544"/>
         <location filename="../gui/MainWindow.cpp" line="1548"/>
         <source>Edit button</source>
-        <translation>버튼 편집</translation>
+        <translation>ボタン編集</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1545"/>
         <source>Label:</source>
-        <translation>라벨:</translation>
+        <translation>ラベル:</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1549"/>
         <source>Action (escape: \r \n \t \b \e \p \\):</source>
-        <translation>액션 (이스케이프: \r \n \t \b \e \p \\):</translation>
+        <translation>アクション (エスケープ: \r \n \t \b \e \p \\):</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="1651"/>
+        <source>About TSCRT</source>
+        <translation>TSCRT について</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1655"/>
@@ -656,68 +711,13 @@ SMTP settings were also imported.</source>
         <source>Copyright &amp;copy; 2026 TePSEG Co., Ltd. (Republic of Korea)&lt;br/&gt;Developer: &lt;a href=&quot;mailto:ygjeon@tepseg.com&quot;&gt;ygjeon@tepseg.com&lt;/a&gt;&lt;br/&gt;Released under the GNU General Public License (GPL).</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../gui/MainWindow.cpp" line="539"/>
-        <location filename="../gui/MainWindow.cpp" line="583"/>
-        <location filename="../gui/MainWindow.cpp" line="608"/>
-        <location filename="../gui/MainWindow.cpp" line="662"/>
-        <location filename="../gui/MainWindow.cpp" line="846"/>
-        <location filename="../gui/MainWindow.cpp" line="864"/>
-        <location filename="../gui/MainWindow.cpp" line="905"/>
-        <location filename="../gui/MainWindow.cpp" line="1204"/>
-        <location filename="../gui/MainWindow.cpp" line="1498"/>
-        <location filename="../gui/MainWindow.cpp" line="1516"/>
-        <location filename="../gui/MainWindow.cpp" line="1568"/>
-        <source>Save failed</source>
-        <translation>저장 실패</translation>
-    </message>
-    <message>
-        <location filename="../gui/MainWindow.cpp" line="1370"/>
-        <source>Duplicate</source>
-        <translation>복제</translation>
-    </message>
-    <message>
-        <location filename="../gui/MainWindow.cpp" line="1374"/>
-        <source>Run Snapshot</source>
-        <translation>스냅샷 실행</translation>
-    </message>
-    <message>
-        <location filename="../gui/MainWindow.cpp" line="1391"/>
-        <source>Unpin</source>
-        <translation>고정 해제</translation>
-    </message>
-    <message>
-        <location filename="../gui/MainWindow.cpp" line="1391"/>
-        <source>Pin</source>
-        <translation>고정</translation>
-    </message>
-    <message>
-        <location filename="../gui/MainWindow.cpp" line="1393"/>
-        <source>Close</source>
-        <translation>닫기</translation>
-    </message>
-    <message>
-        <location filename="../gui/MainWindow.cpp" line="1426"/>
-        <source>Rename Tab</source>
-        <translation>탭 이름 바꾸기</translation>
-    </message>
-    <message>
-        <location filename="../gui/MainWindow.cpp" line="1426"/>
-        <source>Tab name:</source>
-        <translation>탭 이름:</translation>
-    </message>
-    <message>
-        <location filename="../gui/MainWindow.cpp" line="1506"/>
-        <source>Preferences saved.</source>
-        <translation>환경설정이 저장되었습니다.</translation>
-    </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
         <location filename="../gui/main.cpp" line="54"/>
         <source>TSCRT - Crash report</source>
-        <translation>TSCRT - 크래시 보고</translation>
+        <translation>TSCRT - クラッシュレポート</translation>
     </message>
     <message>
         <location filename="../gui/main.cpp" line="55"/>
@@ -725,10 +725,10 @@ SMTP settings were also imported.</source>
 %1
 
 Would you like to keep it for inspection?</source>
-        <translation>이전 실행의 크래시 보고서가 발견되었습니다:
+        <translation>前回の実行のクラッシュレポートが見つかりました:
 %1
 
-검토를 위해 보관하시겠습니까?</translation>
+調査のため保持しますか?</translation>
     </message>
 </context>
 <context>
@@ -736,7 +736,12 @@ Would you like to keep it for inspection?</source>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="32"/>
         <source>Session</source>
-        <translation>세션</translation>
+        <translation>セッション</translation>
+    </message>
+    <message>
+        <location filename="../gui/SessionEditDialog.cpp" line="44"/>
+        <source>&amp;Name:</source>
+        <translation>名前(&amp;N):</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="47"/>
@@ -746,133 +751,128 @@ Would you like to keep it for inspection?</source>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="48"/>
         <source>Serial</source>
-        <translation>시리얼</translation>
-    </message>
-    <message>
-        <location filename="../gui/SessionEditDialog.cpp" line="44"/>
-        <source>&amp;Name:</source>
-        <translation>이름(&amp;N):</translation>
+        <translation>シリアル</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="49"/>
         <source>&amp;Type:</source>
-        <translation>유형(&amp;T):</translation>
-    </message>
-    <message>
-        <location filename="../gui/SessionEditDialog.cpp" line="72"/>
-        <source>&amp;Host:</source>
-        <translation>호스트(&amp;H):</translation>
-    </message>
-    <message>
-        <location filename="../gui/SessionEditDialog.cpp" line="77"/>
-        <source>&amp;Port:</source>
-        <translation>포트(&amp;P):</translation>
-    </message>
-    <message>
-        <location filename="../gui/SessionEditDialog.cpp" line="81"/>
-        <source>&amp;Username:</source>
-        <translation>사용자명(&amp;U):</translation>
-    </message>
-    <message>
-        <location filename="../gui/SessionEditDialog.cpp" line="86"/>
-        <source>Pass&amp;word:</source>
-        <translation>비밀번호(&amp;W):</translation>
-    </message>
-    <message>
-        <location filename="../gui/SessionEditDialog.cpp" line="95"/>
-        <source>&amp;Key file:</source>
-        <translation>키 파일(&amp;K):</translation>
-    </message>
-    <message>
-        <location filename="../gui/SessionEditDialog.cpp" line="91"/>
-        <source>Browse...</source>
-        <translation>찾아보기...</translation>
-    </message>
-    <message>
-        <location filename="../gui/SessionEditDialog.cpp" line="159"/>
-        <source>Select private key</source>
-        <translation>개인 키 선택</translation>
-    </message>
-    <message>
-        <location filename="../gui/SessionEditDialog.cpp" line="105"/>
-        <source>&amp;Device:</source>
-        <translation>장치(&amp;D):</translation>
+        <translation>種類(&amp;T):</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="51"/>
         <source>Save session log</source>
-        <translation>세션 로그 저장</translation>
+        <translation>セッションログ保存</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="55"/>
         <source>Show command line in fullscreen</source>
-        <translation>전체 화면에서 명령줄 표시</translation>
+        <translation>全画面でコマンドラインを表示</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="59"/>
         <source>Show button bar in fullscreen</source>
-        <translation>전체 화면에서 버튼 바 표시</translation>
+        <translation>全画面でボタンバーを表示</translation>
+    </message>
+    <message>
+        <location filename="../gui/SessionEditDialog.cpp" line="72"/>
+        <source>&amp;Host:</source>
+        <translation>ホスト(&amp;H):</translation>
+    </message>
+    <message>
+        <location filename="../gui/SessionEditDialog.cpp" line="77"/>
+        <source>&amp;Port:</source>
+        <translation>ポート(&amp;P):</translation>
+    </message>
+    <message>
+        <location filename="../gui/SessionEditDialog.cpp" line="81"/>
+        <source>&amp;Username:</source>
+        <translation>ユーザー名(&amp;U):</translation>
+    </message>
+    <message>
+        <location filename="../gui/SessionEditDialog.cpp" line="86"/>
+        <source>Pass&amp;word:</source>
+        <translation>パスワード(&amp;W):</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="90"/>
         <source>Optional private key (OpenSSH .pem)</source>
-        <translation>선택 개인 키 (OpenSSH .pem)</translation>
+        <translation>オプション秘密鍵 (OpenSSH .pem)</translation>
+    </message>
+    <message>
+        <location filename="../gui/SessionEditDialog.cpp" line="91"/>
+        <source>Browse...</source>
+        <translation>参照...</translation>
+    </message>
+    <message>
+        <location filename="../gui/SessionEditDialog.cpp" line="95"/>
+        <source>&amp;Key file:</source>
+        <translation>鍵ファイル(&amp;K):</translation>
+    </message>
+    <message>
+        <location filename="../gui/SessionEditDialog.cpp" line="105"/>
+        <source>&amp;Device:</source>
+        <translation>デバイス(&amp;D):</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="112"/>
         <source>&amp;Baud rate:</source>
-        <translation>보드율(&amp;B):</translation>
+        <translation>ボーレート(&amp;B):</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="117"/>
         <source>Data &amp;bits:</source>
-        <translation>데이터 비트(&amp;B):</translation>
+        <translation>データビット(&amp;B):</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="122"/>
         <source>&amp;Stop bits:</source>
-        <translation>스톱 비트(&amp;S):</translation>
+        <translation>ストップビット(&amp;S):</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="125"/>
         <location filename="../gui/SessionEditDialog.cpp" line="131"/>
         <source>None</source>
-        <translation>없음</translation>
+        <translation>なし</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="126"/>
         <source>Odd</source>
-        <translation>홀수</translation>
+        <translation>奇数</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="127"/>
         <source>Even</source>
-        <translation>짝수</translation>
+        <translation>偶数</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="128"/>
         <source>Pa&amp;rity:</source>
-        <translation>패리티(&amp;R):</translation>
+        <translation>パリティ(&amp;R):</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="132"/>
         <source>Hardware</source>
-        <translation>하드웨어</translation>
+        <translation>ハードウェア</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="133"/>
         <source>Software</source>
-        <translation>소프트웨어</translation>
+        <translation>ソフトウェア</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="134"/>
         <source>&amp;Flow control:</source>
-        <translation>흐름 제어(&amp;F):</translation>
+        <translation>フロー制御(&amp;F):</translation>
+    </message>
+    <message>
+        <location filename="../gui/SessionEditDialog.cpp" line="159"/>
+        <source>Select private key</source>
+        <translation>秘密鍵を選択</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="160"/>
         <source>Key files (*.pem *.key);;All files (*)</source>
-        <translation>키 파일 (*.pem *.key);;모든 파일 (*)</translation>
+        <translation>鍵ファイル (*.pem *.key);;すべてのファイル (*)</translation>
     </message>
 </context>
 <context>
@@ -880,114 +880,114 @@ Would you like to keep it for inspection?</source>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="52"/>
         <source>Session Manager</source>
-        <translation>세션 관리자</translation>
+        <translation>セッションマネージャー</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="61"/>
         <source>Name</source>
-        <translation>이름</translation>
+        <translation>名前</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="61"/>
         <source>Type</source>
-        <translation>유형</translation>
+        <translation>種類</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="61"/>
         <source>Host / Device</source>
-        <translation>호스트 / 장치</translation>
+        <translation>ホスト / デバイス</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="62"/>
         <source>Port / Baud</source>
-        <translation>포트 / 보드율</translation>
+        <translation>ポート / ボーレート</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="62"/>
         <source>User</source>
-        <translation>사용자</translation>
+        <translation>ユーザー</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="62"/>
         <source>Key file</source>
-        <translation>키 파일</translation>
+        <translation>鍵ファイル</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="62"/>
         <source>Log</source>
-        <translation>로그</translation>
+        <translation>ログ</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="85"/>
         <source>&amp;Add...</source>
-        <translation>추가(&amp;A)...</translation>
+        <translation>追加(&amp;A)...</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="86"/>
         <source>&amp;Edit...</source>
-        <translation>편집(&amp;E)...</translation>
+        <translation>編集(&amp;E)...</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="87"/>
         <source>&amp;Delete</source>
-        <translation>삭제(&amp;D)</translation>
+        <translation>削除(&amp;D)</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="88"/>
         <source>&amp;Copy</source>
-        <translation>복사(&amp;C)</translation>
+        <translation>コピー(&amp;C)</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="89"/>
         <source>&amp;Paste</source>
-        <translation>붙여넣기(&amp;P)</translation>
+        <translation>貼り付け(&amp;P)</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="124"/>
         <source>on</source>
-        <translation>켜짐</translation>
+        <translation>オン</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="124"/>
         <source>off</source>
-        <translation>꺼짐</translation>
+        <translation>オフ</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="173"/>
         <source>Limit reached</source>
-        <translation>한도 도달</translation>
+        <translation>上限に達しました</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="174"/>
         <source>Maximum number of sessions (%1) reached.</source>
-        <translation>최대 세션 수(%1)에 도달했습니다.</translation>
+        <translation>最大セッション数 (%1) に達しました。</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="188"/>
         <location filename="../gui/SessionManagerDialog.cpp" line="212"/>
         <source>Invalid</source>
-        <translation>잘못됨</translation>
+        <translation>無効</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="188"/>
         <location filename="../gui/SessionManagerDialog.cpp" line="212"/>
         <source>Session name is required.</source>
-        <translation>세션 이름이 필요합니다.</translation>
+        <translation>セッション名が必要です。</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="226"/>
         <source>Delete session</source>
-        <translation>세션 삭제</translation>
+        <translation>セッション削除</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="227"/>
         <source>Delete session &quot;%1&quot;?</source>
-        <translation>세션 &quot;%1&quot;을(를) 삭제하시겠습니까?</translation>
+        <translation>セッション &quot;%1&quot; を削除しますか?</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="255"/>
         <source>Paste</source>
-        <translation>붙여넣기</translation>
+        <translation>貼り付け</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="256"/>
@@ -1000,29 +1000,29 @@ Would you like to keep it for inspection?</source>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="47"/>
         <source>Preferences</source>
-        <translation>환경설정</translation>
+        <translation>環境設定</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="53"/>
         <source>Common</source>
-        <translation>공통</translation>
+        <translation>共通</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="54"/>
         <source>Buttons</source>
-        <translation>버튼</translation>
+        <translation>ボタン</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="55"/>
         <location filename="../gui/SettingsDialog.cpp" line="241"/>
         <location filename="../gui/SettingsDialog.cpp" line="244"/>
         <source>Startup</source>
-        <translation>시작</translation>
+        <translation>起動時</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="56"/>
         <source>Triggers</source>
-        <translation>트리거</translation>
+        <translation>トリガー</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="57"/>
@@ -1030,83 +1030,27 @@ Would you like to keep it for inspection?</source>
         <location filename="../gui/SettingsDialog.cpp" line="410"/>
         <location filename="../gui/SettingsDialog.cpp" line="413"/>
         <source>Periodic</source>
-        <translation>주기적</translation>
-    </message>
-    <message>
-        <location filename="../gui/SettingsDialog.cpp" line="118"/>
-        <source>Terminal type:</source>
-        <translation>터미널 유형:</translation>
-    </message>
-    <message>
-        <location filename="../gui/SettingsDialog.cpp" line="119"/>
-        <source>Encoding:</source>
-        <translation>인코딩:</translation>
-    </message>
-    <message>
-        <location filename="../gui/SettingsDialog.cpp" line="120"/>
-        <source>Scrollback:</source>
-        <translation>스크롤백:</translation>
-    </message>
-    <message>
-        <location filename="../gui/SettingsDialog.cpp" line="198"/>
-        <location filename="../gui/SettingsDialog.cpp" line="281"/>
-        <location filename="../gui/SettingsDialog.cpp" line="363"/>
-        <source>&amp;Delete</source>
-        <translation>삭제(&amp;D)</translation>
-    </message>
-    <message>
-        <location filename="../gui/SettingsDialog.cpp" line="197"/>
-        <location filename="../gui/SettingsDialog.cpp" line="280"/>
-        <location filename="../gui/SettingsDialog.cpp" line="362"/>
-        <source>&amp;Add</source>
-        <translation>추가(&amp;A)</translation>
-    </message>
-    <message>
-        <location filename="../gui/SettingsDialog.cpp" line="151"/>
-        <source>Label</source>
-        <translation>라벨</translation>
-    </message>
-    <message>
-        <location filename="../gui/SettingsDialog.cpp" line="151"/>
-        <location filename="../gui/SettingsDialog.cpp" line="204"/>
-        <location filename="../gui/SettingsDialog.cpp" line="287"/>
-        <location filename="../gui/SettingsDialog.cpp" line="370"/>
-        <source>Action</source>
-        <translation>액션</translation>
-    </message>
-    <message>
-        <location filename="../gui/SettingsDialog.cpp" line="192"/>
-        <location filename="../gui/SettingsDialog.cpp" line="275"/>
-        <location filename="../gui/SettingsDialog.cpp" line="357"/>
-        <source>Session:</source>
-        <translation>세션:</translation>
-    </message>
-    <message>
-        <location filename="../gui/SettingsDialog.cpp" line="204"/>
-        <location filename="../gui/SettingsDialog.cpp" line="370"/>
-        <source>Name</source>
-        <translation>이름</translation>
-    </message>
-    <message>
-        <location filename="../gui/SettingsDialog.cpp" line="287"/>
-        <source>Pattern</source>
-        <translation>패턴</translation>
-    </message>
-    <message>
-        <location filename="../gui/SettingsDialog.cpp" line="370"/>
-        <source>Interval (s)</source>
-        <translation>간격(초)</translation>
-    </message>
-    <message>
-        <location filename="../gui/SettingsDialog.cpp" line="242"/>
-        <location filename="../gui/SettingsDialog.cpp" line="408"/>
-        <source>Name:</source>
-        <translation>이름:</translation>
+        <translation>定期実行</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="58"/>
         <source>SMTP</source>
         <translation>SMTP</translation>
+    </message>
+    <message>
+        <location filename="../gui/SettingsDialog.cpp" line="118"/>
+        <source>Terminal type:</source>
+        <translation>端末種類:</translation>
+    </message>
+    <message>
+        <location filename="../gui/SettingsDialog.cpp" line="119"/>
+        <source>Encoding:</source>
+        <translation>エンコーディング:</translation>
+    </message>
+    <message>
+        <location filename="../gui/SettingsDialog.cpp" line="120"/>
+        <source>Scrollback:</source>
+        <translation>スクロールバック:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="123"/>
@@ -1116,44 +1060,113 @@ Would you like to keep it for inspection?</source>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="145"/>
         <source>Bottom-bar buttons. Escape sequences: \r \n \t \b \e \p \\</source>
-        <translation>하단 바 버튼. 이스케이프 시퀀스: \r \n \t \b \e \p \\</translation>
+        <translation>下部バーボタン。エスケープシーケンス: \r \n \t \b \e \p \\</translation>
+    </message>
+    <message>
+        <location filename="../gui/SettingsDialog.cpp" line="151"/>
+        <source>Label</source>
+        <translation>ラベル</translation>
+    </message>
+    <message>
+        <location filename="../gui/SettingsDialog.cpp" line="151"/>
+        <location filename="../gui/SettingsDialog.cpp" line="204"/>
+        <location filename="../gui/SettingsDialog.cpp" line="287"/>
+        <location filename="../gui/SettingsDialog.cpp" line="370"/>
+        <source>Action</source>
+        <translation>アクション</translation>
+    </message>
+    <message>
+        <location filename="../gui/SettingsDialog.cpp" line="192"/>
+        <location filename="../gui/SettingsDialog.cpp" line="275"/>
+        <location filename="../gui/SettingsDialog.cpp" line="357"/>
+        <source>Session:</source>
+        <translation>セッション:</translation>
+    </message>
+    <message>
+        <location filename="../gui/SettingsDialog.cpp" line="197"/>
+        <location filename="../gui/SettingsDialog.cpp" line="280"/>
+        <location filename="../gui/SettingsDialog.cpp" line="362"/>
+        <source>&amp;Add</source>
+        <translation>追加(&amp;A)</translation>
+    </message>
+    <message>
+        <location filename="../gui/SettingsDialog.cpp" line="198"/>
+        <location filename="../gui/SettingsDialog.cpp" line="281"/>
+        <location filename="../gui/SettingsDialog.cpp" line="363"/>
+        <source>&amp;Delete</source>
+        <translation>削除(&amp;D)</translation>
+    </message>
+    <message>
+        <location filename="../gui/SettingsDialog.cpp" line="204"/>
+        <location filename="../gui/SettingsDialog.cpp" line="370"/>
+        <source>Name</source>
+        <translation>名前</translation>
+    </message>
+    <message>
+        <location filename="../gui/SettingsDialog.cpp" line="236"/>
+        <location filename="../gui/SettingsDialog.cpp" line="319"/>
+        <location filename="../gui/SettingsDialog.cpp" line="403"/>
+        <source>Limit</source>
+        <translation>上限</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="237"/>
         <source>Maximum startup entries reached.</source>
-        <translation>최대 시작 항목 수에 도달했습니다.</translation>
+        <translation>最大起動項目数に達しました。</translation>
+    </message>
+    <message>
+        <location filename="../gui/SettingsDialog.cpp" line="242"/>
+        <location filename="../gui/SettingsDialog.cpp" line="408"/>
+        <source>Name:</source>
+        <translation>名前:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="245"/>
         <location filename="../gui/SettingsDialog.cpp" line="327"/>
         <location filename="../gui/SettingsDialog.cpp" line="414"/>
         <source>Action:</source>
-        <translation>액션:</translation>
+        <translation>アクション:</translation>
+    </message>
+    <message>
+        <location filename="../gui/SettingsDialog.cpp" line="287"/>
+        <source>Pattern</source>
+        <translation>パターン</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="319"/>
         <source>Maximum trigger entries reached.</source>
-        <translation>최대 트리거 수에 도달했습니다.</translation>
+        <translation>最大トリガー数に達しました。</translation>
+    </message>
+    <message>
+        <location filename="../gui/SettingsDialog.cpp" line="323"/>
+        <location filename="../gui/SettingsDialog.cpp" line="326"/>
+        <source>Trigger</source>
+        <translation>トリガー</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="324"/>
         <source>Pattern (substring):</source>
-        <translation>패턴(부분 문자열):</translation>
+        <translation>パターン(部分一致):</translation>
+    </message>
+    <message>
+        <location filename="../gui/SettingsDialog.cpp" line="370"/>
+        <source>Interval (s)</source>
+        <translation>間隔(秒)</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="403"/>
         <source>Maximum periodic entries reached.</source>
-        <translation>최대 주기 항목 수에 도달했습니다.</translation>
+        <translation>最大定期実行数に達しました。</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="411"/>
         <source>Interval (seconds):</source>
-        <translation>간격(초):</translation>
+        <translation>間隔(秒):</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="455"/>
         <source>None</source>
-        <translation>없음</translation>
+        <translation>なし</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="455"/>
@@ -1163,57 +1176,57 @@ Would you like to keep it for inspection?</source>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="455"/>
         <source>SMTPS (implicit TLS)</source>
-        <translation>SMTPS (암시적 TLS)</translation>
+        <translation>SMTPS (暗黙的 TLS)</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="474"/>
         <source> s</source>
-        <translation> 초</translation>
+        <translation> 秒</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="476"/>
         <source>SMTP host:</source>
-        <translation>SMTP 호스트:</translation>
+        <translation>SMTP ホスト:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="477"/>
         <source>Port:</source>
-        <translation>포트:</translation>
+        <translation>ポート:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="478"/>
         <source>Security:</source>
-        <translation>보안:</translation>
+        <translation>セキュリティ:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="479"/>
         <source>Username:</source>
-        <translation>사용자명:</translation>
+        <translation>ユーザー名:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="480"/>
         <source>Password:</source>
-        <translation>비밀번호:</translation>
+        <translation>パスワード:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="481"/>
         <source>From address:</source>
-        <translation>보내는 주소:</translation>
+        <translation>送信元アドレス:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="482"/>
         <source>From name:</source>
-        <translation>보내는 사람 이름:</translation>
+        <translation>送信者名:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="483"/>
         <source>Timeout:</source>
-        <translation>타임아웃:</translation>
+        <translation>タイムアウト:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="485"/>
         <source>Send test email...</source>
-        <translation>테스트 메일 보내기...</translation>
+        <translation>テストメール送信...</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="515"/>
@@ -1221,40 +1234,27 @@ Would you like to keep it for inspection?</source>
         <location filename="../gui/SettingsDialog.cpp" line="543"/>
         <location filename="../gui/SettingsDialog.cpp" line="546"/>
         <source>SMTP test</source>
-        <translation>SMTP 테스트</translation>
+        <translation>SMTP テスト</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="516"/>
         <source>Fill in host and From address first.</source>
-        <translation>호스트와 보내는 주소를 먼저 입력하세요.</translation>
+        <translation>ホストと送信元アドレスを先に入力してください。</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="521"/>
         <source>Send test email to:</source>
-        <translation>테스트 메일 받을 주소:</translation>
+        <translation>テストメール送信先:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="544"/>
         <source>Test email sent to %1</source>
-        <translation>테스트 메일이 %1로 전송됨</translation>
+        <translation>テストメールを %1 に送信しました</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="547"/>
         <source>Send failed: %1</source>
-        <translation>전송 실패: %1</translation>
-    </message>
-    <message>
-        <location filename="../gui/SettingsDialog.cpp" line="323"/>
-        <location filename="../gui/SettingsDialog.cpp" line="326"/>
-        <source>Trigger</source>
-        <translation>트리거</translation>
-    </message>
-    <message>
-        <location filename="../gui/SettingsDialog.cpp" line="236"/>
-        <location filename="../gui/SettingsDialog.cpp" line="319"/>
-        <location filename="../gui/SettingsDialog.cpp" line="403"/>
-        <source>Limit</source>
-        <translation>한도</translation>
+        <translation>送信失敗: %1</translation>
     </message>
 </context>
 <context>
@@ -1263,146 +1263,146 @@ Would you like to keep it for inspection?</source>
         <location filename="../gui/SnapshotsDialog.cpp" line="41"/>
         <location filename="../gui/SnapshotsDialog.cpp" line="47"/>
         <source>Snapshots</source>
-        <translation>스냅샷</translation>
+        <translation>スナップショット</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="48"/>
         <source>Automation rules</source>
-        <translation>자동화 규칙</translation>
+        <translation>自動化ルール</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="74"/>
         <location filename="../gui/SnapshotsDialog.cpp" line="340"/>
         <source>Add</source>
-        <translation>추가</translation>
+        <translation>追加</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="75"/>
         <source>Duplicate</source>
-        <translation>복제</translation>
+        <translation>複製</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="76"/>
         <location filename="../gui/SnapshotsDialog.cpp" line="341"/>
         <source>Delete</source>
-        <translation>삭제</translation>
+        <translation>削除</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="90"/>
         <source>e.g. TSCRT {session} {snapshot} {timestamp}</source>
-        <translation>예: TSCRT {session} {snapshot} {timestamp}</translation>
+        <translation>例: TSCRT {session} {snapshot} {timestamp}</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="91"/>
         <source>Send email when finished</source>
-        <translation>완료 시 메일 전송</translation>
+        <translation>完了時にメール送信</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="92"/>
         <source>Attach as file (otherwise inline)</source>
-        <translation>파일로 첨부(그렇지 않으면 본문)</translation>
+        <translation>ファイルとして添付(そうでなければ本文)</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="94"/>
         <source>Name:</source>
-        <translation>이름:</translation>
+        <translation>名前:</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="95"/>
         <source>Description:</source>
-        <translation>설명:</translation>
+        <translation>説明:</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="96"/>
         <source>Subject:</source>
-        <translation>제목:</translation>
+        <translation>件名:</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="102"/>
         <source>Commands (sent in order; escape sequences: \r \n \t \e):</source>
-        <translation>명령 (순서대로 전송; 이스케이프: \r \n \t \e):</translation>
+        <translation>コマンド (順番に送信; エスケープ: \r \n \t \e):</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="105"/>
         <source>Command</source>
-        <translation>명령</translation>
+        <translation>コマンド</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="105"/>
         <source>Delay (ms)</source>
-        <translation>지연(ms)</translation>
+        <translation>遅延(ms)</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="106"/>
         <source>Prompt regex</source>
-        <translation>프롬프트 정규식</translation>
+        <translation>プロンプト正規表現</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="106"/>
         <source>Max wait (ms)</source>
-        <translation>최대 대기(ms)</translation>
+        <translation>最大待機(ms)</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="113"/>
         <source>Add command</source>
-        <translation>명령 추가</translation>
+        <translation>コマンド追加</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="114"/>
         <source>Delete command</source>
-        <translation>명령 삭제</translation>
+        <translation>コマンド削除</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="120"/>
         <source>Recipients (one per line):</source>
-        <translation>수신자 (한 줄에 하나):</translation>
+        <translation>宛先 (1 行 1 件):</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="243"/>
         <location filename="../gui/SnapshotsDialog.cpp" line="263"/>
         <source>Limit</source>
-        <translation>한도</translation>
+        <translation>上限</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="244"/>
         <location filename="../gui/SnapshotsDialog.cpp" line="264"/>
         <source>Maximum snapshot count reached.</source>
-        <translation>최대 스냅샷 수에 도달했습니다.</translation>
+        <translation>最大スナップショット数に達しました。</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="325"/>
         <source>Rules fire a registered snapshot automatically. Kinds: on_connect, cron, pattern. Leave Session blank to apply to every session.</source>
-        <translation>규칙은 등록된 스냅샷을 자동으로 실행합니다. 종류: on_connect, cron, pattern. 세션을 비워 두면 모든 세션에 적용됩니다.</translation>
+        <translation>ルールは登録されたスナップショットを自動実行します。種別: on_connect, cron, pattern. セッションを空欄にするとすべてのセッションに適用されます。</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="331"/>
         <source>Kind</source>
-        <translation>종류</translation>
+        <translation>種別</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="331"/>
         <source>Session</source>
-        <translation>세션</translation>
+        <translation>セッション</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="331"/>
         <source>Snapshot</source>
-        <translation>스냅샷</translation>
+        <translation>スナップショット</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="332"/>
         <source>Cron expr</source>
-        <translation>Cron 표현식</translation>
+        <translation>Cron 式</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="332"/>
         <source>Pattern</source>
-        <translation>패턴</translation>
+        <translation>パターン</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="332"/>
         <source>Cooldown (s)</source>
-        <translation>쿨다운(초)</translation>
+        <translation>クールダウン(秒)</translation>
     </message>
 </context>
 <context>
@@ -1410,27 +1410,27 @@ Would you like to keep it for inspection?</source>
     <message>
         <location filename="../gui/TerminalWidget.cpp" line="59"/>
         <source>Terminal display</source>
-        <translation>터미널 표시</translation>
+        <translation>端末表示</translation>
     </message>
     <message>
         <location filename="../gui/TerminalWidget.cpp" line="60"/>
         <source>Interactive terminal session</source>
-        <translation>대화형 터미널 세션</translation>
+        <translation>対話型端末セッション</translation>
     </message>
     <message>
         <location filename="../gui/TerminalWidget.cpp" line="776"/>
         <source>&amp;Copy</source>
-        <translation>복사(&amp;C)</translation>
+        <translation>コピー(&amp;C)</translation>
     </message>
     <message>
         <location filename="../gui/TerminalWidget.cpp" line="781"/>
         <source>&amp;Paste</source>
-        <translation>붙여넣기(&amp;P)</translation>
+        <translation>貼り付け(&amp;P)</translation>
     </message>
     <message>
         <location filename="../gui/TerminalWidget.cpp" line="786"/>
         <source>Clear &amp;screen</source>
-        <translation>화면 지우기(&amp;S)</translation>
+        <translation>画面クリア(&amp;S)</translation>
     </message>
 </context>
 <context>
@@ -1439,13 +1439,13 @@ Would you like to keep it for inspection?</source>
         <location filename="../gui/ButtonBar.cpp" line="118"/>
         <location filename="../gui/ButtonBar.cpp" line="158"/>
         <source>loop</source>
-        <translation>루프</translation>
+        <translation>ループ</translation>
     </message>
     <message>
         <location filename="../gui/ButtonBar.cpp" line="129"/>
         <location filename="../gui/ButtonBar.cpp" line="173"/>
         <source>mark</source>
-        <translation>마크</translation>
+        <translation>マーク</translation>
     </message>
     <message>
         <location filename="../gui/ButtonBar.cpp" line="140"/>
@@ -1455,17 +1455,17 @@ Would you like to keep it for inspection?</source>
     <message>
         <location filename="../gui/ButtonBar.cpp" line="152"/>
         <source>loop ●</source>
-        <translation>루프 ●</translation>
+        <translation>ループ ●</translation>
     </message>
     <message>
         <location filename="../gui/ButtonBar.cpp" line="167"/>
         <source>mark ●</source>
-        <translation>마크 ●</translation>
+        <translation>マーク ●</translation>
     </message>
     <message>
         <location filename="../gui/ButtonBar.cpp" line="183"/>
         <source>Edit button...</source>
-        <translation>버튼 편집...</translation>
+        <translation>ボタン編集...</translation>
     </message>
 </context>
 <context>
@@ -1473,35 +1473,35 @@ Would you like to keep it for inspection?</source>
     <message>
         <location filename="../gui/SessionTab.cpp" line="142"/>
         <source>Mark</source>
-        <translation>마크</translation>
+        <translation>マーク</translation>
     </message>
     <message>
         <location filename="../gui/SessionTab.cpp" line="143"/>
         <source>Highlight pattern (empty to clear):</source>
-        <translation>강조 패턴 (비우면 해제):</translation>
+        <translation>強調パターン (空で解除):</translation>
     </message>
     <message>
         <location filename="../gui/SessionTab.cpp" line="186"/>
         <location filename="../gui/SessionTab.cpp" line="189"/>
         <location filename="../gui/SessionTab.cpp" line="271"/>
         <source>Loop</source>
-        <translation>루프</translation>
+        <translation>ループ</translation>
     </message>
     <message>
         <location filename="../gui/SessionTab.cpp" line="187"/>
         <source>Command to repeat:</source>
-        <translation>반복할 명령:</translation>
+        <translation>繰り返すコマンド:</translation>
     </message>
     <message>
         <location filename="../gui/SessionTab.cpp" line="190"/>
         <location filename="../gui/SessionTab.cpp" line="272"/>
         <source>Interval (seconds):</source>
-        <translation>간격(초):</translation>
+        <translation>間隔(秒):</translation>
     </message>
     <message>
         <location filename="../gui/SessionTab.cpp" line="284"/>
         <source>TSCRT help</source>
-        <translation>TSCRT 도움말</translation>
+        <translation>TSCRT ヘルプ</translation>
     </message>
     <message>
         <location filename="../gui/SessionTab.cpp" line="285"/>
@@ -1514,22 +1514,22 @@ Would you like to keep it for inspection?</source>
     <message>
         <location filename="../gui/SmtpClient.cpp" line="46"/>
         <source>SMTP client is busy</source>
-        <translation>SMTP 클라이언트 사용 중</translation>
+        <translation>SMTP クライアント使用中</translation>
     </message>
     <message>
         <location filename="../gui/SmtpClient.cpp" line="50"/>
         <source>No recipients</source>
-        <translation>수신자 없음</translation>
+        <translation>宛先なし</translation>
     </message>
     <message>
         <location filename="../gui/SmtpClient.cpp" line="54"/>
         <source>SMTP host is not configured</source>
-        <translation>SMTP 호스트가 설정되지 않음</translation>
+        <translation>SMTP ホストが未設定</translation>
     </message>
     <message>
         <location filename="../gui/SmtpClient.cpp" line="342"/>
         <source>SMTP timeout</source>
-        <translation>SMTP 타임아웃</translation>
+        <translation>SMTP タイムアウト</translation>
     </message>
 </context>
 <context>
@@ -1547,27 +1547,27 @@ Would you like to keep it for inspection?</source>
     <message>
         <location filename="../gui/SnapshotManager.cpp" line="240"/>
         <source>Snapshot saved: %1</source>
-        <translation>스냅샷 저장: %1</translation>
+        <translation>スナップショット保存: %1</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotManager.cpp" line="244"/>
         <source>Snapshot failed: %1</source>
-        <translation>스냅샷 실패: %1</translation>
+        <translation>スナップショット失敗: %1</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotManager.cpp" line="258"/>
         <source>SMTP host not configured — email skipped</source>
-        <translation>SMTP 호스트가 설정되지 않음 — 메일 전송 생략</translation>
+        <translation>SMTP ホスト未設定 — メール送信をスキップ</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotManager.cpp" line="286"/>
         <source>Email sent: %1</source>
-        <translation>메일 전송됨: %1</translation>
+        <translation>メール送信: %1</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotManager.cpp" line="291"/>
         <source>Email failed: %1</source>
-        <translation>메일 실패: %1</translation>
+        <translation>メール失敗: %1</translation>
     </message>
 </context>
 </TS>

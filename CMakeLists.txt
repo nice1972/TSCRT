@@ -90,8 +90,10 @@ set(WIN_RESOURCES
 
 # ---- Translations --------------------------------------------------------
 set(TS_FILES
-    translations/tscrt_win_ko.ts
     translations/tscrt_win_en.ts
+    translations/tscrt_win_ko.ts
+    translations/tscrt_win_ja.ts
+    translations/tscrt_win_zh.ts
 )
 
 add_executable(tscrt_win WIN32
