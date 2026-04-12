@@ -12,6 +12,32 @@ namespace tscrt {
 
 namespace {
 constexpr int kLineMax = 998;   // RFC 5321 line length ceiling
+
+// Strip CR, LF and other C0 control characters from a header or command
+// value. Without this a malicious profile could inject arbitrary SMTP
+// commands or MIME headers (e.g. a hidden Bcc:) via from_name, from_addr
+// or recipient fields — RFC 5322 header injection.
+QByteArray sanitizeHeaderValue(const QByteArray &in)
+{
+    QByteArray out;
+    out.reserve(in.size());
+    for (char c : in) {
+        const unsigned char u = static_cast<unsigned char>(c);
+        if (u < 0x20 || u == 0x7f)
+            continue;   // drops \r, \n, \t, NUL, DEL, etc.
+        out += c;
+    }
+    return out;
+}
+
+// from_name is emitted inside a quoted-string; an embedded '"' would
+// terminate the quote and let a crafted value smuggle extra tokens.
+QByteArray sanitizeQuotedDisplayName(const QByteArray &in)
+{
+    QByteArray out = sanitizeHeaderValue(in);
+    out.replace('"', QByteArray());
+    return out;
+}
 } // namespace
 
 SmtpClient::SmtpClient(const smtp_config_t &cfg, QObject *parent)
@@ -160,7 +186,8 @@ void SmtpClient::processResponse(int code, const QString &text)
             sendLine("AUTH LOGIN");
             m_state = AuthUserSent;
         } else {
-            sendLine(QByteArray("MAIL FROM:<") + m_cfg.from_addr + ">");
+            sendLine(QByteArray("MAIL FROM:<") +
+                     sanitizeHeaderValue(QByteArray(m_cfg.from_addr)) + ">");
             m_state = MailFromSent;
         }
         return;
@@ -178,7 +205,8 @@ void SmtpClient::processResponse(int code, const QString &text)
             sendLine("AUTH LOGIN");
             m_state = AuthUserSent;
         } else {
-            sendLine(QByteArray("MAIL FROM:<") + m_cfg.from_addr + ">");
+            sendLine(QByteArray("MAIL FROM:<") +
+                     sanitizeHeaderValue(QByteArray(m_cfg.from_addr)) + ">");
             m_state = MailFromSent;
         }
         return;
@@ -202,13 +230,15 @@ void SmtpClient::processResponse(int code, const QString &text)
             fail(QStringLiteral("SMTP authentication failed (%1)").arg(code));
             return;
         }
-        sendLine(QByteArray("MAIL FROM:<") + m_cfg.from_addr + ">");
+        sendLine(QByteArray("MAIL FROM:<") +
+                 sanitizeHeaderValue(QByteArray(m_cfg.from_addr)) + ">");
         m_state = MailFromSent;
         return;
 
     case MailFromSent:
         if (!expect(250, "MAIL FROM")) return;
-        sendLine(QByteArray("RCPT TO:<") + m_to.at(m_rcptIndex).toUtf8() + ">");
+        sendLine(QByteArray("RCPT TO:<") +
+                 sanitizeHeaderValue(m_to.at(m_rcptIndex).toUtf8()) + ">");
         m_state = RcptToSent;
         return;
 
@@ -219,7 +249,8 @@ void SmtpClient::processResponse(int code, const QString &text)
         }
         m_rcptIndex++;
         if (m_rcptIndex < m_to.size()) {
-            sendLine(QByteArray("RCPT TO:<") + m_to.at(m_rcptIndex).toUtf8() + ">");
+            sendLine(QByteArray("RCPT TO:<") +
+                     sanitizeHeaderValue(m_to.at(m_rcptIndex).toUtf8()) + ">");
             return;
         }
         sendLine("DATA");
@@ -265,19 +296,28 @@ QByteArray SmtpClient::buildMime() const
 
     QByteArray mime;
 
-    // Headers
+    // Headers. All externally-controlled values are stripped of CR/LF and
+    // other control characters before being written to prevent RFC 5322
+    // header injection (e.g. a smuggled "Bcc:" via from_name).
+    const QByteArray fromAddrSan =
+        sanitizeHeaderValue(QByteArray(m_cfg.from_addr));
     if (m_cfg.from_name[0]) {
         mime += "From: \"";
-        mime += m_cfg.from_name;
+        mime += sanitizeQuotedDisplayName(QByteArray(m_cfg.from_name));
         mime += "\" <";
-        mime += m_cfg.from_addr;
+        mime += fromAddrSan;
         mime += ">\r\n";
     } else {
         mime += "From: ";
-        mime += m_cfg.from_addr;
+        mime += fromAddrSan;
         mime += "\r\n";
     }
-    mime += "To: " + m_to.join(QStringLiteral(", ")).toUtf8() + "\r\n";
+    QByteArray toHeader;
+    for (int i = 0; i < m_to.size(); ++i) {
+        if (i > 0) toHeader += ", ";
+        toHeader += sanitizeHeaderValue(m_to.at(i).toUtf8());
+    }
+    mime += "To: " + toHeader + "\r\n";
     mime += "Subject: =?UTF-8?B?" + m_subject.toUtf8().toBase64() + "?=\r\n";
     mime += "Date: " + QDateTime::currentDateTime()
                          .toString(Qt::RFC2822Date).toUtf8() + "\r\n";
