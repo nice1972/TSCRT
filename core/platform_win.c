@@ -4,11 +4,13 @@
 #include "tscrt.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <direct.h>
 #include <windows.h>
 #include <shlobj.h>
+#include <aclapi.h>
 
 static char g_home_buf[MAX_PATH_LEN];
 static char g_docs_buf[MAX_PATH_LEN];
@@ -68,8 +70,61 @@ int tscrt_ensure_dir(const char *path)
 
 int tscrt_set_private_perms(const char *path)
 {
-    /* Windows ACLs are out of scope for now; the user's APPDATA folder is
-     * already per-user. Return success so callers behave the same. */
-    (void)path;
-    return 0;
+    /* Replace the file's DACL with a single entry granting the current
+     * user full control, then mark the DACL as protected to block any
+     * parent-directory inheritance that would re-broaden access.
+     *
+     * This hardens tscrt.profile against sibling-user reads/writes when
+     * %APPDATA% lives on a network drive or inside a cloud-synced
+     * folder (OneDrive, Dropbox) where default ACLs can be looser than
+     * the usual per-user Roaming directory. */
+    if (!path || !*path)
+        return -1;
+
+    HANDLE token = NULL;
+    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token))
+        return -1;
+
+    DWORD tokenInfoLen = 0;
+    GetTokenInformation(token, TokenUser, NULL, 0, &tokenInfoLen);
+    if (tokenInfoLen == 0) {
+        CloseHandle(token);
+        return -1;
+    }
+
+    TOKEN_USER *tokenUser = (TOKEN_USER *)malloc(tokenInfoLen);
+    if (!tokenUser) {
+        CloseHandle(token);
+        return -1;
+    }
+
+    int rc = -1;
+    PACL dacl = NULL;
+
+    if (GetTokenInformation(token, TokenUser, tokenUser,
+                            tokenInfoLen, &tokenInfoLen)) {
+        EXPLICIT_ACCESSA ea;
+        ZeroMemory(&ea, sizeof(ea));
+        ea.grfAccessPermissions = GENERIC_ALL;
+        ea.grfAccessMode        = SET_ACCESS;
+        ea.grfInheritance       = NO_INHERITANCE;
+        ea.Trustee.TrusteeForm  = TRUSTEE_IS_SID;
+        ea.Trustee.TrusteeType  = TRUSTEE_IS_USER;
+        ea.Trustee.ptstrName    = (LPSTR)tokenUser->User.Sid;
+
+        if (SetEntriesInAclA(1, &ea, NULL, &dacl) == ERROR_SUCCESS) {
+            DWORD r = SetNamedSecurityInfoA(
+                (LPSTR)path, SE_FILE_OBJECT,
+                DACL_SECURITY_INFORMATION |
+                    PROTECTED_DACL_SECURITY_INFORMATION,
+                NULL, NULL, dacl, NULL);
+            if (r == ERROR_SUCCESS)
+                rc = 0;
+        }
+    }
+
+    if (dacl) LocalFree(dacl);
+    free(tokenUser);
+    CloseHandle(token);
+    return rc;
 }

@@ -365,7 +365,7 @@ target_link_libraries(tscrt_win PRIVATE
 )
 
 if(WIN32)
-    target_link_libraries(tscrt_win PRIVATE ws2_32 dbghelp crypt32)
+    target_link_libraries(tscrt_win PRIVATE ws2_32 dbghelp crypt32 advapi32)
     target_compile_definitions(tscrt_win PRIVATE
         UNICODE _UNICODE WIN32_LEAN_AND_MEAN)
 elseif(APPLE)
