@@ -14,6 +14,13 @@ namespace tscrt {
 
 namespace {
 
+// Upper bound on the rolling window that expect_prompt regex is evaluated
+// against. Prompts are matched near the tail of the output, so trimming
+// the front keeps the match cost bounded and neutralises the ReDoS
+// surface that a malicious or careless profile regex could otherwise
+// exploit (e.g. "(a+)+b" against an attacker-grown buffer).
+constexpr int kMaxStepCaptureBytes = 64 * 1024;
+
 QString sanitizeForFilename(const QString &in)
 {
     static const QRegularExpression bad(QStringLiteral("[\\\\/:*?\"<>|\\s]+"));
@@ -106,8 +113,13 @@ void SnapshotRunner::onBytes(const QByteArray &data)
     const QByteArray stripped =
         SessionLogger::stripAnsiStateful(data, &m_ansiState);
     m_captured += stripped;
-    if (m_inWait)
+    if (m_inWait) {
         m_stepCapture += stripped;
+        if (m_stepCapture.size() > kMaxStepCaptureBytes) {
+            m_stepCapture.remove(
+                0, m_stepCapture.size() - kMaxStepCaptureBytes);
+        }
+    }
 
     if (m_waitingPrompt && !m_currentRe.pattern().isEmpty()) {
         QRegularExpressionMatch m =
