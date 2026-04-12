@@ -38,3 +38,7 @@ install_manifest.txt
 # Logs / dumps
 *.log
 *.dmp
+
+# Local AI/agent session artifacts
+claude_session*.txt
+.claude/
