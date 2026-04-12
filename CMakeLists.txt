@@ -92,12 +92,19 @@ set(GUI_SOURCES
 )
 
 if(WIN32)
-    set(WIN_RESOURCES
+    set(PLATFORM_RESOURCES
         resources/tscrt_win.rc
         resources/tscrt_win.qrc
     )
+elseif(APPLE)
+    set(PLATFORM_RESOURCES
+        resources/tscrt_win.qrc
+        resources/tscrt_mac.icns
+    )
+    set_source_files_properties(resources/tscrt_mac.icns PROPERTIES
+        MACOSX_PACKAGE_LOCATION "Resources")
 else()
-    set(WIN_RESOURCES
+    set(PLATFORM_RESOURCES
         resources/tscrt_win.qrc
     )
 endif()
@@ -110,14 +117,30 @@ set(TS_FILES
     translations/tscrt_win_zh.ts
 )
 
-add_executable(tscrt_win WIN32
+if(WIN32)
+    set(_TSCRT_EXE_TYPE WIN32)
+elseif(APPLE)
+    set(_TSCRT_EXE_TYPE MACOSX_BUNDLE)
+else()
+    set(_TSCRT_EXE_TYPE "")
+endif()
+
+add_executable(tscrt_win ${_TSCRT_EXE_TYPE}
     ${GUI_SOURCES}
     ${CORE_SOURCES}
-    ${WIN_RESOURCES}
+    ${PLATFORM_RESOURCES}
 )
 
 if(APPLE)
-    set_target_properties(tscrt_win PROPERTIES OUTPUT_NAME tscrt_mac)
+    set_target_properties(tscrt_win PROPERTIES
+        OUTPUT_NAME                       tscrt_mac
+        MACOSX_BUNDLE_GUI_IDENTIFIER      "com.tepseg.tscrt"
+        MACOSX_BUNDLE_BUNDLE_NAME         "TSCRT"
+        MACOSX_BUNDLE_BUNDLE_VERSION      "1.0.0"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0.0"
+        MACOSX_BUNDLE_ICON_FILE           "tscrt_mac.icns"
+        MACOSX_BUNDLE_COPYRIGHT           "© 2026 TePSEG Co., Ltd."
+    )
 endif()
 
 qt_add_translations(tscrt_win
@@ -288,8 +311,42 @@ include(CPack)
 # Make sure CMake hands the .rc file to windres correctly.
 set_source_files_properties(resources/tscrt_win.rc
     PROPERTIES LANGUAGE RC)
+elseif(APPLE)
+    install(TARGETS tscrt_win BUNDLE DESTINATION .)
+
+    # Locate macdeployqt to bundle Qt plugins/frameworks into the .app.
+    get_target_property(_qmake_loc Qt6::qmake IMPORTED_LOCATION)
+    get_filename_component(_qt_bin_dir "${_qmake_loc}" DIRECTORY)
+    find_program(MACDEPLOYQT_EXECUTABLE
+        NAMES macdeployqt
+        HINTS "${_qt_bin_dir}"
+        REQUIRED)
+
+    install(CODE "
+        message(STATUS \"Running macdeployqt: ${MACDEPLOYQT_EXECUTABLE}\")
+        execute_process(
+            COMMAND \"${MACDEPLOYQT_EXECUTABLE}\"
+                    \"\${CMAKE_INSTALL_PREFIX}/tscrt_mac.app\"
+                    -always-overwrite)
+    ")
+
+    # Pack with CPack / DragNDrop (.dmg).
+    set(CPACK_PACKAGE_NAME              "tscrt_mac")
+    set(CPACK_PACKAGE_VENDOR            "TePSEG Co., Ltd.")
+    set(CPACK_PACKAGE_VERSION           "1.0.0")
+    set(CPACK_PACKAGE_FILE_NAME         "tscrt_mac-${CPACK_PACKAGE_VERSION}-macos")
+    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
+        "TSCRT - SSH and serial console terminal emulator")
+    set(CPACK_RESOURCE_FILE_LICENSE
+        "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
+
+    set(CPACK_GENERATOR        "DragNDrop")
+    set(CPACK_DMG_VOLUME_NAME  "TSCRT")
+    set(CPACK_DMG_FORMAT       "UDZO")
+
+    include(CPack)
 else()
-    install(TARGETS tscrt_win RUNTIME DESTINATION bin BUNDLE DESTINATION .)
+    install(TARGETS tscrt_win RUNTIME DESTINATION bin)
 endif()
 
 target_include_directories(tscrt_win PRIVATE

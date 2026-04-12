@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
-Generate tscrt_win icon (.ico) at multiple resolutions plus a PNG used
-for in-app branding. Run once whenever the icon design changes:
+Generate the TSCRT app icon assets at multiple resolutions:
+  - tscrt_win.ico  (Windows multi-resolution icon)
+  - tscrt_mac.icns (macOS bundle icon)
+  - tscrt_win.png  (256x256 PNG used for in-app branding)
+
+Run once whenever the icon design changes:
 
     python resources/make_icon.py
 """
@@ -10,6 +14,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 SIZES = (16, 24, 32, 48, 64, 128, 256)
+ICNS_SIZES = (16, 32, 64, 128, 256, 512)
 
 
 def render(size: int) -> Image.Image:
@@ -62,6 +67,13 @@ def main() -> None:
     png_path = ROOT / "tscrt_win.png"
     render(256).save(png_path, format="PNG")
     print(f"wrote {png_path}")
+
+    icns_path = ROOT / "tscrt_mac.icns"
+    icns_images = [render(s) for s in ICNS_SIZES]
+    icns_images[-1].save(icns_path, format="ICNS",
+                         append_images=icns_images[:-1],
+                         sizes=[(s, s) for s in ICNS_SIZES])
+    print(f"wrote {icns_path}")
 
 
 if __name__ == "__main__":

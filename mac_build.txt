@@ -13,10 +13,13 @@ export CMAKE_PREFIX_PATH="$(brew --prefix qt@6)"
 
 3. Clone and build
 -------------------
-git clone https://github.com/nice1972/tscrt_win
-cd tscrt_win
+git clone https://github.com/nice1972/TSCRT
+cd TSCRT
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build
+
+The build produces a proper macOS app bundle at:
+   build/tscrt_mac.app
 
 4. Run tests
 -------------
@@ -24,11 +27,18 @@ ctest --test-dir build --output-on-failure
 
 5. Run
 -------
-./build/tscrt_win
+open build/tscrt_mac.app
+   or
+./build/tscrt_mac.app/Contents/MacOS/tscrt_mac
 
 6. Create DMG installer (optional)
 ------------------------------------
+cmake --install build --prefix build/install
 cd build && cpack -G DragNDrop
+
+This stages the .app, runs macdeployqt to bundle Qt frameworks
+and plugins, and produces:
+   build/tscrt_mac-1.0.0-macos.dmg
 
 Notes
 ------
@@ -36,3 +46,6 @@ Notes
 - Serial ports use /dev/cu.* or /dev/tty.* device paths
 - DPAPI-encrypted passwords from Windows profiles cannot be decrypted
   on macOS. Re-enter passwords after migrating profiles.
+- Bundle identifier: com.tepseg.tscrt
+- Bundle icon: resources/tscrt_mac.icns (regenerate via
+  `python resources/make_icon.py`)
