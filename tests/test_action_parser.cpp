@@ -90,15 +90,18 @@ void TestActionParser::emptyString()
 
 void TestActionParser::unknownEscape()
 {
-    // Unknown escapes pass through verbatim ("\\x" -> "\\x")
-    const auto chunks = parseAction(QStringLiteral("\\x"));
-    QCOMPARE(chunks.first().bytes, QByteArray("\\x"));
+    // Unknown escapes are dropped entirely (strict whitelist).
+    const auto chunks = parseAction(QStringLiteral("a\\xb"));
+    QCOMPARE(chunks.size(), 1);
+    QCOMPARE(chunks.first().bytes, QByteArray("ab"));
 }
 
 void TestActionParser::trailingBackslash()
 {
+    // A trailing backslash is dropped rather than leaked to the wire.
     const auto chunks = parseAction(QStringLiteral("foo\\"));
-    QCOMPARE(chunks.first().bytes, QByteArray("foo\\"));
+    QCOMPARE(chunks.size(), 1);
+    QCOMPARE(chunks.first().bytes, QByteArray("foo"));
 }
 
 QTEST_APPLESS_MAIN(TestActionParser)

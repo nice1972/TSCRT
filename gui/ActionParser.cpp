@@ -1,6 +1,21 @@
 #include "ActionParser.h"
 
+#include <QDebug>
+
 namespace tscrt {
+
+// Grammar (strict whitelist):
+//   \r \n \t \b  — C escapes (CR/LF/TAB/BS)
+//   \e           — ESC (0x1b), for arrow keys and ANSI sequences
+//   \\           — literal backslash
+//   \p           — 1-second pause (splits the chunk list)
+//
+// Any other backslash sequence is treated as a parser error: the two
+// bytes are dropped from the output and a warning is logged. This
+// narrows the attack surface that a tampered profile can reach — it
+// cannot smuggle unknown escape syntaxes through the parser, and
+// operators see the malformed profile in the logs.
+static constexpr int kMaxUnknownEscapeWarnings = 4;
 
 QVector<ActionChunk> parseAction(const QString &actionString)
 {
@@ -20,6 +35,7 @@ QVector<ActionChunk> parseAction(const QString &actionString)
         result.push_back(std::move(c));
     };
 
+    int unknownWarnings = 0;
     for (int i = 0; i < src.size(); ++i) {
         const char ch = src.at(i);
         if (ch != '\\') {
@@ -27,7 +43,12 @@ QVector<ActionChunk> parseAction(const QString &actionString)
             continue;
         }
         if (i + 1 >= src.size()) {
-            current.append('\\');
+            // Trailing backslash — drop it rather than emitting it raw,
+            // so malformed profiles don't leak a stray '\' to the shell.
+            if (unknownWarnings < kMaxUnknownEscapeWarnings) {
+                qWarning("ActionParser: trailing backslash dropped");
+                ++unknownWarnings;
+            }
             break;
         }
         const char esc = src.at(++i);
@@ -40,8 +61,12 @@ QVector<ActionChunk> parseAction(const QString &actionString)
         case '\\': current.append('\\'); break;
         case 'p':  flushPause(1000);     break;  // 1 second pause
         default:
-            current.append('\\');
-            current.append(esc);
+            if (unknownWarnings < kMaxUnknownEscapeWarnings) {
+                qWarning("ActionParser: unknown escape \\%c dropped", esc);
+                ++unknownWarnings;
+            }
+            // Drop both characters; unknown sequences do not reach the
+            // wire. Legitimate actions never rely on unknown escapes.
             break;
         }
     }
