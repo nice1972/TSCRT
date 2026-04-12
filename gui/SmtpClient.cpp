@@ -6,6 +6,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QRegularExpression>
+#include <QSslError>
 #include <QSslSocket>
 
 namespace tscrt {
@@ -44,6 +45,9 @@ SmtpClient::SmtpClient(const smtp_config_t &cfg, QObject *parent)
     : QObject(parent), m_cfg(cfg)
 {
     m_sock = new QSslSocket(this);
+    // Strict server certificate validation. Chain + hostname must match
+    // or sslErrors() fires and we abort — no silent TOFU, no downgrade.
+    m_sock->setPeerVerifyMode(QSslSocket::VerifyPeer);
     connect(m_sock, &QSslSocket::connected,
             this, &SmtpClient::onConnected);
     connect(m_sock, &QSslSocket::encrypted,
@@ -52,6 +56,8 @@ SmtpClient::SmtpClient(const smtp_config_t &cfg, QObject *parent)
             this, &SmtpClient::onReadyRead);
     connect(m_sock, &QSslSocket::errorOccurred,
             this, &SmtpClient::onSocketError);
+    connect(m_sock, &QSslSocket::sslErrors,
+            this, &SmtpClient::onSslErrors);
 
     m_timeoutTimer.setSingleShot(true);
     connect(&m_timeoutTimer, &QTimer::timeout,
@@ -96,6 +102,11 @@ void SmtpClient::send(const QStringList &to, const QString &subject,
     const QString host = QString::fromLocal8Bit(m_cfg.host);
     const int port = m_cfg.port > 0 ? m_cfg.port
                      : (m_cfg.security == 2 ? 465 : 25);
+
+    // Pin the expected peer name up front. connectToHostEncrypted() does
+    // this implicitly, but for STARTTLS we must set it before the eventual
+    // startClientEncryption() call or Qt can't validate the hostname.
+    m_sock->setPeerVerifyName(host);
 
     if (m_cfg.security == 2) {   // SMTPS (implicit TLS)
         m_sock->connectToHostEncrypted(host, static_cast<quint16>(port));
@@ -374,6 +385,19 @@ void SmtpClient::onSocketError()
 {
     if (m_state == Done || m_state == Failed) return;
     fail(QStringLiteral("SMTP socket error: %1").arg(m_sock->errorString()));
+}
+
+void SmtpClient::onSslErrors(const QList<QSslError> &errors)
+{
+    if (m_state == Done || m_state == Failed) return;
+    // Deliberately do NOT call ignoreSslErrors(): Qt will abort the
+    // handshake, which is exactly what we want on any certificate
+    // problem (self-signed, expired, hostname mismatch, ...).
+    QStringList msgs;
+    msgs.reserve(errors.size());
+    for (const QSslError &e : errors)
+        msgs << e.errorString();
+    fail(tr("SMTP TLS certificate error: %1").arg(msgs.join(QStringLiteral("; "))));
 }
 
 void SmtpClient::onTimeout()

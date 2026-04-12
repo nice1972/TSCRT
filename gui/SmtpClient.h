@@ -10,7 +10,9 @@
 #include "tscrt.h"
 
 #include <QByteArray>
+#include <QList>
 #include <QObject>
+#include <QSslError>
 #include <QString>
 #include <QStringList>
 #include <QTimer>
@@ -40,6 +42,7 @@ private slots:
     void onEncrypted();
     void onReadyRead();
     void onSocketError();
+    void onSslErrors(const QList<QSslError> &errors);
     void onTimeout();
 
 private:
