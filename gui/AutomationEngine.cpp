@@ -12,8 +12,17 @@
 namespace tscrt {
 
 namespace {
-constexpr int kMaxTriggerBuf = 4096;
-constexpr int kPeriodicTickMs = 1000;
+constexpr int    kMaxTriggerBuf        = 4096;
+constexpr int    kPeriodicTickMs       = 1000;
+
+// Rate limits for pattern-trigger firings. A compromised remote shell can
+// emit attacker-controlled bytes that match a trigger pattern and coerce
+// TSCRT into executing the paired action. These bounds turn that from
+// "unbounded remote action execution" into "at most one fire per pattern
+// every 2s, and no more than 20 fires per 10s across all triggers".
+constexpr qint64 kTriggerMinIntervalMs = 2000;
+constexpr int    kTriggerBurstMax      = 20;
+constexpr qint64 kTriggerBurstWindowMs = 10000;
 } // namespace
 
 AutomationEngine::AutomationEngine(ISession *session, const profile_t &profile,
@@ -25,6 +34,7 @@ AutomationEngine::AutomationEngine(ISession *session, const profile_t &profile,
 {
     m_triggerBuf.reserve(kMaxTriggerBuf);
     m_lastFiredAt.fill(0, MAX_PERIODIC);
+    m_lastTriggerFiredAt.fill(0, MAX_TRIGGERS);
 
     if (m_session) {
         connect(m_session, &ISession::connected,
@@ -96,18 +106,47 @@ void AutomationEngine::onBytesReceived(const QByteArray &data)
     if (m_triggerBuf.size() > kMaxTriggerBuf)
         m_triggerBuf.remove(0, m_triggerBuf.size() - kMaxTriggerBuf);
 
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    if (now - m_burstWindowStart > kTriggerBurstWindowMs) {
+        m_burstWindowStart = now;
+        m_burstCount       = 0;
+    }
+
     for (int i = 0; i < m_profile.trigger_count; ++i) {
         if (QString::fromLocal8Bit(m_profile.triggers[i].session) != m_sessionName)
             continue;
         const QByteArray pat(m_profile.triggers[i].pattern);
         if (pat.isEmpty())
             continue;
-        if (m_triggerBuf.contains(pat)) {
-            qInfo("automation: trigger [%s] fired", pat.constData());
-            executeAction(QString::fromLocal8Bit(m_profile.triggers[i].action));
+        if (!m_triggerBuf.contains(pat))
+            continue;
+
+        // Per-trigger cooldown: suppress repeat fires of the same pattern.
+        if (i < m_lastTriggerFiredAt.size() &&
+            now - m_lastTriggerFiredAt[i] < kTriggerMinIntervalMs) {
+            qInfo("automation: trigger [%s] cooldown — suppressed",
+                  pat.constData());
             m_triggerBuf.clear();
             break;
         }
+        // Global burst cap: defends against a stream of distinct trigger
+        // matches driven by a compromised remote peer.
+        if (m_burstCount >= kTriggerBurstMax) {
+            qWarning("automation: trigger burst cap reached (%d/%lldms) "
+                     "— suppressing further fires",
+                     kTriggerBurstMax,
+                     static_cast<long long>(kTriggerBurstWindowMs));
+            m_triggerBuf.clear();
+            break;
+        }
+
+        qInfo("automation: trigger [%s] fired", pat.constData());
+        if (i < m_lastTriggerFiredAt.size())
+            m_lastTriggerFiredAt[i] = now;
+        ++m_burstCount;
+        executeAction(QString::fromLocal8Bit(m_profile.triggers[i].action));
+        m_triggerBuf.clear();
+        break;
     }
 }
 

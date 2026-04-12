@@ -47,7 +47,10 @@ private:
     QTimer       m_periodicTimer;
     QByteArray   m_triggerBuf;
     QString      m_highlight;
-    QVector<qint64> m_lastFiredAt; // last-fire epoch ms per periodic entry
+    QVector<qint64> m_lastFiredAt;         // periodic last-fire epoch ms
+    QVector<qint64> m_lastTriggerFiredAt;  // pattern trigger last-fire epoch ms
+    qint64          m_burstWindowStart = 0;
+    int             m_burstCount       = 0;
 };
 
 } // namespace tscrt
