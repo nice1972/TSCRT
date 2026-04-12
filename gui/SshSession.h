@@ -59,6 +59,7 @@ private slots:
 private:
     bool connectSocket(QString *err);
     bool sshHandshake(QString *err);
+    bool verifyHostKey(QString *err);
     bool authenticate(QString *err);
     bool openShell(int cols, int rows, QString *err);
     void cleanup();

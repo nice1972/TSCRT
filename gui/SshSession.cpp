@@ -161,6 +161,133 @@ bool SshSession::sshHandshake(QString *err)
     return true;
 }
 
+// Returns <home>/tscrt/known_hosts (OpenSSH format), or empty if HOME is unset.
+static QString knownHostsPath()
+{
+    const char *home = tscrt_get_home();
+    if (!home || !*home)
+        return {};
+    return QString::fromLocal8Bit(home)
+         + QStringLiteral(TSCRT_PATH_SEP TSCRT_DIR_NAME TSCRT_PATH_SEP "known_hosts");
+}
+
+static QString sha256FingerprintHex(LIBSSH2_SESSION *session)
+{
+    const char *raw = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA256);
+    if (!raw)
+        return {};
+    QString out;
+    for (int i = 0; i < 32; ++i) {
+        out += QString::asprintf("%02x", static_cast<unsigned char>(raw[i]));
+        if (i < 31) out += QLatin1Char(':');
+    }
+    return out;
+}
+
+// Validates the SSH server public key against ~/tscrt/known_hosts using the
+// TOFU ("trust on first use") model:
+//   - MATCH     -> accept silently
+//   - NOTFOUND  -> pin the new key, persist, and log the fingerprint
+//   - MISMATCH  -> hard-refuse with a detailed error (potential MITM)
+bool SshSession::verifyHostKey(QString *err)
+{
+    LIBSSH2_KNOWNHOSTS *nh = libssh2_knownhost_init(m_session);
+    if (!nh) {
+        *err = QStringLiteral("libssh2_knownhost_init failed");
+        return false;
+    }
+
+    const QByteArray khPathBytes = knownHostsPath().toLocal8Bit();
+    if (!khPathBytes.isEmpty()) {
+        // Missing file is OK on first run; a negative return is expected.
+        libssh2_knownhost_readfile(
+            nh, khPathBytes.constData(), LIBSSH2_KNOWNHOST_FILE_OPENSSH);
+    }
+
+    size_t keyLen = 0;
+    int keyType = 0;
+    const char *keyData = libssh2_session_hostkey(m_session, &keyLen, &keyType);
+    if (!keyData) {
+        libssh2_knownhost_free(nh);
+        *err = QStringLiteral("libssh2_session_hostkey failed");
+        return false;
+    }
+
+    int typemask = LIBSSH2_KNOWNHOST_TYPE_PLAIN | LIBSSH2_KNOWNHOST_KEYENC_RAW;
+    switch (keyType) {
+    case LIBSSH2_HOSTKEY_TYPE_RSA:
+        typemask |= LIBSSH2_KNOWNHOST_KEY_SSHRSA; break;
+    case LIBSSH2_HOSTKEY_TYPE_DSS:
+        typemask |= LIBSSH2_KNOWNHOST_KEY_SSHDSS; break;
+    case LIBSSH2_HOSTKEY_TYPE_ECDSA_256:
+        typemask |= LIBSSH2_KNOWNHOST_KEY_ECDSA_256; break;
+    case LIBSSH2_HOSTKEY_TYPE_ECDSA_384:
+        typemask |= LIBSSH2_KNOWNHOST_KEY_ECDSA_384; break;
+    case LIBSSH2_HOSTKEY_TYPE_ECDSA_521:
+        typemask |= LIBSSH2_KNOWNHOST_KEY_ECDSA_521; break;
+    case LIBSSH2_HOSTKEY_TYPE_ED25519:
+        typemask |= LIBSSH2_KNOWNHOST_KEY_ED25519; break;
+    default:
+        typemask |= LIBSSH2_KNOWNHOST_KEY_UNKNOWN; break;
+    }
+
+    const int port = m_cfg.port > 0 ? m_cfg.port : 22;
+    const int check = libssh2_knownhost_checkp(
+        nh, m_cfg.host, port, keyData, keyLen, typemask, nullptr);
+    const QString fp = sha256FingerprintHex(m_session);
+
+    if (check == LIBSSH2_KNOWNHOST_CHECK_MISMATCH) {
+        libssh2_knownhost_free(nh);
+        *err = QStringLiteral(
+            "SSH host key MISMATCH for %1:%2 — possible MITM attack.\n"
+            "Server offered SHA256:%3\n"
+            "If the server key legitimately changed, remove the stale entry "
+            "from %4 and reconnect.")
+            .arg(QString::fromLocal8Bit(m_cfg.host))
+            .arg(port)
+            .arg(fp)
+            .arg(QString::fromLocal8Bit(khPathBytes));
+        return false;
+    }
+
+    if (check == LIBSSH2_KNOWNHOST_CHECK_NOTFOUND ||
+        check == LIBSSH2_KNOWNHOST_CHECK_FAILURE) {
+        char hostPort[512];
+        if (port == 22)
+            snprintf(hostPort, sizeof(hostPort), "%s", m_cfg.host);
+        else
+            snprintf(hostPort, sizeof(hostPort), "[%s]:%d", m_cfg.host, port);
+
+        libssh2_knownhost_addc(
+            nh, hostPort, nullptr, keyData, keyLen,
+            "tscrt TOFU", 10, typemask, nullptr);
+
+        // Ensure the parent directory exists before writing.
+        const char *home = tscrt_get_home();
+        if (home && *home) {
+            char baseDir[MAX_PATH_LEN];
+            snprintf(baseDir, sizeof(baseDir),
+                     "%s" TSCRT_PATH_SEP "%s", home, TSCRT_DIR_NAME);
+            tscrt_ensure_dir(baseDir);
+        }
+
+        if (!khPathBytes.isEmpty()) {
+            if (libssh2_knownhost_writefile(
+                    nh, khPathBytes.constData(),
+                    LIBSSH2_KNOWNHOST_FILE_OPENSSH) != 0) {
+                qWarning("Failed to persist known_hosts to %s",
+                         khPathBytes.constData());
+            }
+        }
+
+        qWarning("[%s:%d] new host key pinned (SHA256:%s)",
+                 m_cfg.host, port, fp.toLocal8Bit().constData());
+    }
+
+    libssh2_knownhost_free(nh);
+    return true;
+}
+
 bool SshSession::authenticate(QString *err)
 {
     bool ok = false;
@@ -333,6 +460,7 @@ void SshSession::runLoop()
     QString err;
     if (!connectSocket(&err) ||
         !sshHandshake(&err)  ||
+        !verifyHostKey(&err) ||
         !authenticate(&err)  ||
         !openShell(m_pendingCols, m_pendingRows, &err)) {
         emit errorOccurred(err);
