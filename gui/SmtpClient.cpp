@@ -86,6 +86,14 @@ void SmtpClient::send(const QStringList &to, const QString &subject,
         emit failed(tr("SMTP host is not configured"));
         return;
     }
+    // Refuse to leak credentials over plaintext SMTP. AUTH LOGIN sends
+    // base64 username/password which any on-path observer can decode;
+    // forcing STARTTLS or SMTPS makes this a non-issue.
+    if (m_cfg.username[0] && m_cfg.security == 0) {
+        emit failed(tr("SMTP authentication refused: STARTTLS or SMTPS "
+                       "is required when a username is configured"));
+        return;
+    }
 
     m_to         = to;
     m_subject    = subject;
