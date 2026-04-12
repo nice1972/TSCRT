@@ -144,8 +144,14 @@ void Pane::onSessionDisconnected(const QString &reason)
         emit closeRequested();
         return;
     }
-    if (m_entry.reconnect_max > 0 &&
-        m_rcAttempts >= m_entry.reconnect_max) {
+    // Absolute cap that survives reconnect_max == 0 (unlimited) — stops
+    // a malformed profile from burning CPU/network in an infinite loop.
+    constexpr int kAbsoluteReconnectMax = 100;
+    const int effectiveMax =
+        m_entry.reconnect_max > 0
+            ? qMin(m_entry.reconnect_max, kAbsoluteReconnectMax)
+            : kAbsoluteReconnectMax;
+    if (m_rcAttempts >= effectiveMax) {
         if (m_mw) {
             m_mw->statusBar()->showMessage(
                 tr("Reconnect failed for %1: %2")
@@ -160,8 +166,12 @@ void Pane::onSessionDisconnected(const QString &reason)
 
 void Pane::scheduleReconnect()
 {
-    const int base = m_entry.reconnect_base_ms > 0
+    // Enforce a minimum base delay so a profile with
+    // reconnect_base_ms = 1 cannot spin on a tight reconnect loop.
+    constexpr int kMinReconnectBaseMs = 250;
+    int base = m_entry.reconnect_base_ms > 0
         ? m_entry.reconnect_base_ms : 500;
+    if (base < kMinReconnectBaseMs) base = kMinReconnectBaseMs;
     int shift = m_rcAttempts;
     if (shift > 10) shift = 10;
     int delay = base * (1 << shift);
