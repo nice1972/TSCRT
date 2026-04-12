@@ -20,6 +20,7 @@
 
 class ISession;
 class MainWindow;
+class QToolButton;
 class SessionLogger;
 class TerminalWidget;
 
@@ -53,12 +54,23 @@ public:
     /// state machine won't try to restore the session.
     void suppressAutoReconnect() { m_userRequestedDisconnect = true; }
 
+    /// Show / hide the overlay × button. The tab toggles this so the
+    /// close affordance only appears when the pane is one of several.
+    void setShowClose(bool on);
+
 signals:
     /// Emitted just before the current ISession is destroyed during a
     /// reconnect, so MainWindow can detach it from SnapshotManager.
     void sessionAboutToChange(ISession *oldSession);
     /// Emitted after a reconnect installs a fresh ISession on this pane.
     void sessionRebound(ISession *newSession);
+    /// The pane wants to be removed — either the user clicked the ×
+    /// / hit the shortcut, or the remote disconnected and no auto
+    /// reconnect will happen. The tab removes the pane.
+    void closeRequested();
+
+protected:
+    void resizeEvent(QResizeEvent *ev) override;
 
 private slots:
     void onSessionDisconnected(const QString &reason);
@@ -75,6 +87,7 @@ private:
     ISession         *m_session = nullptr;
     ::SessionLogger  *m_logger  = nullptr;
     AutomationEngine *m_engine  = nullptr;
+    QToolButton      *m_closeBtn = nullptr;
     QString           m_markPattern;
 
     QList<QMetaObject::Connection> m_sessionConns;

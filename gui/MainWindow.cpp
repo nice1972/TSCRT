@@ -229,7 +229,10 @@ void MainWindow::createMenus()
     auto *fileMenu = menuBar()->addMenu(tr("&File"));
 
     m_actCloseTab = new QAction(tr("&Close tab"), this);
-    m_actCloseTab->setShortcut(QKeySequence(tr("Ctrl+Shift+W")));
+    // Ctrl+F4 so we don't collide with Ctrl+Shift+W (Close Pane in the
+    // View menu). Closing the last pane already auto-closes the tab, so
+    // Ctrl+Shift+W effectively closes tabs with a single pane too.
+    m_actCloseTab->setShortcut(QKeySequence(tr("Ctrl+F4")));
     connect(m_actCloseTab, &QAction::triggered, this, &MainWindow::closeCurrentTab);
     fileMenu->addAction(m_actCloseTab);
 
@@ -326,11 +329,16 @@ void MainWindow::createMenus()
     viewMenu->addSeparator();
 
     // Split / broadcast actions operate on the current tab.
+    // Naming convention follows the divider line (tmux/iTerm style):
+    //   Horizontal split = horizontal divider line = top/bottom panes
+    //   Vertical split   = vertical divider line   = left/right panes
+    // That's the opposite of Qt::Orientation, so the arguments look
+    // inverted on purpose.
     auto *actSplitH = new QAction(tr("Split Pane &Horizontally"), this);
     actSplitH->setShortcut(QKeySequence(QStringLiteral("Ctrl+Shift+H")));
     connect(actSplitH, &QAction::triggered, this, [this] {
         if (auto *tab = qobject_cast<tscrt::SessionTab*>(m_tabs->currentWidget()))
-            tab->splitActive(Qt::Horizontal);
+            tab->splitActive(Qt::Vertical);
     });
     viewMenu->addAction(actSplitH);
 
@@ -338,7 +346,7 @@ void MainWindow::createMenus()
     actSplitV->setShortcut(QKeySequence(QStringLiteral("Ctrl+Shift+V")));
     connect(actSplitV, &QAction::triggered, this, [this] {
         if (auto *tab = qobject_cast<tscrt::SessionTab*>(m_tabs->currentWidget()))
-            tab->splitActive(Qt::Vertical);
+            tab->splitActive(Qt::Horizontal);
     });
     viewMenu->addAction(actSplitV);
 
@@ -1331,12 +1339,12 @@ void MainWindow::newSession()
 
 ISession *MainWindow::makeSessionFor(const profile_t &p, const session_entry_t &entry)
 {
-    Q_UNUSED(p);
     if (entry.type == SESSION_TYPE_SSH) {
         auto *ssh = new SshSession(entry.ssh, QString::fromLocal8Bit(entry.name));
         if (entry.ssh_keepalive_sec > 0)
             ssh->setKeepalive(entry.ssh_keepalive_sec);
         ssh->setTcpKeepalive(entry.ssh_tcp_keepalive != 0);
+        ssh->setTerminalType(QByteArray(p.common.terminal_type));
         return ssh;
     }
     return new SerialSession(entry.serial, QString::fromLocal8Bit(entry.name));

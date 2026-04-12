@@ -278,7 +278,12 @@ bool SshSession::openShell(int cols, int rows, QString *err)
         *err = QStringLiteral("Failed to open SSH channel");
         return false;
     }
-    if (libssh2_channel_request_pty_ex(m_channel, "xterm-256color", 14,
+    const QByteArray term = m_termType.isEmpty()
+        ? QByteArrayLiteral("xterm-256color")
+        : m_termType;
+    if (libssh2_channel_request_pty_ex(m_channel,
+                                       term.constData(),
+                                       (unsigned int)term.size(),
                                        nullptr, 0,
                                        cols, rows, 0, 0) != 0) {
         *err = QStringLiteral("Failed to request PTY");

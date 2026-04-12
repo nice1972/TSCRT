@@ -43,6 +43,9 @@ public:
     void setKeepalive(int seconds)   { m_keepaliveSec = seconds; }
     /// Enable SO_KEEPALIVE on the TCP socket. Call before start().
     void setTcpKeepalive(bool on)    { m_tcpKeepalive = on; }
+    /// Terminal type advertised during the PTY request (e.g. xterm,
+    /// xterm-256color, vt100). Empty falls back to xterm-256color.
+    void setTerminalType(const QByteArray &term) { m_termType = term; }
 
 public slots:
     void start() override;
@@ -92,4 +95,7 @@ private:
     // Keepalive (configured before start())
     int               m_keepaliveSec = 0;
     bool              m_tcpKeepalive = false;
+
+    // PTY term type (configured before start()).
+    QByteArray        m_termType;
 };

@@ -186,8 +186,26 @@ Pane *SessionTab::createPane(ISession *session)
     connect(pane, &Pane::sessionRebound,
             this, &SessionTab::sessionRebound);
 
+    // Close requests come from the × overlay button or from a
+    // remote-side disconnect that won't be auto-reconnected. Queued
+    // so we don't unwind into removePane() from inside the Pane's own
+    // signal chain. removePane() itself emits tabEmpty when the last
+    // pane goes away, so we don't pre-check that here.
+    connect(pane, &Pane::closeRequested, this, [this, pane] {
+        if (!m_panes.contains(pane)) return;
+        removePane(pane);
+    }, Qt::QueuedConnection);
+
     wirePaneBroadcast(pane);
     return pane;
+}
+
+void SessionTab::updateCloseButtons()
+{
+    const bool multi = m_panes.size() > 1;
+    for (Pane *p : m_panes) {
+        if (p) p->setShowClose(multi);
+    }
 }
 
 void SessionTab::wirePaneBroadcast(Pane *pane)
@@ -261,6 +279,7 @@ void SessionTab::splitActive(Qt::Orientation orient)
     Pane *newPane = createPane(fresh);
     addPaneToSplitter(newPane, m_activePane, orient);
     m_panes.append(newPane);
+    updateCloseButtons();
 
     emit paneAdded(newPane);
 
@@ -321,6 +340,7 @@ void SessionTab::removePane(Pane *pane)
         setActivePane(next);
         if (next->terminal())
             next->terminal()->setFocus(Qt::OtherFocusReason);
+        updateCloseButtons();
     } else {
         m_activePane = nullptr;
         emit tabEmpty();
@@ -546,7 +566,8 @@ void SessionTab::onHelpRequested()
            "<li><b>loop</b> repeats a command on an interval.</li>"
            "<li><b>mark</b> highlights a substring in incoming output.</li>"
            "<li>Ctrl+Shift+H / V splits the active pane.</li>"
-           "<li>Ctrl+Shift+W closes the active pane.</li>"
+           "<li>Ctrl+Shift+W closes the active pane (or the × on the pane).</li>"
+           "<li>Ctrl+F4 closes the whole tab.</li>"
            "<li>Ctrl+Shift+B toggles input broadcast across panes.</li>"
            "<li>Resize the window to update the remote PTY size.</li>"
            "<li>Settings &rarr; Preferences (Ctrl+,) edits everything.</li>"

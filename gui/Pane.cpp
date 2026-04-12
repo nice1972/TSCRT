@@ -8,7 +8,9 @@
 
 #include <QMainWindow>
 #include <QRandomGenerator>
+#include <QResizeEvent>
 #include <QStatusBar>
+#include <QToolButton>
 #include <QVBoxLayout>
 
 namespace tscrt {
@@ -29,6 +31,34 @@ Pane::Pane(MainWindow *mw, const profile_t &profile,
     m_term = new TerminalWidget(this);
     lay->addWidget(m_term, 1);
     setFocusProxy(m_term);
+
+    // Overlay × button (hidden unless the tab has more than one pane).
+    // Not added to the layout — we manually position it in resizeEvent
+    // so it floats over the terminal's top-right corner.
+    m_closeBtn = new QToolButton(this);
+    m_closeBtn->setText(QStringLiteral("\u00D7"));
+    m_closeBtn->setAutoRaise(true);
+    m_closeBtn->setCursor(Qt::ArrowCursor);
+    m_closeBtn->setFocusPolicy(Qt::NoFocus);
+    m_closeBtn->setFixedSize(16, 16);
+    m_closeBtn->setToolTip(tr("Close pane"));
+    m_closeBtn->setStyleSheet(QStringLiteral(
+        "QToolButton {"
+        "  border: none;"
+        "  background: rgba(0, 0, 0, 0.35);"
+        "  color: #eee; padding: 0; margin: 0;"
+        "  font-size: 11pt; font-weight: bold;"
+        "  border-radius: 2px;"
+        "}"
+        "QToolButton:hover {"
+        "  background: rgba(220, 40, 40, 0.85);"
+        "  color: #fff;"
+        "}"));
+    m_closeBtn->hide();
+    connect(m_closeBtn, &QToolButton::clicked, this, [this] {
+        m_userRequestedDisconnect = true;
+        emit closeRequested();
+    });
 
     // Create the per-session log file once — reconnects reuse it.
     if (entry.log_enabled) {
@@ -107,8 +137,13 @@ void Pane::onSessionDisconnected(const QString &reason)
 {
     if (m_userRequestedDisconnect)
         return;
-    if (m_entry.auto_reconnect == 0)
+    if (m_entry.auto_reconnect == 0) {
+        // No reconnect configured — close the pane so `exit` in the
+        // remote shell cleanly removes the tab or split window.
+        m_userRequestedDisconnect = true;
+        emit closeRequested();
         return;
+    }
     if (m_entry.reconnect_max > 0 &&
         m_rcAttempts >= m_entry.reconnect_max) {
         if (m_mw) {
@@ -116,6 +151,8 @@ void Pane::onSessionDisconnected(const QString &reason)
                 tr("Reconnect failed for %1: %2")
                     .arg(QString::fromLocal8Bit(m_entry.name), reason), 7000);
         }
+        m_userRequestedDisconnect = true;
+        emit closeRequested();
         return;
     }
     scheduleReconnect();
@@ -199,12 +236,32 @@ void Pane::setBroadcastMember(bool on)
 void Pane::applyBorder()
 {
     // Orange border wins over blue so broadcast membership is obvious.
-    // 1px keeps panes visually tight; the colour still reads clearly.
+    // 2px so the active/broadcast highlight is easy to spot across a
+    // wall of split panes.
     const char *color = "transparent";
     if (m_bcast)       color = "#e05a00";
     else if (m_active) color = "#3a80ff";
-    setStyleSheet(QStringLiteral("tscrt--Pane { border: 1px solid %1; }")
+    setStyleSheet(QStringLiteral("tscrt--Pane { border: 2px solid %1; }")
                       .arg(QString::fromLatin1(color)));
+}
+
+void Pane::setShowClose(bool on)
+{
+    if (!m_closeBtn) return;
+    m_closeBtn->setVisible(on);
+    if (on) {
+        m_closeBtn->raise();
+    }
+}
+
+void Pane::resizeEvent(QResizeEvent *ev)
+{
+    QFrame::resizeEvent(ev);
+    if (m_closeBtn) {
+        const int margin = 4;
+        m_closeBtn->move(width() - m_closeBtn->width() - margin, margin);
+        m_closeBtn->raise();
+    }
 }
 
 } // namespace tscrt

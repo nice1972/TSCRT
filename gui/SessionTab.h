@@ -103,6 +103,7 @@ private:
     void  wirePaneBroadcast(Pane *pane);
     void  removePane(Pane *pane);
     void  refreshBroadcastBadges();
+    void  updateCloseButtons();
 
 private:
     profile_t                 m_profile{};
