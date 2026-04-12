@@ -4,6 +4,8 @@
 
 [English README](README.md)
 
+![TSCRT 분할창 SSH 세션](docs/images/tscrt-split-panes.png)
+
 ---
 
 ## 주요 기능

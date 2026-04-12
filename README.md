@@ -4,6 +4,8 @@
 
 [한국어 README](README.ko.md)
 
+![TSCRT split-pane SSH session](docs/images/tscrt-split-panes.png)
+
 ---
 
 ## Features
