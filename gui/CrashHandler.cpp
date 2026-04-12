@@ -76,6 +76,10 @@ LONG WINAPI exceptionFilter(EXCEPTION_POINTERS *ep)
     MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(),
                       hFile, type, ep ? &mei : nullptr, nullptr, nullptr);
     CloseHandle(hFile);
+    // Restrict the minidump to the current user only — it may contain
+    // secrets (SSH/SMTP passwords, scrollback) still sitting in memory.
+    const QByteArray pathUtf8 = path.toLocal8Bit();
+    tscrt_set_private_perms(pathUtf8.constData());
     return EXCEPTION_EXECUTE_HANDLER;
 }
 
@@ -86,7 +90,9 @@ static char g_dumpPath[512];
 static void posixSignalHandler(int sig, siginfo_t * /*info*/, void * /*ctx*/)
 {
     // Async-signal-safe: write backtrace to file using raw fd I/O.
-    int fd = ::open(g_dumpPath, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    // Mode 0600 — backtraces can leak symbol addresses and terminal
+    // scrollback that should not be world-readable.
+    int fd = ::open(g_dumpPath, O_WRONLY | O_CREAT | O_TRUNC, 0600);
     if (fd >= 0) {
         const char *msg = "TSCRT crash — signal ";
         (void)::write(fd, msg, strlen(msg));
@@ -106,9 +112,29 @@ static void posixSignalHandler(int sig, siginfo_t * /*info*/, void * /*ctx*/)
 
 } // namespace
 
+static void purgeOldDumps(const QString &dir, int maxAgeDays)
+{
+    if (dir.isEmpty() || maxAgeDays <= 0)
+        return;
+    QDir d(dir);
+    const auto entries = d.entryInfoList(
+        QStringList{ QStringLiteral("*.dmp"), QStringLiteral("*.crash") },
+        QDir::Files);
+    const QDateTime cutoff =
+        QDateTime::currentDateTime().addDays(-maxAgeDays);
+    for (const QFileInfo &e : entries) {
+        if (e.lastModified() < cutoff)
+            QFile::remove(e.absoluteFilePath());
+    }
+}
+
 QString installCrashHandler()
 {
     g_dumpDir = resolveDumpDir();
+    // Dumps can hold sensitive memory (decrypted passwords, scrollback).
+    // Don't let them accumulate forever on disk — 7 days is enough for
+    // the user to review a crash before we reclaim the space.
+    purgeOldDumps(g_dumpDir, 7);
 
 #ifdef _WIN32
     SetUnhandledExceptionFilter(&exceptionFilter);
