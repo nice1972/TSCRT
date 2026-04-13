@@ -225,6 +225,8 @@ static int profile_read_file(profile_t *p, const char *path)
                 else if (strcmp(val, "software") == 0) cur->serial.flowcontrol = FLOW_SOFTWARE;
                 else cur->serial.flowcontrol = FLOW_NONE;
             }
+            else if (strcmp(key, "terminal_type") == 0)
+                snprintf(cur->terminal_type, sizeof(cur->terminal_type), "%s", val);
             else if (strcmp(key, "auto_reconnect") == 0)
                 cur->auto_reconnect = (atoi(val) != 0) ? 1 : 0;
             else if (strcmp(key, "reconnect_max") == 0)
@@ -460,6 +462,8 @@ static int profile_write_file(const profile_t *p, const char *path)
             fprintf(fp, "parity = %s\n", parity_str(s->serial.parity));
             fprintf(fp, "flowcontrol = %s\n", flow_str(s->serial.flowcontrol));
         }
+        if (s->terminal_type[0])
+            fprintf(fp, "terminal_type = %s\n", s->terminal_type);
         fprintf(fp, "auto_reconnect = %d\n",    s->auto_reconnect ? 1 : 0);
         fprintf(fp, "reconnect_max = %d\n",     s->reconnect_max);
         fprintf(fp, "reconnect_base_ms = %d\n", s->reconnect_base_ms);

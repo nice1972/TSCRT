@@ -140,6 +140,8 @@ typedef struct {
     int             auto_reconnect;     /* 0 = off, 1 = on */
     int             reconnect_max;      /* 0 = unlimited, default 10 */
     int             reconnect_base_ms;  /* base backoff, default 500ms */
+    /* Terminal type advertised during PTY request (empty = use global default) */
+    char            terminal_type[64];
     /* SSH keepalive (ignored for serial) */
     int             ssh_keepalive_sec;  /* libssh2 keepalive interval, 0 = off */
     int             ssh_tcp_keepalive;  /* SO_KEEPALIVE on TCP socket, 0/1 */

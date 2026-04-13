@@ -367,6 +367,15 @@ void MainWindow::createMenus()
     });
     viewMenu->addAction(actBroadcast);
 
+    // Register the split/broadcast actions on the MainWindow itself so
+    // their shortcuts remain active when the menu bar is hidden in
+    // fullscreen mode. Without this, Qt disables shortcuts for actions
+    // that belong exclusively to a hidden menu.
+    addAction(actSplitH);
+    addAction(actSplitV);
+    addAction(actClosePane);
+    addAction(actBroadcast);
+
     // Reset the broadcast toggle to reflect the current tab when the
     // user switches tabs.
     connect(m_tabs, &QTabWidget::currentChanged, this, [this, actBroadcast](int) {
@@ -1344,7 +1353,10 @@ ISession *MainWindow::makeSessionFor(const profile_t &p, const session_entry_t &
         if (entry.ssh_keepalive_sec > 0)
             ssh->setKeepalive(entry.ssh_keepalive_sec);
         ssh->setTcpKeepalive(entry.ssh_tcp_keepalive != 0);
-        ssh->setTerminalType(QByteArray(p.common.terminal_type));
+        // Per-session terminal type wins; fall back to global preference.
+        const char *termType = entry.terminal_type[0]
+            ? entry.terminal_type : p.common.terminal_type;
+        ssh->setTerminalType(QByteArray(termType));
         return ssh;
     }
     return new SerialSession(entry.serial, QString::fromLocal8Bit(entry.name));

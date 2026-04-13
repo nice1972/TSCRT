@@ -3,6 +3,7 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDialogButtonBox>
+#include <QDir>
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QGroupBox>
@@ -12,6 +13,7 @@
 #include <QPushButton>
 #include <QSpinBox>
 #include <QStackedWidget>
+#include <QTabWidget>
 #include <QVBoxLayout>
 
 #include <cstring>
@@ -33,145 +35,221 @@ SessionEditDialog::SessionEditDialog(QWidget *parent) : QDialog(parent)
     setWindowTitle(tr("Session"));
     setModal(true);
     buildUi();
+    resize(460, 0);   // decent default width; height adapts to content
 }
 
 void SessionEditDialog::buildUi()
 {
     auto *root = new QVBoxLayout(this);
+    root->setContentsMargins(8, 8, 8, 8);
+    root->setSpacing(8);
 
-    auto *header = new QFormLayout;
-    m_name = new QLineEdit(this);
+    m_tabs = new QTabWidget(this);
+
+    // ==== General tab ====
+    auto *genPage = new QWidget;
+    auto *genForm = new QFormLayout(genPage);
+    genForm->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+
+    m_name = new QLineEdit(genPage);
     m_name->setMaxLength(MAX_NAME_LEN - 1);
-    header->addRow(tr("&Name:"), m_name);
+    m_name->setPlaceholderText(tr("e.g. production-server"));
+    genForm->addRow(tr("Name"), m_name);
 
-    m_type = new QComboBox(this);
-    m_type->addItem(tr("SSH"),    int(SESSION_TYPE_SSH));
-    m_type->addItem(tr("Serial"), int(SESSION_TYPE_SERIAL));
-    header->addRow(tr("&Type:"), m_type);
+    m_type = new QComboBox(genPage);
+    m_type->addItem(QStringLiteral("SSH"),    int(SESSION_TYPE_SSH));
+    m_type->addItem(QStringLiteral("Serial"), int(SESSION_TYPE_SERIAL));
+    genForm->addRow(tr("Type"), m_type);
 
-    m_logEnable = new QCheckBox(tr("Save session log"), this);
+    m_termType = new QComboBox(genPage);
+    m_termType->setEditable(true);
+    m_termType->addItem(QStringLiteral(""));               // empty = use global
+    m_termType->addItem(QStringLiteral("xterm-256color"));
+    m_termType->addItem(QStringLiteral("xterm"));
+    m_termType->addItem(QStringLiteral("vt100"));
+    m_termType->addItem(QStringLiteral("vt220"));
+    m_termType->addItem(QStringLiteral("linux"));
+    m_termType->addItem(QStringLiteral("ansi"));
+    m_termType->setCurrentIndex(0);
+    genForm->addRow(tr("Terminal type"), m_termType);
+    auto *termHint = new QLabel(tr("<small>Empty = use global default from Preferences</small>"),
+                                genPage);
+    termHint->setTextFormat(Qt::RichText);
+    termHint->setStyleSheet(QStringLiteral("color: gray;"));
+    genForm->addRow(QString(), termHint);
+
+    genForm->addItem(new QSpacerItem(0, 8));
+
+    m_logEnable = new QCheckBox(tr("Save session log"), genPage);
     m_logEnable->setChecked(true);
-    header->addRow(QString(), m_logEnable);
+    genForm->addRow(QString(), m_logEnable);
 
-    m_fsCmdLine = new QCheckBox(tr("Show command line in fullscreen"), this);
-    m_fsCmdLine->setChecked(false);
-    header->addRow(QString(), m_fsCmdLine);
+    auto *fsGroup = new QGroupBox(tr("Full-screen display"), genPage);
+    auto *fsLayout = new QVBoxLayout(fsGroup);
+    fsLayout->setContentsMargins(8, 4, 8, 4);
+    m_fsCmdLine = new QCheckBox(tr("Show command line"), fsGroup);
+    m_fsButtons = new QCheckBox(tr("Show button bar"), fsGroup);
+    fsLayout->addWidget(m_fsCmdLine);
+    fsLayout->addWidget(m_fsButtons);
+    genForm->addRow(fsGroup);
 
-    m_fsButtons = new QCheckBox(tr("Show button bar in fullscreen"), this);
-    m_fsButtons->setChecked(false);
-    header->addRow(QString(), m_fsButtons);
+    m_tabs->addTab(genPage, tr("General"));
 
-    root->addLayout(header);
+    // ==== Connection tab ====
+    auto *connPage = new QWidget;
+    auto *connLayout = new QVBoxLayout(connPage);
+    connLayout->setContentsMargins(0, 0, 0, 0);
 
-    m_stack = new QStackedWidget(this);
+    m_stack = new QStackedWidget(connPage);
 
     // ---- SSH page ----
-    auto *sshPage   = new QWidget(this);
-    auto *sshForm   = new QFormLayout(sshPage);
+    auto *sshPage = new QWidget;
+    auto *sshForm = new QFormLayout(sshPage);
+    sshForm->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+
     m_sshHost = new QLineEdit(sshPage);
     m_sshHost->setMaxLength(MAX_HOST_LEN - 1);
-    sshForm->addRow(tr("&Host:"), m_sshHost);
+    m_sshHost->setPlaceholderText(QStringLiteral("hostname or IP"));
+    sshForm->addRow(tr("Host"), m_sshHost);
 
     m_sshPort = new QSpinBox(sshPage);
     m_sshPort->setRange(1, 65535);
     m_sshPort->setValue(22);
-    sshForm->addRow(tr("&Port:"), m_sshPort);
+    sshForm->addRow(tr("Port"), m_sshPort);
 
     m_sshUser = new QLineEdit(sshPage);
     m_sshUser->setMaxLength(MAX_USER_LEN - 1);
-    sshForm->addRow(tr("&Username:"), m_sshUser);
+    sshForm->addRow(tr("Username"), m_sshUser);
 
     m_sshPass = new QLineEdit(sshPage);
     m_sshPass->setEchoMode(QLineEdit::Password);
     m_sshPass->setMaxLength(MAX_PASS_LEN - 1);
-    sshForm->addRow(tr("Pass&word:"), m_sshPass);
+    sshForm->addRow(tr("Password"), m_sshPass);
 
     auto *keyRow = new QHBoxLayout;
     m_sshKey = new QLineEdit(sshPage);
-    m_sshKey->setPlaceholderText(tr("Optional private key (OpenSSH .pem)"));
-    auto *browse = new QPushButton(tr("Browse..."), sshPage);
+    m_sshKey->setPlaceholderText(tr("Optional private key (.pem)"));
+    auto *browse = new QPushButton(tr("..."), sshPage);
+    browse->setMaximumWidth(36);
     connect(browse, &QPushButton::clicked, this, &SessionEditDialog::browseKeyfile);
     keyRow->addWidget(m_sshKey, 1);
     keyRow->addWidget(browse);
-    sshForm->addRow(tr("&Key file:"), keyRow);
+    keyRow->setSpacing(4);
+    sshForm->addRow(tr("Key file"), keyRow);
 
     m_stack->addWidget(sshPage);
 
     // ---- Serial page ----
-    auto *serPage = new QWidget(this);
+    auto *serPage = new QWidget;
     auto *serForm = new QFormLayout(serPage);
+    serForm->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+
     m_serDevice = new QLineEdit(serPage);
-    m_serDevice->setPlaceholderText(QStringLiteral("COM3"));
     m_serDevice->setMaxLength(MAX_DEVICE_LEN - 1);
-    serForm->addRow(tr("&Device:"), m_serDevice);
+#ifdef _WIN32
+    m_serDevice->setPlaceholderText(QStringLiteral("COM3"));
+#else
+    m_serDevice->setPlaceholderText(QStringLiteral("/dev/cu.usbserial-xxx"));
+#endif
+    serForm->addRow(tr("Device"), m_serDevice);
 
     m_serBaud = new QComboBox(serPage);
     for (int b : { 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600 })
         m_serBaud->addItem(QString::number(b), b);
     m_serBaud->setCurrentText(QStringLiteral("115200"));
     m_serBaud->setEditable(true);
-    serForm->addRow(tr("&Baud rate:"), m_serBaud);
+    serForm->addRow(tr("Baud rate"), m_serBaud);
 
+    auto *portRow = new QHBoxLayout;
     m_serData = new QComboBox(serPage);
     for (int d : { 5, 6, 7, 8 }) m_serData->addItem(QString::number(d), d);
     m_serData->setCurrentText(QStringLiteral("8"));
-    serForm->addRow(tr("Data &bits:"), m_serData);
+    auto *dataLabel = new QLabel(tr("Data"), serPage);
+    portRow->addWidget(dataLabel);
+    portRow->addWidget(m_serData);
 
     m_serStop = new QComboBox(serPage);
     m_serStop->addItem(QStringLiteral("1"), 1);
     m_serStop->addItem(QStringLiteral("2"), 2);
-    serForm->addRow(tr("&Stop bits:"), m_serStop);
+    auto *stopLabel = new QLabel(tr("Stop"), serPage);
+    portRow->addSpacing(12);
+    portRow->addWidget(stopLabel);
+    portRow->addWidget(m_serStop);
 
     m_serParity = new QComboBox(serPage);
     m_serParity->addItem(tr("None"), int(PARITY_NONE));
     m_serParity->addItem(tr("Odd"),  int(PARITY_ODD));
     m_serParity->addItem(tr("Even"), int(PARITY_EVEN));
-    serForm->addRow(tr("Pa&rity:"), m_serParity);
+    auto *parLabel = new QLabel(tr("Parity"), serPage);
+    portRow->addSpacing(12);
+    portRow->addWidget(parLabel);
+    portRow->addWidget(m_serParity);
+
+    portRow->addStretch();
+    serForm->addRow(tr("Line settings"), portRow);
 
     m_serFlow = new QComboBox(serPage);
     m_serFlow->addItem(tr("None"),     int(FLOW_NONE));
     m_serFlow->addItem(tr("Hardware"), int(FLOW_HARDWARE));
     m_serFlow->addItem(tr("Software"), int(FLOW_SOFTWARE));
-    serForm->addRow(tr("&Flow control:"), m_serFlow);
+    serForm->addRow(tr("Flow control"), m_serFlow);
 
     m_stack->addWidget(serPage);
+    connLayout->addWidget(m_stack);
 
-    root->addWidget(m_stack);
+    m_tabs->addTab(connPage, tr("Connection"));
 
-    // ---- Advanced (auto-reconnect + keepalive) ----
-    auto *advGroup = new QGroupBox(tr("Advanced"), this);
-    auto *advForm  = new QFormLayout(advGroup);
+    // ==== Advanced tab ====
+    auto *advPage = new QWidget;
+    auto *advLayout = new QVBoxLayout(advPage);
 
-    m_autoReconnect = new QCheckBox(tr("Auto reconnect on disconnect"), advGroup);
-    advForm->addRow(QString(), m_autoReconnect);
+    // Reconnect group
+    auto *rcGroup = new QGroupBox(tr("Auto-reconnect"), advPage);
+    auto *rcForm  = new QFormLayout(rcGroup);
+    rcForm->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
-    m_reconnectMax = new QSpinBox(advGroup);
+    m_autoReconnect = new QCheckBox(tr("Reconnect automatically on disconnect"), rcGroup);
+    rcForm->addRow(m_autoReconnect);
+
+    m_reconnectMax = new QSpinBox(rcGroup);
     m_reconnectMax->setRange(0, 1000);
     m_reconnectMax->setValue(10);
     m_reconnectMax->setSpecialValueText(tr("unlimited"));
-    advForm->addRow(tr("Max attempts:"), m_reconnectMax);
+    rcForm->addRow(tr("Max attempts"), m_reconnectMax);
 
-    m_reconnectBaseMs = new QSpinBox(advGroup);
+    m_reconnectBaseMs = new QSpinBox(rcGroup);
     m_reconnectBaseMs->setRange(100, 60000);
     m_reconnectBaseMs->setSingleStep(100);
     m_reconnectBaseMs->setValue(500);
-    m_reconnectBaseMs->setSuffix(tr(" ms"));
-    advForm->addRow(tr("Base delay:"), m_reconnectBaseMs);
+    m_reconnectBaseMs->setSuffix(QStringLiteral(" ms"));
+    rcForm->addRow(tr("Base delay"), m_reconnectBaseMs);
+    advLayout->addWidget(rcGroup);
 
-    m_sshKeepaliveSec = new QSpinBox(advGroup);
+    // Keepalive group (SSH only)
+    auto *kaGroup = new QGroupBox(tr("SSH keepalive"), advPage);
+    auto *kaForm  = new QFormLayout(kaGroup);
+    kaForm->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+
+    m_sshKeepaliveSec = new QSpinBox(kaGroup);
     m_sshKeepaliveSec->setRange(0, 3600);
     m_sshKeepaliveSec->setValue(30);
     m_sshKeepaliveSec->setSpecialValueText(tr("off"));
-    m_sshKeepaliveSec->setSuffix(tr(" s"));
-    m_keepaliveLabel = new QLabel(tr("SSH keepalive:"), advGroup);
-    advForm->addRow(m_keepaliveLabel, m_sshKeepaliveSec);
+    m_sshKeepaliveSec->setSuffix(QStringLiteral(" s"));
+    m_keepaliveLabel = new QLabel(tr("Interval"), kaGroup);
+    kaForm->addRow(m_keepaliveLabel, m_sshKeepaliveSec);
 
-    m_sshTcpKeepalive = new QCheckBox(tr("Enable TCP keepalive (SO_KEEPALIVE)"), advGroup);
+    m_sshTcpKeepalive = new QCheckBox(tr("TCP keepalive (SO_KEEPALIVE)"), kaGroup);
     m_sshTcpKeepalive->setChecked(true);
-    advForm->addRow(QString(), m_sshTcpKeepalive);
+    kaForm->addRow(m_sshTcpKeepalive);
 
-    root->addWidget(advGroup);
+    advLayout->addWidget(kaGroup);
+    advLayout->addStretch();
 
+    m_tabs->addTab(advPage, tr("Advanced"));
+
+    root->addWidget(m_tabs);
+
+    // ---- OK/Cancel ----
     auto *bb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                                     this);
     connect(bb, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -191,6 +269,10 @@ void SessionEditDialog::typeChanged(int /*index*/)
     if (m_keepaliveLabel)  m_keepaliveLabel->setVisible(ssh);
     if (m_sshKeepaliveSec) m_sshKeepaliveSec->setVisible(ssh);
     if (m_sshTcpKeepalive) m_sshTcpKeepalive->setVisible(ssh);
+
+    // Show/hide the keepalive group box parent if all children hidden
+    if (auto *kaGroup = qobject_cast<QGroupBox *>(m_sshTcpKeepalive->parentWidget()))
+        kaGroup->setVisible(ssh);
 }
 
 void SessionEditDialog::browseKeyfile()
@@ -206,6 +288,7 @@ void SessionEditDialog::setSession(const session_entry_t &s)
 {
     m_name->setText(QString::fromLocal8Bit(s.name));
     m_type->setCurrentIndex(m_type->findData(int(s.type)));
+    m_termType->setCurrentText(QString::fromLocal8Bit(s.terminal_type));
     m_logEnable->setChecked(s.log_enabled != 0);
     m_fsCmdLine->setChecked(s.show_cmdline != 0);
     m_fsButtons->setChecked(s.show_buttons != 0);
@@ -239,6 +322,7 @@ session_entry_t SessionEditDialog::session() const
     memset(&s, 0, sizeof(s));
     setStr(s.name, sizeof(s.name), m_name->text());
     s.type         = session_type_t(m_type->currentData().toInt());
+    setStr(s.terminal_type, sizeof(s.terminal_type), m_termType->currentText().trimmed());
     s.log_enabled  = m_logEnable->isChecked() ? 1 : 0;
     s.show_cmdline = m_fsCmdLine->isChecked() ? 1 : 0;
     s.show_buttons = m_fsButtons->isChecked() ? 1 : 0;

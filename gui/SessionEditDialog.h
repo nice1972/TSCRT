@@ -1,8 +1,8 @@
 /*
  * SessionEditDialog - modal editor for a single session entry.
  *
- * Form switches between SSH and Serial fields based on the type combo.
- * Returns the edited session via session() once accepted.
+ * Three-tab layout (General / Connection / Advanced).
+ * Connection tab switches between SSH and Serial based on the type combo.
  */
 #pragma once
 
@@ -16,6 +16,7 @@ class QLineEdit;
 class QSpinBox;
 class QStackedWidget;
 class QLabel;
+class QTabWidget;
 
 class SessionEditDialog : public QDialog {
     Q_OBJECT
@@ -32,29 +33,35 @@ private slots:
 private:
     void buildUi();
 
-    QLineEdit      *m_name      = nullptr;
-    QComboBox      *m_type      = nullptr;
+    QTabWidget     *m_tabs     = nullptr;
+
+    // General tab
+    QLineEdit      *m_name         = nullptr;
+    QComboBox      *m_type         = nullptr;
+    QComboBox      *m_termType     = nullptr;
     QCheckBox      *m_logEnable    = nullptr;
     QCheckBox      *m_fsCmdLine    = nullptr;
     QCheckBox      *m_fsButtons    = nullptr;
-    QStackedWidget *m_stack     = nullptr;
+
+    // Connection tab
+    QStackedWidget *m_stack        = nullptr;
 
     // SSH fields
-    QLineEdit      *m_sshHost   = nullptr;
-    QSpinBox       *m_sshPort   = nullptr;
-    QLineEdit      *m_sshUser   = nullptr;
-    QLineEdit      *m_sshPass   = nullptr;
-    QLineEdit      *m_sshKey    = nullptr;
+    QLineEdit      *m_sshHost      = nullptr;
+    QSpinBox       *m_sshPort      = nullptr;
+    QLineEdit      *m_sshUser      = nullptr;
+    QLineEdit      *m_sshPass      = nullptr;
+    QLineEdit      *m_sshKey       = nullptr;
 
     // Serial fields
-    QLineEdit      *m_serDevice = nullptr;
-    QComboBox      *m_serBaud   = nullptr;
-    QComboBox      *m_serData   = nullptr;
-    QComboBox      *m_serStop   = nullptr;
-    QComboBox      *m_serParity = nullptr;
-    QComboBox      *m_serFlow   = nullptr;
+    QLineEdit      *m_serDevice    = nullptr;
+    QComboBox      *m_serBaud      = nullptr;
+    QComboBox      *m_serData      = nullptr;
+    QComboBox      *m_serStop      = nullptr;
+    QComboBox      *m_serParity    = nullptr;
+    QComboBox      *m_serFlow      = nullptr;
 
-    // Advanced: auto-reconnect + keepalive
+    // Advanced tab
     QCheckBox      *m_autoReconnect   = nullptr;
     QSpinBox       *m_reconnectMax    = nullptr;
     QSpinBox       *m_reconnectBaseMs = nullptr;
