@@ -73,11 +73,10 @@ static CFStringRef kServiceName = CFSTR("com.tepseg.tscrt");
 
 static CFStringRef cfStr(const QString &s)
 {
-    const QByteArray b = s.toUtf8();
-    return CFStringCreateWithBytes(
-        nullptr,
-        reinterpret_cast<const UInt8 *>(b.constData()),
-        b.size(), kCFStringEncodingUTF8, false);
+    // CFStringCreateWithCString always copies the C string into its own
+    // storage, so the temporary QByteArray can safely go out of scope.
+    return CFStringCreateWithCString(
+        nullptr, s.toUtf8().constData(), kCFStringEncodingUTF8);
 }
 
 static bool keychainStore(const QString &account, const QByteArray &secret)
