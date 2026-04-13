@@ -1,228 +1,116 @@
 <html>
-<head><meta charset="utf-8"><title>TSCRT 使用说明</title></head>
+<head><meta charset="utf-8"><title>TSCRT 使用指南</title></head>
 <body style="font-family:'Microsoft YaHei',Segoe UI,sans-serif; font-size:10pt; color:#e0e0e0; background:#1e1e1e;">
 <h1>TSCRT 使用指南</h1>
-<p>TSCRT 是一款面向 SSH2 与串口控制台的终端仿真器。本指南介绍所有主要功能。</p>
+<p>TSCRT 是一款面向 SSH2 与串口控制台的终端仿真器。主要功能导航：</p>
 <ul>
-  <li><a href="#sessions">会话(Sessions)</a></li>
-  <li><a href="#tabs">标签页(Tabs)</a></li>
-  <li><a href="#panes">分屏 / 输入广播 / 自动重连</a></li>
-  <li><a href="#buttons">按钮(Buttons)（含示例）</a></li>
-  <li><a href="#snapshots">快照(Snapshots)（含示例）</a></li>
+  <li><a href="#sessions">会话</a></li>
+  <li><a href="#tabs">标签页 &amp; 多窗口</a></li>
+  <li><a href="#panes">分割窗格 / 输入广播 / 自动重连</a></li>
+  <li><a href="#buttons">按钮（含示例）</a></li>
+  <li><a href="#snapshots">快照（含示例）</a></li>
   <li><a href="#rules">自动化规则</a></li>
-  <li><a href="#triggers">触发器 / 周期任务 / 启动动作</a></li>
+  <li><a href="#triggers">触发器 / 定时执行 / 启动动作</a></li>
   <li><a href="#smtp">SMTP（邮件发送）</a></li>
   <li><a href="#logs">日志</a></li>
+  <li><a href="#security">安全</a></li>
   <li><a href="#profile">配置文件导入 / 导出</a></li>
   <li><a href="#shortcuts">快捷键</a></li>
 </ul>
 
 <h2 id="sessions">会话</h2>
-<p><b>会话</b>是一条 SSH 或串口连接的定义。</p>
+<p><b>会话</b>是一个 SSH 或串口连接定义。</p>
 <ul>
-  <li><b>Sessions &rarr; Manage sessions&hellip;</b> 可添加、编辑、复制、删除会话。会话按分组在左侧停靠栏的树中显示。</li>
-  <li><b>SSH</b> 需要主机、端口、用户名，以及密码或私钥文件。</li>
-  <li><b>串口</b> 需要设备名（Windows 如 <code>COM3</code>，Linux/macOS 如 <code>/dev/ttyUSB0</code>）、波特率、数据位、停止位、校验位和流控。</li>
-  <li>双击左侧停靠栏中的会话以在新标签页中打开。</li>
+  <li><b>Sessions &rarr; Manage sessions&hellip;</b> &mdash; 添加、编辑、复制、删除会话。左侧停靠栏以树形展示。</li>
+  <li><b>SSH</b>：主机、端口、用户名、密码或私钥文件。</li>
+  <li><b>串口</b>：设备名（如 <code>COM3</code>）、波特率、数据/停止/校验位、流控。</li>
+</ul>
+<h3>会话编辑器（三标签页）</h3>
+<ul>
+  <li><b>Connection</b> &mdash; 连接参数。</li>
+  <li><b>General</b> &mdash; 会话名、连接类型、每会话<b>终端类型</b>（留空 = 使用全局默认值）、日志设置、全屏显示选项。</li>
+  <li><b>Advanced</b> &mdash; 自动重连设置、SSH keepalive。</li>
 </ul>
 
-<h2 id="tabs">标签页</h2>
+<h2 id="tabs">标签页 &amp; 多窗口</h2>
 <ul>
-  <li>每个连接占一个标签页。标签名旁边的小 <b>&times;</b> 只关闭该标签。</li>
-  <li><kbd>F11</kbd> 切换全屏模式（隐藏停靠栏和菜单栏）。</li>
-  <li>每个会话可以在会话编辑器中设置是否显示命令行和按钮栏。</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;</kbd> / <kbd>&rarr;</kbd> &mdash; 上/下一个标签页。</li>
+  <li><kbd>F11</kbd> &mdash; 全屏切换。所有快捷键在全屏下均可用。</li>
 </ul>
-
-<h2 id="panes">分屏 / 输入广播 / 自动重连</h2>
-
-<h3>分屏(Split Pane)</h3>
-<p>一个标签页内可将终端横向 / 纵向分割，同时操作多个会话。分屏会复用当前活动面板的会话配置，自动在新面板中创建相同主机的会话——非常适合在同一台服务器上开多个 shell，或一边监视日志一边输入命令。</p>
+<h3>标签页右键菜单</h3>
 <ul>
-  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> — 横向分割（左右）</li>
-  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> — 纵向分割（上下）</li>
-  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> — 关闭活动面板。关闭最后一个面板时整个标签页会被关闭。</li>
-  <li>分屏支持递归：横向分割后，对其中一侧再做纵向分割可形成网格布局。</li>
-  <li>活动面板以 <span style="color:#3a80ff"><b>1px 蓝色边框</b></span>标记。鼠标点击或键盘焦点切换会自动更新活动面板。</li>
-  <li>拖动面板之间的分隔条可调整比例。</li>
-  <li>查找栏 / Mark / Loop / 命令输入框始终作用于<b>活动面板</b>。</li>
+  <li><b>Rename</b> / <b>Duplicate</b> / <b>Run Snapshot</b> / <b>Pin</b></li>
+  <li><b>Detach to New Window</b> &mdash; 将标签页分离到新 TSCRT 窗口（保持连接）。</li>
 </ul>
+<h3>窗口间拖拽标签页</h3>
+<p>拖拽标签页到另一个 TSCRT 窗口的标签栏即可转移会话；拖到窗口外部则自动创建新窗口。连接不会中断。</p>
 
+<h2 id="panes">分割窗格 / 输入广播 / 自动重连</h2>
+<h3>分割窗格</h3>
+<ul>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> &mdash; 水平分割。<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> &mdash; 垂直分割。</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> &mdash; 关闭活动窗格。</li>
+  <li>活动窗格以<span style="color:#3a80ff"><b>蓝色边框</b></span>标识。</li>
+</ul>
 <h3>输入广播</h3>
-<p>同时管理多台服务器时，输入一次即可让所有面板同时收到相同命令。</p>
 <ul>
-  <li>通过 <b>View &rarr; Broadcast Input</b> 或 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> 切换。</li>
-  <li>启用后当前标签页的所有面板会显示<span style="color:#e05a00"><b>橙色边框</b></span>。</li>
-  <li>键盘输入、粘贴(<kbd>Ctrl</kbd>+<kbd>V</kbd>)、中文 IME 组合输入和鼠标事件都会从一个面板转发到所有其他面板的会话。</li>
-  <li>切换状态<b>按标签页保存</b>。切换标签页时菜单中的勾选会反映该标签页的设置。</li>
-  <li>注意：将相同输入发送到不同的 shell / 设备可能产生意外结果，建议在同一 OS、同一目录、同一 shell 的相似环境中使用。</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> 切换。全部窗格显示<span style="color:#e05a00"><b>橙色边框</b></span>。按标签页生效。</li>
 </ul>
-
-<h3>自动重连 + Keepalive</h3>
-<p>网络短暂中断时自动重连，并防止 NAT / 防火墙因空闲超时而切断会话。</p>
-<p><b>设置位置：</b><i>Sessions &rarr; Manage sessions&hellip;</i> &rarr; 编辑会话 &rarr; 对话框底部的 <b>Advanced</b> 分组。</p>
+<h3>自动重连</h3>
 <ul>
-  <li><b>Auto reconnect</b> — 断开后启用自动重连。用户主动关闭的标签不会重连。</li>
-  <li><b>Max attempts</b> — 最大重试次数。<code>0</code>(unlimited) 表示无限重试。</li>
-  <li><b>Base delay (ms)</b> — 首次重试的等待时间。之后按指数退避（每次翻倍）增加，最长 30 秒封顶；每次还会加上 0–250 ms 的随机抖动以避免同步重连。<br>例如 base 500：<code>500 ms → 1 s → 2 s → 4 s → 8 s → 16 s → 30 s → 30 s …</code></li>
-  <li><b>SSH keepalive (s)</b>（仅 SSH）— libssh2 keepalive 间隔。<code>0</code> = 关闭；建议 30 s。在 SSH 协议层定期 ping 服务器，以避免 NAT 会话过期或有状态防火墙断开连接。</li>
-  <li><b>TCP keepalive</b>（仅 SSH）— 在底层套接字上设置 <code>SO_KEEPALIVE</code>。在操作系统层检测断链；与 SSH keepalive 同时启用可获得最快的检测速度。</li>
-</ul>
-<p><b>重连过程的行为：</b></p>
-<ul>
-  <li>状态栏显示 <i>"Reconnecting &lt;session&gt; in N s (attempt M/Max)..."</i>。</li>
-  <li>原有<b>滚动缓存(scrollback)被保留</b>——新会话会重新挂接到同一个 TerminalWidget 上，所以屏幕历史不会丢失。</li>
-  <li>达到最大重试次数后状态栏显示 <i>"Reconnect failed for &lt;session&gt;: ..."</i> 并停止尝试。</li>
-  <li>串口会话也支持自动重连，但仅限于相同的设备路径(如 <code>COM3</code>)。重新插拔 USB 后端口号变化的情况无法自动恢复。</li>
-  <li>分屏标签内的每个面板都拥有<b>独立的</b>重连状态。一个面板正在重试不会影响其他面板。</li>
+  <li><b>Max attempts</b>：硬上限 100 次。<b>Base delay</b>：最小 250 ms，指数退避，上限 30 s。</li>
+  <li>滚动历史保留。每个窗格独立重连状态。</li>
 </ul>
 
 <h2 id="buttons">按钮</h2>
-<p>底部按钮栏最多可放置 20 个用户自定义按钮。点击按钮会将其动作字符串发送到当前活动会话；右键点击按钮可编辑该槽位。</p>
-
-<h3>动作字符串语法</h3>
-<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
-<tr><th>转义</th><th>含义</th></tr>
-<tr><td><code>\r</code></td><td>回车 (Enter)</td></tr>
-<tr><td><code>\n</code></td><td>换行</td></tr>
-<tr><td><code>\t</code></td><td>制表符</td></tr>
-<tr><td><code>\b</code></td><td>退格</td></tr>
-<tr><td><code>\e</code></td><td>ESC (0x1B)</td></tr>
-<tr><td><code>\p</code></td><td>暂停 1 秒</td></tr>
-<tr><td><code>\\</code></td><td>反斜杠字面量</td></tr>
-</table>
-
-<h3>示例</h3>
-<p><b>1. 发送一条命令</b> — 标签 <i>uptime</i>，动作:</p>
-<pre>uptime\r</pre>
-<p>输入 <code>uptime</code> 然后按回车。</p>
-
-<p><b>2. 串口控制台登录自动化</b> — 标签 <i>login</i>，动作:</p>
-<pre>\r\padmin\rs3cret\r</pre>
-<p>依次发送：回车 → 等待 1 秒 → <code>admin</code>+回车 → <code>s3cret</code>+回车。</p>
-
-<p><b>3. 发送 Ctrl 键</b> — 标签 <i>^C</i>，动作:</p>
-<pre>\x03</pre>
-<p>可用 <code>\xNN</code> 十六进制转义嵌入任意字节。</p>
-
-<p><b>4. 取消后执行诊断</b> — 标签 <i>diag</i>，动作:</p>
-<pre>\e\pshow interfaces\r</pre>
-<p>发送 ESC → 等待 1 秒 → 执行 <code>show interfaces</code>。</p>
-
-<h3>Loop / Mark 特殊按钮</h3>
-<ul>
-  <li><b>Loop</b> — 右键点击任一用户按钮并选择 <i>Loop this button</i>，即可按固定间隔重复其动作。每次触发时 Loop 按钮会闪烁；再次点击 Loop 即可停止。</li>
-  <li><b>Mark</b> — 在会话日志中插入带时间戳的标记行。左键立即标记，右键编辑标签文字。</li>
-</ul>
+<p>最多 20 个用户自定义按钮。动作字符串：<code>\r</code>=回车, <code>\n</code>=换行, <code>\t</code>=制表符, <code>\b</code>=退格, <code>\e</code>=ESC, <code>\p</code>=暂停1秒, <code>\\</code>=\。未定义的转义序列被忽略。</p>
+<p><b>Loop</b>：右键按钮 &rarr; 定时重复。<b>Mark</b>：在日志中插入时间戳标记。</p>
 
 <h2 id="snapshots">快照</h2>
-<p><b>快照</b>是一组有序命令的集合，TSCRT 会在会话上依次执行它们、捕获输出，并保存为带时间戳的文件；并可选地通过邮件发送结果。</p>
-
-<h3>配置快照</h3>
-<p>打开 <b>Snapshots &rarr; Manage snapshots&hellip;</b>，为每个快照配置：</p>
-<ul>
-  <li><b>名称 / 描述</b> — 显示在 Snapshots 菜单中。</li>
-  <li><b>Commands</b> — 有序命令列表。每行包括：
-    <ul>
-      <li><b>Command</b>：动作字符串（与按钮同样的语法，例如 <code>show version\r</code>）</li>
-      <li><b>Delay (ms)</b>：发送后的最小等待时间，留出设备响应时间</li>
-      <li><b>Expect prompt</b>：可选正则表达式，匹配后提前结束该步骤</li>
-      <li><b>Max wait (ms)</b>：设置了 Expect prompt 时的最长等待时间</li>
-    </ul>
-  </li>
-  <li><b>Recipients</b> — 每行一个收件人邮箱。</li>
-  <li><b>Subject template</b> — 可使用 <code>{session}</code>、<code>{snapshot}</code>、<code>{timestamp}</code> 占位符。</li>
-  <li><b>Send email / Attach file</b> — 是否发送邮件，以及以附件发送还是直接放入正文。</li>
-</ul>
-
-<h3>运行方式</h3>
-<ul>
-  <li>菜单 <b>Snapshots &rarr; &lt;快照名&gt;</b> 在当前活动会话上运行。</li>
-  <li>输出文件保存到 <i>log dir</i><code>/snapshots/</code> 下。可通过 <b>Snapshots &rarr; Open snapshot folder</b> 用资源管理器打开，或通过 <b>Snapshots &rarr; Browse snapshots&hellip;</b> 在 TSCRT 内置浏览器中查看。</li>
-  <li>在内置浏览器中右键点击文件选择 <b>Send to administrator</b>，即可将该文件作为附件发送到 SMTP 的 <i>From</i> 地址（邮件服务器上注册的管理员账户）。</li>
-</ul>
-
-<h3>示例</h3>
-<p><b>1. Linux 健康检查</b></p>
-<pre>name         : linux-health
-description  : 负载 / 磁盘 / 内存 快照
-command 1    : uptime\r               delay: 500
-command 2    : df -h\r                delay: 500
-command 3    : free -m\r              delay: 500
-command 4    : dmesg | tail -n 20\r   delay: 800
-subject_tmpl : [TSCRT] {session} health {timestamp}
-recipients   : ops@example.com
-send_email   : yes
-attach_file  : yes</pre>
-
-<p><b>2. Cisco 交换机配置备份 — 用 expect_prompt 规避分页</b></p>
-<pre>name         : switch-config
-command 1    : terminal length 0\r    delay: 200
-command 2    : show running-config\r  delay: 0
-               expect_prompt: #\s*$   max_wait: 15000
-command 3    : show version\r         delay: 0
-               expect_prompt: #\s*$   max_wait: 5000
-subject_tmpl : config-backup {session} {timestamp}</pre>
-<p>正则 <code>#\s*$</code> 匹配行尾的交换机提示符，输出完成即刻进入下一步。</p>
-
-<p><b>3. 含多段等待的示例</b></p>
-<pre>command 1: \e             delay: 300    (发送 ESC)
-command 2: menu\r         delay: 500
-command 3: \p4\r          delay: 1000   (等待 1 秒后发送 "4"+回车)</pre>
+<p><b>Snapshots &rarr; Manage snapshots&hellip;</b> 配置。expect_prompt 在 64 KB 滚动窗口中匹配。</p>
+<p>执行：菜单或标签页右键 &rarr; <b>Run Snapshot</b>。</p>
 
 <h2 id="rules">自动化规则</h2>
-<p><b>Snapshots &rarr; Automation rules&hellip;</b> 将快照绑定到触发条件。有三种：</p>
-<ul>
-  <li><b>on_connect</b> — 会话连接时立即执行一次。</li>
-  <li><b>cron</b> — 标准五字段 cron（<code>m h dom mon dow</code>）。例：<code>*/15 * * * *</code> 每 15 分钟执行一次。</li>
-  <li><b>pattern</b> — 当会话的接收数据与正则匹配时执行。可通过秒级冷却时间防止过度触发。</li>
-</ul>
-<p>规则可以限定到特定会话名，也可以留空以应用到所有会话。</p>
+<p><b>on_connect</b> / <b>cron</b>（5字段） / <b>pattern</b>（正则+冷却时间）。</p>
 
-<h2 id="triggers">触发器 / 周期任务 / 启动动作</h2>
-<p>在 <b>Settings &rarr; Preferences</b> 中配置：</p>
-<ul>
-  <li><b>Triggers</b> — 当会话输出匹配某正则时发送动作字符串。适合自动应答提示。</li>
-  <li><b>Periodics</b> — 每 N 秒向指定会话发送一次动作（心跳、轮询等）。</li>
-  <li><b>Startup actions</b> — 会话连接后立即发送一次动作。</li>
-</ul>
+<h2 id="triggers">触发器 / 定时执行 / 启动动作</h2>
+<p><b>Settings &rarr; Preferences</b>。触发器有速率限制：每模式 2 秒冷却，每会话 10 秒最多 20 次。</p>
 
 <h2 id="smtp">SMTP</h2>
-<p><b>Settings &rarr; SMTP&hellip;</b> 配置快照发送邮件和 <i>Send to administrator</i> 所使用的发送服务器。</p>
 <ul>
-  <li><b>Host / Port</b> — 如 <code>smtp.gmail.com</code> / <code>587</code>。</li>
-  <li><b>Security</b> — 可选 None、STARTTLS、SMTPS（隐式 TLS）。</li>
-  <li><b>Username / Password</b> — 密码加密存储。</li>
-  <li><b>From address / name</b> — 出现在 <i>From</i> 头中；<b>这个地址同时作为"管理员"地址</b>，供 <i>Send to administrator</i> 使用。</li>
-  <li><b>Timeout (s)</b> — 每步套接字超时。</li>
+  <li><b>配置用户名时必须启用 STARTTLS/SMTPS</b>（拒绝明文认证）。</li>
+  <li>密码加密存储（Windows: DPAPI，macOS: Keychain）。</li>
+  <li>强制 TLS 证书验证。</li>
 </ul>
 
 <h2 id="logs">日志</h2>
-<ul>
-  <li><b>Logs &rarr; Open log folder</b> 打开日志目录，每个会话生成一份带时间戳的日志文件。</li>
-  <li>快照结果文件保存在 <code>snapshots/</code> 子目录。</li>
-  <li>是否按会话记录日志在会话编辑器中通过 <i>Log enabled</i> 开启。</li>
-</ul>
+<p><b>Logs &rarr; Open log folder</b>。快照：<code>snapshots/</code>。日志开关在 General 标签页。</p>
 
-<h2 id="profile">配置文件导入 / 导出</h2>
-<p>配置文件包含会话、按钮、快照、规则以及 SMTP 设置。</p>
-<ul>
-  <li><b>File &rarr; Export profile&hellip;</b> — 可选择全部或部分区段导出。</li>
-  <li><b>File &rarr; Import profile&hellip;</b> — 合并到当前配置文件，冲突会被报告。</li>
-</ul>
+<h2 id="security">安全</h2>
+<h3>SSH 主机密钥验证（TOFU）</h3>
+<p>首次连接时固定到 <code>~/tscrt/known_hosts</code>。不匹配时拒绝连接（防御中间人攻击）。</p>
+<h3>凭据存储</h3>
+<p>Windows: DPAPI + owner-only ACL。macOS: 钥匙串。Linux: 明文（0600）。</p>
+<h3>崩溃转储</h3>
+<p>owner-only 权限。超过 7 天自动删除。</p>
+
+<h2 id="profile">配置文件</h2>
+<p><b>File &rarr; Export/Import profile&hellip;</b></p>
 
 <h2 id="shortcuts">快捷键</h2>
-<ul>
-  <li><kbd>Ctrl</kbd>+<kbd>T</kbd> — 以当前会话新建标签页</li>
-  <li><kbd>Ctrl</kbd>+<kbd>W</kbd> — 关闭当前标签页</li>
-  <li><kbd>F11</kbd> — 切换全屏</li>
-  <li><kbd>Ctrl</kbd>+<kbd>L</kbd> — 聚焦命令行</li>
-  <li><kbd>Ctrl</kbd>+<kbd>F</kbd> — 打开查找 / Mark 栏</li>
-  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> — 横向分割活动面板</li>
-  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> — 纵向分割活动面板</li>
-  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> — 关闭活动面板</li>
-  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> — 切换输入广播</li>
-  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> — 打开快照管理</li>
-</ul>
-
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><th>快捷键</th><th>动作</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>T</kbd></td><td>新标签页</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>W</kbd></td><td>关闭标签页</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;/&rarr;</kbd></td><td>上/下一个标签页</td></tr>
+<tr><td><kbd>F11</kbd></td><td>全屏</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>L</kbd></td><td>命令行</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>F</kbd></td><td>搜索/Mark</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H/V</kbd></td><td>分割</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd></td><td>关闭窗格</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd></td><td>广播</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></td><td>快照管理</td></tr>
+</table>
+<p>所有快捷键在全屏模式下均可使用。</p>
 </body>
 </html>

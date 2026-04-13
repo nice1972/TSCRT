@@ -5,7 +5,7 @@
 <p>TSCRT is a terminal emulator for SSH2 and serial consoles. This guide walks through every major feature. Jump to a section:</p>
 <ul>
   <li><a href="#sessions">Sessions</a></li>
-  <li><a href="#tabs">Tabs</a></li>
+  <li><a href="#tabs">Tabs &amp; multi-window</a></li>
   <li><a href="#panes">Split panes / Input broadcast / Auto-reconnect</a></li>
   <li><a href="#buttons">Buttons (with examples)</a></li>
   <li><a href="#snapshots">Snapshots (with examples)</a></li>
@@ -13,74 +13,87 @@
   <li><a href="#triggers">Triggers, periodics, startup actions</a></li>
   <li><a href="#smtp">SMTP (email delivery)</a></li>
   <li><a href="#logs">Logs</a></li>
+  <li><a href="#security">Security</a></li>
   <li><a href="#profile">Profile import / export</a></li>
   <li><a href="#shortcuts">Keyboard shortcuts</a></li>
 </ul>
 
 <h2 id="sessions">Sessions</h2>
-<p>A <b>session</b> is a connection definition — either SSH or serial.</p>
+<p>A <b>session</b> is a connection definition &mdash; either SSH or serial.</p>
 <ul>
-  <li><b>Sessions &rarr; Manage sessions&hellip;</b> — add, edit, duplicate, or delete sessions. Sessions are grouped in a tree in the left dock.</li>
+  <li><b>Sessions &rarr; Manage sessions&hellip;</b> &mdash; add, edit, duplicate, or delete sessions. Sessions are grouped in a tree in the left dock.</li>
   <li><b>SSH</b> requires host, port, username, and either a password or a private-key file.</li>
-  <li><b>Serial</b> requires a device name (e.g. <code>COM3</code> on Windows, <code>/dev/ttyUSB0</code> on Linux/macOS), baud rate, data bits, stop bits, parity, and flow control.</li>
+  <li><b>Serial</b> requires a device name (e.g. <code>COM3</code> on Windows, <code>/dev/cu.usbserial-xxx</code> on macOS), baud rate, data/stop/parity bits, and flow control.</li>
   <li>Double-click a session in the left dock to open it in a new tab.</li>
 </ul>
 
-<h2 id="tabs">Tabs</h2>
+<h3>Session editor (three tabs)</h3>
+<p>The session editor is organised into three tabs:</p>
+<ul>
+  <li><b>Connection</b> &mdash; host/port/username/password/key (SSH) or device/baud/line settings (Serial). This tab opens first so the most frequently changed fields are immediately visible.</li>
+  <li><b>General</b> &mdash; session name, connection type, per-session <b>terminal type</b> (e.g. <code>xterm-256color</code>, <code>vt100</code>), session logging toggle, and full-screen display options. If the terminal type is left empty, the global default from <i>Settings &rarr; Preferences</i> is used.</li>
+  <li><b>Advanced</b> &mdash; auto-reconnect settings (max attempts, base delay) and SSH keepalive (interval, TCP keepalive). The keepalive group is hidden for serial sessions.</li>
+</ul>
+
+<h2 id="tabs">Tabs &amp; multi-window</h2>
 <ul>
   <li>Each open connection lives in its own tab. The tab title shows the session name; a small <b>&times;</b> next to the name closes just that tab.</li>
-  <li>A tab can run in <b>fullscreen mode</b> (hides dock and menu bar) — toggle with <kbd>F11</kbd>.</li>
-  <li>Per session you can hide/show the command line widget and the button bar from the session editor.</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;</kbd> / <kbd>&rarr;</kbd> &mdash; move to the previous / next tab.</li>
+  <li><kbd>F11</kbd> &mdash; toggle fullscreen (hides dock and menu bar). All shortcuts continue to work in fullscreen.</li>
 </ul>
+
+<h3>Tab context menu (right-click)</h3>
+<p>Right-click a tab title to access:</p>
+<ul>
+  <li><b>Rename</b> &mdash; change the displayed tab title.</li>
+  <li><b>Duplicate</b> &mdash; open the same session in a new tab.</li>
+  <li><b>Run Snapshot &rarr;</b> &mdash; run a snapshot on this tab's session.</li>
+  <li><b>Pin / Unpin</b> &mdash; pinned tabs are automatically restored on next launch.</li>
+  <li><b>Detach to New Window</b> &mdash; move the tab into a brand-new TSCRT window. The SSH/serial session stays connected &mdash; no disconnect/reconnect. Disabled when there is only one tab.</li>
+  <li><b>Close</b> &mdash; close the tab.</li>
+</ul>
+
+<h3>Drag tabs between windows</h3>
+<p>Drag a tab from the tab bar and drop it onto another TSCRT window to transfer the session. If you drop outside any TSCRT window, a new window is automatically created. The active connection is preserved throughout.</p>
 
 <h2 id="panes">Split panes / Input broadcast / Auto-reconnect</h2>
 
 <h3>Split panes</h3>
-<p>A single tab can hold several terminal panes arranged in a recursive splitter tree. Splitting reuses the active pane's profile so the new pane lands on the same host — handy for running multiple shells against one server, or for watching a log on one side while typing commands on the other.</p>
+<p>A single tab can hold several terminal panes arranged in a recursive splitter tree. Splitting reuses the active pane's profile so the new pane lands on the same host.</p>
 <ul>
-  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> — split the active pane horizontally (side by side).</li>
-  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> — split the active pane vertically (top / bottom).</li>
-  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> — close the active pane. Closing the last pane closes the whole tab.</li>
-  <li>Splits are recursive: a horizontal split followed by a vertical split inside one half produces a grid layout.</li>
-  <li>The active pane is marked with a <span style="color:#3a80ff"><b>1 px blue border</b></span>. Mouse clicks and keyboard focus updates the active pane automatically.</li>
-  <li>Drag the splitter handle between panes to resize.</li>
-  <li>The Find bar, Mark, Loop and command line always act on the <b>active pane</b>.</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> &mdash; split horizontally (side by side).</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> &mdash; split vertically (top / bottom).</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> &mdash; close the active pane. Closing the last pane closes the tab.</li>
+  <li>Splits are recursive: a horizontal split followed by a vertical split produces a grid.</li>
+  <li>The active pane is marked with a <span style="color:#3a80ff"><b>1 px blue border</b></span>. Mouse clicks and keyboard focus update it automatically.</li>
+  <li>Drag the splitter handle to resize.</li>
+  <li>Find bar, Mark, Loop and the command line always act on the <b>active pane</b>.</li>
 </ul>
 
 <h3>Input broadcast</h3>
-<p>Mirror keystrokes across multiple panes — useful when administering a fleet of servers and you want to type a command once and have every host receive it.</p>
+<p>Mirror keystrokes across multiple panes &mdash; useful for administering a fleet of servers.</p>
 <ul>
   <li>Toggle with <b>View &rarr; Broadcast Input</b> or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd>.</li>
-  <li>While enabled, every pane in the current tab gets an <span style="color:#e05a00"><b>orange border</b></span>.</li>
-  <li>Keystrokes, paste (<kbd>Ctrl</kbd>+<kbd>V</kbd>), IME input (e.g. CJK composition) and mouse reports from one pane are forwarded to every other pane's session.</li>
-  <li>The toggle is <b>per-tab</b>. Switching tabs updates the menu's check state to reflect that tab.</li>
-  <li>Caveat: sending the same input to dissimilar shells/devices can produce unexpected results. Use this with panes in the same OS / shell / working directory.</li>
+  <li>While enabled, every pane gets an <span style="color:#e05a00"><b>orange border</b></span>.</li>
+  <li>Keystrokes, paste, IME input and mouse reports from one pane are forwarded to every other pane.</li>
+  <li>The toggle is <b>per-tab</b>.</li>
 </ul>
 
 <h3>Auto-reconnect and SSH keepalive</h3>
-<p>Reconnect automatically when the network drops, and stop NAT/firewall idle timeouts from killing your sessions.</p>
-<p><b>Where:</b> <i>Sessions &rarr; Manage sessions&hellip;</i> &rarr; edit a session &rarr; <b>Advanced</b> group at the bottom of the dialog.</p>
+<p>Configured in the session editor's <b>Advanced</b> tab.</p>
 <ul>
-  <li><b>Auto reconnect</b> — try to restore the session after a drop. A tab the user closes manually will not reconnect.</li>
-  <li><b>Max attempts</b> — give-up cap. <code>0</code> (unlimited) keeps retrying forever.</li>
-  <li><b>Base delay (ms)</b> — initial backoff. Each subsequent attempt doubles, up to a 30 s ceiling, with 0–250 ms random jitter so reconnects don't synchronise.<br>Example with base 500: <code>500 ms → 1 s → 2 s → 4 s → 8 s → 16 s → 30 s → 30 s …</code></li>
-  <li><b>SSH keepalive (s)</b> (SSH only) — libssh2 keepalive interval. <code>0</code> = off; recommended 30 s. Sends a periodic ping at the SSH protocol level so NAT and stateful firewalls don't drop the flow.</li>
-  <li><b>TCP keepalive</b> (SSH only) — sets <code>SO_KEEPALIVE</code> on the underlying socket. Detects dead links at the OS level; combine it with SSH keepalive for the fastest detection.</li>
+  <li><b>Auto reconnect</b> &mdash; restore the session after a drop. Manually closed tabs will not reconnect.</li>
+  <li><b>Max attempts</b> &mdash; give-up cap. <code>0</code> = unlimited (hard cap at 100).</li>
+  <li><b>Base delay (ms)</b> &mdash; initial backoff (minimum 250 ms). Each retry doubles, ceiling 30 s, with 0&ndash;250 ms jitter.<br>Example with base 500: <code>500 ms &rarr; 1 s &rarr; 2 s &rarr; 4 s &rarr; 8 s &rarr; 16 s &rarr; 30 s &hellip;</code></li>
+  <li><b>SSH keepalive (s)</b> (SSH only) &mdash; libssh2 keepalive interval. Recommended 30 s.</li>
+  <li><b>TCP keepalive</b> (SSH only) &mdash; <code>SO_KEEPALIVE</code> on the socket.</li>
 </ul>
-<p><b>Behaviour during a reconnect:</b></p>
-<ul>
-  <li>The status bar shows <i>"Reconnecting &lt;session&gt; in N s (attempt M/Max)..."</i>.</li>
-  <li>The original <b>scrollback is preserved</b> — the new session re-attaches to the same TerminalWidget so you don't lose the on-screen history.</li>
-  <li>Hitting the attempt cap shows <i>"Reconnect failed for &lt;session&gt;: ..."</i> and stops trying.</li>
-  <li>Serial sessions auto-reconnect too, but only against the same device path (e.g. <code>COM3</code>). Re-plugging a USB adapter that gets a different port number will not auto-recover.</li>
-  <li>Each pane in a split tab carries its <b>own independent</b> reconnect state — one pane retrying does not affect the others.</li>
-</ul>
+<p><b>During reconnect:</b> the status bar shows progress; scrollback is preserved; each pane has its own independent reconnect state.</p>
 
 <h2 id="buttons">Buttons</h2>
-<p>The bottom button bar holds up to 20 user-defined action buttons. Clicking a button sends its action string to the active session. Right-click a button to edit the slot.</p>
+<p>Up to 20 user-defined action buttons in the bottom bar. Click to send, right-click to edit.</p>
 
 <h3>Action string syntax</h3>
-<p>An action string is plain text plus escape sequences:</p>
 <table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
 <tr><th>Escape</th><th>Meaning</th></tr>
 <tr><td><code>\r</code></td><td>Carriage return (Enter)</td></tr>
@@ -88,143 +101,119 @@
 <tr><td><code>\t</code></td><td>Tab</td></tr>
 <tr><td><code>\b</code></td><td>Backspace</td></tr>
 <tr><td><code>\e</code></td><td>Escape (0x1B)</td></tr>
-<tr><td><code>\p</code></td><td>Pause 1 second before continuing</td></tr>
+<tr><td><code>\p</code></td><td>Pause 1 second</td></tr>
 <tr><td><code>\\</code></td><td>Literal backslash</td></tr>
 </table>
+<p><b>Note:</b> Unknown escape sequences (e.g. <code>\q</code>) are silently dropped and logged as a warning. Only the escapes listed above are processed.</p>
 
 <h3>Examples</h3>
-<p><b>1. Send a single command</b> — label <i>uptime</i>, action:</p>
-<pre>uptime\r</pre>
-<p>Types <code>uptime</code> and presses Enter.</p>
+<p><b>1.</b> Send a command: <code>uptime\r</code></p>
+<p><b>2.</b> Serial login: <code>\r\padmin\rs3cret\r</code> (Enter &rarr; 1 s &rarr; admin+Enter &rarr; password+Enter)</p>
+<p><b>3.</b> Send Ctrl-C: <code>\x03</code></p>
+<p><b>4.</b> ESC then diagnose: <code>\e\pshow interfaces\r</code></p>
 
-<p><b>2. Multi-step login on a serial console</b> — label <i>login</i>, action:</p>
-<pre>\r\padmin\rs3cret\r</pre>
-<p>Sends Enter, waits 1 s, sends <code>admin</code>+Enter, then <code>s3cret</code>+Enter.</p>
-
-<p><b>3. Send a Ctrl key</b> — label <i>^C</i>, action:</p>
-<pre>\x03</pre>
-<p>Arbitrary bytes can be embedded with <code>\xNN</code> hex escapes.</p>
-
-<p><b>4. Cancel, then run a diagnostic</b> — label <i>diag</i>, action:</p>
-<pre>\e\pshow interfaces\r</pre>
-<p>Sends ESC, pauses 1 s, then runs <code>show interfaces</code>.</p>
-
-<h3>Loop and mark buttons</h3>
-<p>Two special buttons sit to the right of the user buttons:</p>
+<h3>Loop and Mark buttons</h3>
 <ul>
-  <li><b>Loop</b> — right-click a user button and choose <i>Loop this button</i> to repeat its action on an interval. The Loop button flashes in sync with each tick; click Loop to stop.</li>
-  <li><b>Mark</b> — inserts a timestamped marker line into the session log, handy when reviewing captures later. Left click = mark now, right click = edit label.</li>
+  <li><b>Loop</b> &mdash; right-click a user button &rarr; <i>Loop this button</i> to repeat on an interval.</li>
+  <li><b>Mark</b> &mdash; insert a timestamped marker into the session log. Left click = mark, right click = edit label.</li>
 </ul>
 
 <h2 id="snapshots">Snapshots</h2>
-<p>A <b>snapshot</b> is a named sequence of commands that TSCRT runs on a session, captures the output of, and writes to a timestamped file under the snapshot folder. Optionally it can email the result.</p>
+<p>A <b>snapshot</b> is a named sequence of commands that runs on a session, captures output, and writes a timestamped file. Optionally emails the result.</p>
 
-<h3>Configuring a snapshot</h3>
-<p>Open <b>Snapshots &rarr; Manage snapshots&hellip;</b>. For each snapshot, configure:</p>
+<h3>Configuring</h3>
+<p><b>Snapshots &rarr; Manage snapshots&hellip;</b></p>
 <ul>
-  <li><b>Name / description</b> — shown in the Snapshots menu.</li>
-  <li><b>Commands</b> — ordered list. Each row has:
-    <ul>
-      <li><b>Command</b>: action string (same syntax as buttons, e.g. <code>show version\r</code>)</li>
-      <li><b>Delay (ms)</b>: minimum wait after sending, to let the device respond</li>
-      <li><b>Expect prompt</b>: optional regex that ends the step early once matched</li>
-      <li><b>Max wait (ms)</b>: upper bound when <i>Expect prompt</i> is set</li>
-    </ul>
-  </li>
-  <li><b>Recipients</b> — one email address per line.</li>
-  <li><b>Subject template</b> — may use <code>{session}</code>, <code>{snapshot}</code>, <code>{timestamp}</code> placeholders.</li>
-  <li><b>Send email</b> / <b>Attach file</b> — whether to mail the result and whether the capture is attached or pasted in the body.</li>
+  <li><b>Name / description</b></li>
+  <li><b>Commands</b> &mdash; each row: command string, delay (ms), optional expect prompt (regex), max wait (ms).</li>
+  <li><b>Recipients</b>, <b>Subject template</b> (<code>{session}</code>, <code>{snapshot}</code>, <code>{timestamp}</code>).</li>
+  <li><b>Send email</b> / <b>Attach file</b>.</li>
 </ul>
+<p>The expect-prompt regex is matched against a rolling 64 KB window of the step's output, which prevents pathological patterns from stalling the GUI.</p>
 
-<h3>Running snapshots</h3>
+<h3>Running</h3>
 <ul>
-  <li>Menu: <b>Snapshots &rarr; &lt;snapshot name&gt;</b> runs it on the currently focused session.</li>
-  <li>Output files land under <i>log dir</i><code>/snapshots/</code>. Open that folder with <b>Snapshots &rarr; Open snapshot folder</b>, or browse them inside TSCRT via <b>Snapshots &rarr; Browse snapshots&hellip;</b>.</li>
-  <li>Inside the browser, right-click a file to <b>Send to administrator</b> — the file is attached and mailed to the SMTP <i>From</i> address (your configured admin account).</li>
+  <li>Menu: <b>Snapshots &rarr; &lt;name&gt;</b>, or right-click a tab &rarr; <b>Run Snapshot</b>.</li>
+  <li>Files: <i>log dir</i><code>/snapshots/</code>. Browse via <b>Snapshots &rarr; Browse snapshots&hellip;</b>.</li>
 </ul>
-
-<h3>Examples</h3>
-<p><b>1. Linux health check</b></p>
-<pre>name         : linux-health
-description  : Load / disk / memory snapshot
-command 1    : uptime\r               delay: 500
-command 2    : df -h\r                delay: 500
-command 3    : free -m\r              delay: 500
-command 4    : dmesg | tail -n 20\r   delay: 800
-subject_tmpl : [TSCRT] {session} health {timestamp}
-recipients   : ops@example.com
-send_email   : yes
-attach_file  : yes</pre>
-
-<p><b>2. Cisco-style switch config grab, using <i>expect_prompt</i> to avoid paging</b></p>
-<pre>name         : switch-config
-command 1    : terminal length 0\r    delay: 200
-command 2    : show running-config\r  delay: 0
-               expect_prompt: #\s*$   max_wait: 15000
-command 3    : show version\r        delay: 0
-               expect_prompt: #\s*$   max_wait: 5000
-subject_tmpl : config-backup {session} {timestamp}</pre>
-<p>The regex <code>#\s*$</code> matches the switch prompt at the end of a line so the step ends the moment output is complete.</p>
-
-<p><b>3. Multi-step with pauses</b></p>
-<pre>command 1: \e             delay: 300    (send ESC)
-command 2: menu\r         delay: 500
-command 3: \p4\r          delay: 1000  (pause 1 s, then "4", then Enter)</pre>
 
 <h2 id="rules">Automation rules</h2>
-<p><b>Snapshots &rarr; Automation rules&hellip;</b> ties snapshots to triggers. Three kinds:</p>
+<p><b>Snapshots &rarr; Automation rules&hellip;</b></p>
 <ul>
-  <li><b>on_connect</b> — runs the named snapshot once as soon as the session connects.</li>
-  <li><b>cron</b> — standard 5-field cron (<code>m h dom mon dow</code>). Example: <code>*/15 * * * *</code> runs every 15 minutes.</li>
-  <li><b>pattern</b> — runs the snapshot when the session's incoming bytes match a regex, throttled by a cooldown in seconds.</li>
+  <li><b>on_connect</b> &mdash; run once on session connect.</li>
+  <li><b>cron</b> &mdash; 5-field cron schedule.</li>
+  <li><b>pattern</b> &mdash; regex match on session output, with cooldown (seconds).</li>
 </ul>
-<p>Rules can be scoped to a specific session name, or left blank to apply to all sessions.</p>
 
 <h2 id="triggers">Triggers, periodics, startup actions</h2>
 <p>Configured in <b>Settings &rarr; Preferences</b>:</p>
 <ul>
-  <li><b>Triggers</b> — when a session's output matches a regex, send an action string. Useful for auto-ack prompts.</li>
-  <li><b>Periodics</b> — send an action every N seconds to a named session (keepalives, polling).</li>
-  <li><b>Startup actions</b> — send an action once right after a session connects.</li>
+  <li><b>Triggers</b> &mdash; pattern-match session output and send an action. Rate-limited: each trigger has a 2 s per-pattern cooldown, and a global cap of 20 fires per 10 s across all triggers in a session.</li>
+  <li><b>Periodics</b> &mdash; send an action every N seconds.</li>
+  <li><b>Startup actions</b> &mdash; send an action once on connect.</li>
 </ul>
 
 <h2 id="smtp">SMTP</h2>
-<p><b>Settings &rarr; SMTP&hellip;</b> configures outgoing mail used by snapshots and the <i>Send to administrator</i> action.</p>
+<p><b>Settings &rarr; SMTP&hellip;</b></p>
 <ul>
-  <li><b>Host / port</b> — e.g. <code>smtp.gmail.com</code> / <code>587</code>.</li>
-  <li><b>Security</b> — <i>None</i>, <i>STARTTLS</i>, or <i>SMTPS</i> (implicit TLS).</li>
-  <li><b>Username / password</b> — password is encrypted at rest.</li>
-  <li><b>From address / name</b> — appears in the <i>From</i> header. <b>This is also the "administrator" address</b> used by <i>Send to administrator</i>.</li>
-  <li><b>Timeout (s)</b> — per-step socket timeout.</li>
+  <li><b>Host / port</b></li>
+  <li><b>Security</b> &mdash; None, STARTTLS, or SMTPS. <b>If a username is configured, STARTTLS or SMTPS is required</b> &mdash; plaintext authentication is refused to prevent credential leakage.</li>
+  <li><b>Username / password</b> &mdash; password is encrypted at rest (DPAPI on Windows, Keychain on macOS).</li>
+  <li><b>From address / name</b> &mdash; also used as the <i>Send to administrator</i> target address.</li>
+  <li><b>Timeout (s)</b></li>
 </ul>
+<p>TLS certificate validation is enforced: self-signed, expired, or hostname-mismatched certificates are rejected with a clear error message.</p>
 
 <h2 id="logs">Logs</h2>
 <ul>
-  <li><b>Logs &rarr; Open log folder</b> — session log files live here, one timestamped file per session.</li>
-  <li>Snapshot captures land in the <code>snapshots/</code> subfolder.</li>
-  <li>Per-session logging is enabled in the session editor (<i>Log enabled</i>).</li>
+  <li><b>Logs &rarr; Open log folder</b> &mdash; one timestamped file per session.</li>
+  <li>Snapshot captures: <code>snapshots/</code> subfolder.</li>
+  <li>Per-session logging toggle in the session editor's General tab.</li>
 </ul>
 
-<h2 id="profile">Profile import / export</h2>
-<p>The profile holds sessions, buttons, snapshots, rules, and SMTP settings.</p>
+<h2 id="security">Security</h2>
+
+<h3>SSH host key verification</h3>
+<p>TSCRT uses a <b>Trust On First Use (TOFU)</b> model. On the first connection to a server, the host key is pinned to <code>~/tscrt/known_hosts</code> (OpenSSH format) and its SHA-256 fingerprint is logged.</p>
 <ul>
-  <li><b>File &rarr; Export profile&hellip;</b> — full or partial (pick which sections to include).</li>
-  <li><b>File &rarr; Import profile&hellip;</b> — merges into the current profile; conflicts are reported.</li>
+  <li><b>Match</b> &mdash; connection proceeds silently.</li>
+  <li><b>New host</b> &mdash; key is automatically pinned and persisted.</li>
+  <li><b>Mismatch</b> &mdash; connection is <b>refused</b> with an error showing the server fingerprint and the known_hosts path. This protects against man-in-the-middle attacks. If the server key legitimately changed, remove the stale entry from the known_hosts file and reconnect.</li>
+</ul>
+
+<h3>Credential storage</h3>
+<ul>
+  <li><b>Windows</b> &mdash; SSH and SMTP passwords are encrypted with DPAPI, bound to the current user account. The profile file is additionally protected by an owner-only ACL.</li>
+  <li><b>macOS</b> &mdash; passwords are stored in the system Keychain (via Security.framework). The profile contains only a <code>keychain:&lt;uuid&gt;</code> reference.</li>
+  <li><b>Linux</b> &mdash; passwords are currently stored as plaintext in the profile (0600 permissions). A future version may integrate libsecret.</li>
+  <li>Profiles migrated from Windows to macOS will lose encrypted passwords. Re-enter them after migration.</li>
+</ul>
+
+<h3>Crash dumps</h3>
+<p>If TSCRT crashes, a dump is written to <code>~/tscrt/dumps/</code> with owner-only permissions (0600 on POSIX, owner-only ACL on Windows). Dumps older than 7 days are automatically deleted on startup.</p>
+
+<h2 id="profile">Profile import / export</h2>
+<ul>
+  <li><b>File &rarr; Export profile&hellip;</b> &mdash; full or partial.</li>
+  <li><b>File &rarr; Import profile&hellip;</b> &mdash; merges into the current profile; conflicts reported.</li>
 </ul>
 
 <h2 id="shortcuts">Keyboard shortcuts</h2>
-<ul>
-  <li><kbd>Ctrl</kbd>+<kbd>T</kbd> — new tab from the current session</li>
-  <li><kbd>Ctrl</kbd>+<kbd>W</kbd> — close current tab</li>
-  <li><kbd>F11</kbd> — toggle fullscreen</li>
-  <li><kbd>Ctrl</kbd>+<kbd>L</kbd> — focus command line</li>
-  <li><kbd>Ctrl</kbd>+<kbd>F</kbd> — open Find / Mark bar</li>
-  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> — split active pane horizontally</li>
-  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> — split active pane vertically</li>
-  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> — close active pane</li>
-  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> — toggle input broadcast</li>
-  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> — manage snapshots</li>
-</ul>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><th>Shortcut</th><th>Action</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>T</kbd></td><td>New tab from current session</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>W</kbd></td><td>Close current tab</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;</kbd> / <kbd>&rarr;</kbd></td><td>Previous / next tab</td></tr>
+<tr><td><kbd>F11</kbd></td><td>Toggle fullscreen</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>L</kbd></td><td>Focus command line</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>F</kbd></td><td>Open Find / Mark bar</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd></td><td>Split pane horizontally</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd></td><td>Split pane vertically</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd></td><td>Close active pane</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd></td><td>Toggle input broadcast</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></td><td>Manage snapshots</td></tr>
+</table>
+<p>All shortcuts work in fullscreen mode.</p>
 
 </body>
 </html>
