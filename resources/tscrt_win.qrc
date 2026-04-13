@@ -11,5 +11,11 @@
         <file alias="usage_ko.html">help/usage_ko.html</file>
         <file alias="usage_ja.html">help/usage_ja.html</file>
         <file alias="usage_zh.html">help/usage_zh.html</file>
+        <file alias="usage_es.html">help/usage_es.html</file>
+        <file alias="usage_fr.html">help/usage_fr.html</file>
+        <file alias="usage_de.html">help/usage_de.html</file>
+        <file alias="usage_pt.html">help/usage_pt.html</file>
+        <file alias="usage_ru.html">help/usage_ru.html</file>
+        <file alias="usage_it.html">help/usage_it.html</file>
     </qresource>
 </RCC>

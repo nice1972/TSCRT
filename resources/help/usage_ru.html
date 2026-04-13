@@ -1,0 +1,39 @@
+<html>
+<head><meta charset="utf-8"><title>Руководство TSCRT</title></head>
+<body style="font-family:Segoe UI,Arial,sans-serif; font-size:10pt; color:#e0e0e0; background:#1e1e1e;">
+<h1>Руководство пользователя TSCRT</h1>
+<p>TSCRT — эмулятор терминала для SSH2 и последовательных консолей.</p>
+<ul>
+  <li><a href="#sessions">Сессии</a> | <a href="#tabs">Вкладки</a> | <a href="#panes">Панели</a> | <a href="#buttons">Кнопки</a> | <a href="#snapshots">Снимки</a></li>
+  <li><a href="#rules">Правила</a> | <a href="#triggers">Триггеры</a> | <a href="#smtp">SMTP</a> | <a href="#logs">Журналы</a> | <a href="#security">Безопасность</a> | <a href="#shortcuts">Горячие клавиши</a></li>
+</ul>
+<h2 id="sessions">Сессии</h2>
+<p>Редактор с тремя вкладками: <b>Connection</b>, <b>General</b> (тип терминала для каждой сессии), <b>Advanced</b>.</p>
+<h2 id="tabs">Вкладки и многооконность</h2>
+<p><kbd>Ctrl+Alt+&larr;/&rarr;</kbd> навигация. <kbd>F11</kbd> полноэкранный режим. Правый клик: Переименовать, Дублировать, Закрепить, <b>Отделить в новое окно</b>. Перетаскивание вкладок между окнами.</p>
+<h2 id="panes">Разделённые панели / Трансляция / Переподключение</h2>
+<p><kbd>Ctrl+Shift+H/V/W</kbd> разделить/закрыть. <kbd>B</kbd> трансляция ввода (<span style="color:#e05a00"><b>оранжевая</b></span> рамка). Переподключение: макс. 100 попыток, мин. задержка 250 мс, потолок 30 с.</p>
+<h2 id="buttons">Кнопки</h2>
+<p>Макс. 20. <code>\r</code>=Enter, <code>\e</code>=ESC, <code>\p</code>=пауза 1с. Неизвестные escape-последовательности игнорируются.</p>
+<h2 id="snapshots">Снимки</h2>
+<p><b>Snapshots &rarr; Manage&hellip;</b> expect_prompt в скользящем окне 64 КБ.</p>
+<h2 id="rules">Правила автоматизации</h2>
+<p><b>on_connect</b> / <b>cron</b> / <b>pattern</b> (+ период охлаждения).</p>
+<h2 id="triggers">Триггеры / Периодические / Запуск</h2>
+<p>Ограничение: 2 с на шаблон, макс. 20 за 10 с на сессию.</p>
+<h2 id="smtp">SMTP</h2>
+<p>STARTTLS/SMTPS обязательно. Проверка TLS принудительная. Пароли зашифрованы (DPAPI/Keychain).</p>
+<h2 id="logs">Журналы</h2>
+<p><b>Logs &rarr; Open log folder</b>.</p>
+<h2 id="security">Безопасность</h2>
+<p>Проверка SSH-ключа хоста (TOFU). Учётные данные: DPAPI/Keychain. Дампы: права только для владельца, авточистка через 7 дней.</p>
+<h2 id="shortcuts">Горячие клавиши</h2>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><td><kbd>Ctrl+T</kbd></td><td>Новая вкладка</td></tr>
+<tr><td><kbd>Ctrl+W</kbd></td><td>Закрыть вкладку</td></tr>
+<tr><td><kbd>F11</kbd></td><td>Полный экран</td></tr>
+<tr><td><kbd>Ctrl+Shift+H/V</kbd></td><td>Разделить</td></tr>
+<tr><td><kbd>Ctrl+Shift+B</kbd></td><td>Трансляция</td></tr>
+</table>
+</body>
+</html>

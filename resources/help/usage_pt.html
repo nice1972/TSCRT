@@ -1,0 +1,39 @@
+<html>
+<head><meta charset="utf-8"><title>Guia de uso do TSCRT</title></head>
+<body style="font-family:Segoe UI,Arial,sans-serif; font-size:10pt; color:#e0e0e0; background:#1e1e1e;">
+<h1>Guia de uso do TSCRT</h1>
+<p>TSCRT e um emulador de terminal SSH2 e console serial.</p>
+<ul>
+  <li><a href="#sessions">Sessoes</a> | <a href="#tabs">Abas</a> | <a href="#panes">Paineis</a> | <a href="#buttons">Botoes</a> | <a href="#snapshots">Snapshots</a></li>
+  <li><a href="#rules">Regras</a> | <a href="#triggers">Gatilhos</a> | <a href="#smtp">SMTP</a> | <a href="#logs">Logs</a> | <a href="#security">Seguranca</a> | <a href="#shortcuts">Atalhos</a></li>
+</ul>
+<h2 id="sessions">Sessoes</h2>
+<p>Editor com tres abas: <b>Connection</b>, <b>General</b> (tipo de terminal por sessao), <b>Advanced</b>.</p>
+<h2 id="tabs">Abas e multijanela</h2>
+<p><kbd>Ctrl+Alt+&larr;/&rarr;</kbd> navegacao. <kbd>F11</kbd> tela cheia. Clique direito: Renomear, Duplicar, Fixar, <b>Separar em nova janela</b>. Arraste abas entre janelas.</p>
+<h2 id="panes">Paineis divididos / Broadcast / Reconexao</h2>
+<p><kbd>Ctrl+Shift+H/V/W</kbd> dividir/fechar. <kbd>B</kbd> broadcast (<span style="color:#e05a00"><b>laranja</b></span>). Reconexao: max 100, atraso min 250 ms, teto 30 s.</p>
+<h2 id="buttons">Botoes</h2>
+<p>Max 20. <code>\r</code>=Enter, <code>\e</code>=ESC, <code>\p</code>=pausa 1s. Escapes desconhecidos sao ignorados.</p>
+<h2 id="snapshots">Snapshots</h2>
+<p><b>Snapshots &rarr; Manage&hellip;</b> expect_prompt em janela deslizante de 64 KB.</p>
+<h2 id="rules">Regras de automacao</h2>
+<p><b>on_connect</b> / <b>cron</b> / <b>pattern</b> (+ cooldown).</p>
+<h2 id="triggers">Gatilhos / Periodicos / Inicio</h2>
+<p>Limite: 2 s por padrao, max 20 em 10 s por sessao.</p>
+<h2 id="smtp">SMTP</h2>
+<p>STARTTLS/SMTPS obrigatorio. Validacao TLS forcada. Senhas criptografadas (DPAPI/Keychain).</p>
+<h2 id="logs">Logs</h2>
+<p><b>Logs &rarr; Open log folder</b>.</p>
+<h2 id="security">Seguranca</h2>
+<p>Verificacao de chave SSH (TOFU). Credenciais: DPAPI/Keychain. Dumps: owner-only, limpeza auto 7 dias.</p>
+<h2 id="shortcuts">Atalhos</h2>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><td><kbd>Ctrl+T</kbd></td><td>Nova aba</td></tr>
+<tr><td><kbd>Ctrl+W</kbd></td><td>Fechar aba</td></tr>
+<tr><td><kbd>F11</kbd></td><td>Tela cheia</td></tr>
+<tr><td><kbd>Ctrl+Shift+H/V</kbd></td><td>Dividir</td></tr>
+<tr><td><kbd>Ctrl+Shift+B</kbd></td><td>Broadcast</td></tr>
+</table>
+</body>
+</html>

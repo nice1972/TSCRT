@@ -1,0 +1,39 @@
+<html>
+<head><meta charset="utf-8"><title>Guida all'uso di TSCRT</title></head>
+<body style="font-family:Segoe UI,Arial,sans-serif; font-size:10pt; color:#e0e0e0; background:#1e1e1e;">
+<h1>Guida all'uso di TSCRT</h1>
+<p>TSCRT e un emulatore di terminale per SSH2 e console seriali.</p>
+<ul>
+  <li><a href="#sessions">Sessioni</a> | <a href="#tabs">Schede</a> | <a href="#panes">Pannelli</a> | <a href="#buttons">Pulsanti</a> | <a href="#snapshots">Snapshot</a></li>
+  <li><a href="#rules">Regole</a> | <a href="#triggers">Trigger</a> | <a href="#smtp">SMTP</a> | <a href="#logs">Log</a> | <a href="#security">Sicurezza</a> | <a href="#shortcuts">Scorciatoie</a></li>
+</ul>
+<h2 id="sessions">Sessioni</h2>
+<p>Editor con tre schede: <b>Connection</b>, <b>General</b> (tipo di terminale per sessione), <b>Advanced</b>.</p>
+<h2 id="tabs">Schede e multi-finestra</h2>
+<p><kbd>Ctrl+Alt+&larr;/&rarr;</kbd> navigazione. <kbd>F11</kbd> schermo intero. Clic destro: Rinomina, Duplica, Fissa, <b>Separa in nuova finestra</b>. Trascina schede tra finestre.</p>
+<h2 id="panes">Pannelli divisi / Broadcast / Riconnessione</h2>
+<p><kbd>Ctrl+Shift+H/V/W</kbd> dividere/chiudere. <kbd>B</kbd> broadcast (<span style="color:#e05a00"><b>arancione</b></span>). Riconnessione: max 100, ritardo min 250 ms, tetto 30 s.</p>
+<h2 id="buttons">Pulsanti</h2>
+<p>Max 20. <code>\r</code>=Invio, <code>\e</code>=ESC, <code>\p</code>=pausa 1s. Escape sconosciuti ignorati.</p>
+<h2 id="snapshots">Snapshot</h2>
+<p><b>Snapshots &rarr; Manage&hellip;</b> expect_prompt su finestra scorrevole di 64 KB.</p>
+<h2 id="rules">Regole di automazione</h2>
+<p><b>on_connect</b> / <b>cron</b> / <b>pattern</b> (+ cooldown).</p>
+<h2 id="triggers">Trigger / Periodici / Avvio</h2>
+<p>Limite: 2 s per pattern, max 20 in 10 s per sessione.</p>
+<h2 id="smtp">SMTP</h2>
+<p>STARTTLS/SMTPS obbligatorio. Validazione TLS forzata. Password crittografate (DPAPI/Keychain).</p>
+<h2 id="logs">Log</h2>
+<p><b>Logs &rarr; Open log folder</b>.</p>
+<h2 id="security">Sicurezza</h2>
+<p>Verifica chiave SSH (TOFU). Credenziali: DPAPI/Keychain. Dump: solo proprietario, pulizia auto 7 giorni.</p>
+<h2 id="shortcuts">Scorciatoie</h2>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><td><kbd>Ctrl+T</kbd></td><td>Nuova scheda</td></tr>
+<tr><td><kbd>Ctrl+W</kbd></td><td>Chiudi scheda</td></tr>
+<tr><td><kbd>F11</kbd></td><td>Schermo intero</td></tr>
+<tr><td><kbd>Ctrl+Shift+H/V</kbd></td><td>Dividi</td></tr>
+<tr><td><kbd>Ctrl+Shift+B</kbd></td><td>Broadcast</td></tr>
+</table>
+</body>
+</html>

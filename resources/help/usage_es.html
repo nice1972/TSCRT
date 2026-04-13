@@ -1,0 +1,79 @@
+<html>
+<head><meta charset="utf-8"><title>Guia de uso de TSCRT</title></head>
+<body style="font-family:Segoe UI,Arial,sans-serif; font-size:10pt; color:#e0e0e0; background:#1e1e1e;">
+<h1>Guia de uso de TSCRT</h1>
+<p>TSCRT es un emulador de terminal para SSH2 y consolas serie. Navegacion rapida:</p>
+<ul>
+  <li><a href="#sessions">Sesiones</a></li>
+  <li><a href="#tabs">Pestanas y multiventana</a></li>
+  <li><a href="#panes">Paneles divididos / Difusion de entrada / Reconexion automatica</a></li>
+  <li><a href="#buttons">Botones</a></li>
+  <li><a href="#snapshots">Instantaneas (Snapshots)</a></li>
+  <li><a href="#rules">Reglas de automatizacion</a></li>
+  <li><a href="#triggers">Disparadores / Ejecucion periodica / Acciones de inicio</a></li>
+  <li><a href="#smtp">SMTP</a></li>
+  <li><a href="#logs">Registros</a></li>
+  <li><a href="#security">Seguridad</a></li>
+  <li><a href="#profile">Importar / Exportar perfil</a></li>
+  <li><a href="#shortcuts">Atajos de teclado</a></li>
+</ul>
+
+<h2 id="sessions">Sesiones</h2>
+<p>Una <b>sesion</b> es una definicion de conexion SSH o serie.</p>
+<ul>
+  <li><b>Sessions &rarr; Manage sessions&hellip;</b> &mdash; agregar, editar, duplicar o eliminar.</li>
+  <li>Editor de sesion con tres pestanas: <b>Connection</b>, <b>General</b> (tipo de terminal por sesion), <b>Advanced</b>.</li>
+</ul>
+
+<h2 id="tabs">Pestanas y multiventana</h2>
+<ul>
+  <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;/&rarr;</kbd> &mdash; pestana anterior/siguiente.</li>
+  <li><kbd>F11</kbd> &mdash; pantalla completa. Todos los atajos funcionan en pantalla completa.</li>
+  <li>Clic derecho en pestana: Renombrar, Duplicar, Fijar, Ejecutar Snapshot, <b>Separar en nueva ventana</b>, Cerrar.</li>
+  <li>Arrastre pestanas entre ventanas TSCRT. Soltar fuera crea una nueva ventana.</li>
+</ul>
+
+<h2 id="panes">Paneles divididos / Difusion / Reconexion</h2>
+<ul>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> &mdash; dividir horizontal. <kbd>V</kbd> &mdash; vertical. <kbd>W</kbd> &mdash; cerrar panel.</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> &mdash; difusion de entrada (borde <span style="color:#e05a00"><b>naranja</b></span>).</li>
+  <li>Reconexion: maximo 100 intentos, retardo base minimo 250 ms, retroceso exponencial hasta 30 s.</li>
+</ul>
+
+<h2 id="buttons">Botones</h2>
+<p>Hasta 20 botones. Sintaxis: <code>\r</code>=Enter, <code>\n</code>=LF, <code>\t</code>=Tab, <code>\b</code>=BS, <code>\e</code>=ESC, <code>\p</code>=pausa 1s, <code>\\</code>=\. Escapes desconocidos se ignoran.</p>
+
+<h2 id="snapshots">Instantaneas</h2>
+<p><b>Snapshots &rarr; Manage snapshots&hellip;</b>. expect_prompt se aplica en ventana rodante de 64 KB.</p>
+
+<h2 id="rules">Reglas de automatizacion</h2>
+<p><b>on_connect</b> / <b>cron</b> (5 campos) / <b>pattern</b> (regex + enfriamiento).</p>
+
+<h2 id="triggers">Disparadores / Periodicos / Inicio</h2>
+<p><b>Settings &rarr; Preferences</b>. Disparadores con limite: 2 s por patron, max 20 en 10 s.</p>
+
+<h2 id="smtp">SMTP</h2>
+<p>STARTTLS/SMTPS obligatorio con autenticacion. Verificacion TLS forzada. Contrasenas cifradas (DPAPI/Keychain).</p>
+
+<h2 id="logs">Registros</h2>
+<p><b>Logs &rarr; Open log folder</b>. Snapshots en <code>snapshots/</code>.</p>
+
+<h2 id="security">Seguridad</h2>
+<p>Verificacion de clave SSH (TOFU). Credenciales: DPAPI (Windows), Keychain (macOS). Volcados de memoria: permisos owner-only, eliminacion automatica a los 7 dias.</p>
+
+<h2 id="profile">Perfil</h2>
+<p><b>File &rarr; Export/Import profile&hellip;</b></p>
+
+<h2 id="shortcuts">Atajos de teclado</h2>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><th>Atajo</th><th>Accion</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>T</kbd></td><td>Nueva pestana</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>W</kbd></td><td>Cerrar pestana</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;/&rarr;</kbd></td><td>Pestana anterior/siguiente</td></tr>
+<tr><td><kbd>F11</kbd></td><td>Pantalla completa</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H/V</kbd></td><td>Dividir panel</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd></td><td>Cerrar panel</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd></td><td>Difusion</td></tr>
+</table>
+</body>
+</html>

@@ -16,8 +16,9 @@ HelpDialog::HelpDialog(QWidget *parent)
     QSettings prefs;
     QString lang = prefs.value(QStringLiteral("ui/language"),
                                QStringLiteral("en")).toString();
-    if (lang != QLatin1String("en") && lang != QLatin1String("ko") &&
-        lang != QLatin1String("ja") && lang != QLatin1String("zh"))
+    // Fall back to English if no help file exists for the selected language.
+    const QString testPath = QStringLiteral(":/help/usage_%1.html").arg(lang);
+    if (!QFile::exists(testPath))
         lang = QStringLiteral("en");
 
     QString path = QStringLiteral(":/help/usage_%1.html").arg(lang);

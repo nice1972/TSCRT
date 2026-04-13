@@ -1,0 +1,39 @@
+<html>
+<head><meta charset="utf-8"><title>TSCRT Benutzerhandbuch</title></head>
+<body style="font-family:Segoe UI,Arial,sans-serif; font-size:10pt; color:#e0e0e0; background:#1e1e1e;">
+<h1>TSCRT Benutzerhandbuch</h1>
+<p>TSCRT ist ein Terminalemulator fuer SSH2 und serielle Konsolen.</p>
+<ul>
+  <li><a href="#sessions">Sitzungen</a> | <a href="#tabs">Tabs</a> | <a href="#panes">Fenster</a> | <a href="#buttons">Schaltflaechen</a> | <a href="#snapshots">Snapshots</a></li>
+  <li><a href="#rules">Regeln</a> | <a href="#triggers">Trigger</a> | <a href="#smtp">SMTP</a> | <a href="#logs">Protokolle</a> | <a href="#security">Sicherheit</a> | <a href="#shortcuts">Tastenkuerzel</a></li>
+</ul>
+<h2 id="sessions">Sitzungen</h2>
+<p>Editor mit drei Tabs: <b>Connection</b>, <b>General</b> (Terminaltyp pro Sitzung), <b>Advanced</b>.</p>
+<h2 id="tabs">Tabs und Mehrfenster</h2>
+<p><kbd>Ctrl+Alt+&larr;/&rarr;</kbd> Navigation. <kbd>F11</kbd> Vollbild. Rechtsklick: Umbenennen, Duplizieren, Anheften, <b>In neues Fenster trennen</b>. Tabs zwischen Fenstern ziehen.</p>
+<h2 id="panes">Geteilte Fenster / Broadcast / Wiederverbindung</h2>
+<p><kbd>Ctrl+Shift+H/V/W</kbd> teilen/schliessen. <kbd>B</kbd> Broadcast (<span style="color:#e05a00"><b>orangener</b></span> Rand). Wiederverbindung: max 100, Mindestverzoegerung 250 ms, Obergrenze 30 s.</p>
+<h2 id="buttons">Schaltflaechen</h2>
+<p>Max 20. <code>\r</code>=Enter, <code>\e</code>=ESC, <code>\p</code>=1s Pause. Unbekannte Escapes werden ignoriert.</p>
+<h2 id="snapshots">Snapshots</h2>
+<p><b>Snapshots &rarr; Manage&hellip;</b> expect_prompt auf 64-KB-Gleitfenster.</p>
+<h2 id="rules">Automatisierungsregeln</h2>
+<p><b>on_connect</b> / <b>cron</b> / <b>pattern</b> (+ Abklingzeit).</p>
+<h2 id="triggers">Trigger / Periodisch / Startaktionen</h2>
+<p>Ratenbegrenzung: 2 s pro Muster, max 20 in 10 s pro Sitzung.</p>
+<h2 id="smtp">SMTP</h2>
+<p>STARTTLS/SMTPS erforderlich. TLS-Validierung erzwungen. Passwoerter verschluesselt (DPAPI/Keychain).</p>
+<h2 id="logs">Protokolle</h2>
+<p><b>Logs &rarr; Open log folder</b>.</p>
+<h2 id="security">Sicherheit</h2>
+<p>SSH-Host-Key-Verifizierung (TOFU). Credentials: DPAPI/Keychain. Dumps: Nur-Eigentuemer-Rechte, automatische Bereinigung nach 7 Tagen.</p>
+<h2 id="shortcuts">Tastenkuerzel</h2>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><td><kbd>Ctrl+T</kbd></td><td>Neuer Tab</td></tr>
+<tr><td><kbd>Ctrl+W</kbd></td><td>Tab schliessen</td></tr>
+<tr><td><kbd>F11</kbd></td><td>Vollbild</td></tr>
+<tr><td><kbd>Ctrl+Shift+H/V</kbd></td><td>Teilen</td></tr>
+<tr><td><kbd>Ctrl+Shift+B</kbd></td><td>Broadcast</td></tr>
+</table>
+</body>
+</html>

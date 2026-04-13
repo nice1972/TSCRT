@@ -409,35 +409,30 @@ void MainWindow::createMenus()
     settingsMenu->addAction(m_actSettings);
 
     auto *langMenu = settingsMenu->addMenu(tr("&Language"));
-    auto *enAct = langMenu->addAction(QStringLiteral("English"));
-    auto *koAct = langMenu->addAction(QStringLiteral("한국어"));
-    auto *jaAct = langMenu->addAction(QStringLiteral("日本語"));
-    auto *zhAct = langMenu->addAction(QStringLiteral("中文"));
-    enAct->setCheckable(true);
-    koAct->setCheckable(true);
-    jaAct->setCheckable(true);
-    zhAct->setCheckable(true);
+    struct LangEntry { const char *code; const char *label; };
+    static const LangEntry langs[] = {
+        { "en", "English" },   { "ko", "\xED\x95\x9C\xEA\xB5\xAD\xEC\x96\xB4" }, // 한국어
+        { "ja", "\xE6\x97\xA5\xE6\x9C\xAC\xE8\xAA\x9E" }, // 日本語
+        { "zh", "\xE4\xB8\xAD\xE6\x96\x87" },               // 中文
+        { "es", "Espa\xC3\xB1ol" },    { "fr", "Fran\xC3\xA7\x61is" },
+        { "de", "Deutsch" },            { "pt", "Portugu\xC3\xAAs" },
+        { "ru", "\xD0\xA0\xD1\x83\xD1\x81\xD1\x81\xD0\xBA\xD0\xB8\xD0\xB9" }, // Русский
+        { "it", "Italiano" },
+    };
     {
         QSettings prefs;
         const QString cur = prefs.value(QStringLiteral("ui/language"),
                                         QStringLiteral("en")).toString();
-        enAct->setChecked(cur == QLatin1String("en"));
-        koAct->setChecked(cur == QLatin1String("ko"));
-        jaAct->setChecked(cur == QLatin1String("ja"));
-        zhAct->setChecked(cur == QLatin1String("zh"));
+        for (const auto &l : langs) {
+            auto *act = langMenu->addAction(QString::fromUtf8(l.label));
+            act->setCheckable(true);
+            act->setChecked(cur == QLatin1String(l.code));
+            const QString code = QString::fromLatin1(l.code);
+            connect(act, &QAction::triggered, this, [this, code] {
+                setUiLanguage(code);
+            });
+        }
     }
-    connect(enAct, &QAction::triggered, this, [this] {
-        setUiLanguage(QStringLiteral("en"));
-    });
-    connect(koAct, &QAction::triggered, this, [this] {
-        setUiLanguage(QStringLiteral("ko"));
-    });
-    connect(jaAct, &QAction::triggered, this, [this] {
-        setUiLanguage(QStringLiteral("ja"));
-    });
-    connect(zhAct, &QAction::triggered, this, [this] {
-        setUiLanguage(QStringLiteral("zh"));
-    });
 
     m_actReload = new QAction(tr("&Reload profile"), this);
     m_actReload->setShortcut(QKeySequence(tr("F5")));

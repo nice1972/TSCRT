@@ -1,0 +1,39 @@
+<html>
+<head><meta charset="utf-8"><title>Guide d'utilisation TSCRT</title></head>
+<body style="font-family:Segoe UI,Arial,sans-serif; font-size:10pt; color:#e0e0e0; background:#1e1e1e;">
+<h1>Guide d'utilisation TSCRT</h1>
+<p>TSCRT est un emulateur de terminal SSH2 et console serie. Navigation rapide :</p>
+<ul>
+  <li><a href="#sessions">Sessions</a> | <a href="#tabs">Onglets</a> | <a href="#panes">Panneaux</a> | <a href="#buttons">Boutons</a> | <a href="#snapshots">Instantanes</a></li>
+  <li><a href="#rules">Regles</a> | <a href="#triggers">Declencheurs</a> | <a href="#smtp">SMTP</a> | <a href="#logs">Journaux</a> | <a href="#security">Securite</a> | <a href="#shortcuts">Raccourcis</a></li>
+</ul>
+<h2 id="sessions">Sessions</h2>
+<p>Editeur a trois onglets : <b>Connection</b>, <b>General</b> (type de terminal par session), <b>Advanced</b>.</p>
+<h2 id="tabs">Onglets et multi-fenetre</h2>
+<p><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;/&rarr;</kbd> navigation. <kbd>F11</kbd> plein ecran. Clic droit : Renommer, Dupliquer, Epingler, <b>Detacher dans une nouvelle fenetre</b>. Glisser-deposer entre fenetres.</p>
+<h2 id="panes">Panneaux divises / Diffusion / Reconnexion</h2>
+<p><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H/V/W</kbd> diviser/fermer. <kbd>B</kbd> diffusion (bordure <span style="color:#e05a00"><b>orange</b></span>). Reconnexion : max 100, delai min 250 ms, plafond 30 s.</p>
+<h2 id="buttons">Boutons</h2>
+<p>20 max. <code>\r</code>=Entree, <code>\e</code>=ESC, <code>\p</code>=pause 1s. Escapes inconnus ignores.</p>
+<h2 id="snapshots">Instantanes</h2>
+<p><b>Snapshots &rarr; Manage&hellip;</b> expect_prompt sur fenetre glissante 64 Ko.</p>
+<h2 id="rules">Regles d'automatisation</h2>
+<p><b>on_connect</b> / <b>cron</b> / <b>pattern</b> (+ refroidissement).</p>
+<h2 id="triggers">Declencheurs / Periodiques / Demarrage</h2>
+<p>Limite : 2 s par motif, max 20 en 10 s par session.</p>
+<h2 id="smtp">SMTP</h2>
+<p>STARTTLS/SMTPS obligatoire. Validation TLS forcee. Mots de passe chiffres (DPAPI/Keychain).</p>
+<h2 id="logs">Journaux</h2>
+<p><b>Logs &rarr; Open log folder</b>.</p>
+<h2 id="security">Securite</h2>
+<p>Verification cle SSH (TOFU). Credentials : DPAPI/Keychain. Dumps : owner-only, purge auto 7 jours.</p>
+<h2 id="shortcuts">Raccourcis</h2>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><td><kbd>Ctrl+T</kbd></td><td>Nouvel onglet</td></tr>
+<tr><td><kbd>Ctrl+W</kbd></td><td>Fermer onglet</td></tr>
+<tr><td><kbd>F11</kbd></td><td>Plein ecran</td></tr>
+<tr><td><kbd>Ctrl+Shift+H/V</kbd></td><td>Diviser</td></tr>
+<tr><td><kbd>Ctrl+Shift+B</kbd></td><td>Diffusion</td></tr>
+</table>
+</body>
+</html>

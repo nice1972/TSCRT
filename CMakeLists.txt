@@ -115,6 +115,12 @@ set(TS_FILES
     translations/tscrt_win_ko.ts
     translations/tscrt_win_ja.ts
     translations/tscrt_win_zh.ts
+    translations/tscrt_win_es.ts
+    translations/tscrt_win_fr.ts
+    translations/tscrt_win_de.ts
+    translations/tscrt_win_pt.ts
+    translations/tscrt_win_ru.ts
+    translations/tscrt_win_it.ts
 )
 
 if(WIN32)
