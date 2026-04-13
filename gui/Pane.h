@@ -40,6 +40,7 @@ public:
     ISession              *session()  const { return m_session; }
     AutomationEngine      *engine()   const { return m_engine; }
     const session_entry_t &entry()    const { return m_entry; }
+    void setMainWindow(MainWindow *mw) { m_mw = mw; }
 
     QString markPattern() const { return m_markPattern; }
     void    setMarkPattern(const QString &p);

@@ -8,6 +8,7 @@
 
 #include "tscrt.h"
 
+#include <QList>
 #include <QMainWindow>
 #include <QPointer>
 #include <QString>
@@ -23,7 +24,7 @@ class QTreeWidgetItem;
 class TerminalWidget;
 class ISession;
 
-namespace tscrt { class SnapshotManager; }
+namespace tscrt { class SessionTab; class SnapshotManager; }
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -34,6 +35,9 @@ public:
 protected:
     void closeEvent(QCloseEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
+    bool eventFilter(QObject *obj, QEvent *ev) override;
+    void dragEnterEvent(QDragEnterEvent *ev) override;
+    void dropEvent(QDropEvent *ev) override;
 
 public slots:
     void openSessionByIndex(int profileIndex);
@@ -46,10 +50,20 @@ public slots:
 
 public:
     /// Factory used by openSessionByIndex() and the Pane reconnect path.
-    /// The entry's ssh.password is expected to already be resolved (any
-    /// interactive prompt happens at the call site, not here).
     ISession *makeSessionFor(const profile_t &p, const session_entry_t &entry);
     const profile_t &profile() const { return m_profile; }
+    QTabWidget *tabWidget() const { return m_tabs; }
+
+    /// Detach tab at index from this window (without destroying it).
+    /// The caller is responsible for reparenting the returned widget.
+    tscrt::SessionTab *detachTab(int index);
+    /// Adopt an already-running SessionTab from another window.
+    void adoptTab(tscrt::SessionTab *tab, const QString &name);
+    /// Detach tab at index and move it into a brand-new MainWindow.
+    void detachToNewWindow(int index);
+
+    /// Global list of live MainWindows (for cross-window drag).
+    static QList<MainWindow *> &allWindows();
 
 private:
     bool appendSessionToProfile(session_entry_t entry);

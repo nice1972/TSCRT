@@ -67,7 +67,9 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
+    allWindows().append(this);
     setWindowTitle(QStringLiteral("TSCRT"));
+    setAcceptDrops(true);
     resize(1100, 720);
 
     // -- Empty-state page (logo background) --
@@ -103,6 +105,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_tabs->tabBar()->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_tabs->tabBar(), &QWidget::customContextMenuRequested,
             this, &MainWindow::onTabBarContextMenu);
+    m_tabs->tabBar()->installEventFilter(this);
+    m_tabs->tabBar()->setAcceptDrops(true);
 
     // -- Stacked central widget --
     m_central = new QStackedWidget(this);
@@ -209,7 +213,13 @@ void MainWindow::loadSettings()
     s.endGroup();
 }
 
-MainWindow::~MainWindow() = default;
+MainWindow::~MainWindow()
+{
+    allWindows().removeOne(this);
+    // If this was the last window, quit the application.
+    if (allWindows().isEmpty())
+        QApplication::quit();
+}
 
 void MainWindow::loadProfile()
 {
@@ -1573,6 +1583,9 @@ void MainWindow::onTabBarContextMenu(const QPoint &pos)
     const bool pinned = page && page->property("tscrtPinned").toBool();
     QAction *actPin = menu.addAction(pinned ? tr("Unpin") : tr("Pin"));
     menu.addSeparator();
+    QAction *actDetach = menu.addAction(tr("Detach to New Window"));
+    actDetach->setEnabled(m_tabs->count() > 1);
+    menu.addSeparator();
     QAction *actClose = menu.addAction(tr("Close"));
 
     QAction *chosen = menu.exec(m_tabs->tabBar()->mapToGlobal(pos));
@@ -1587,6 +1600,8 @@ void MainWindow::onTabBarContextMenu(const QPoint &pos)
             page->setProperty("tscrtPinned", !pinned);
             updatePinIcon(index);
         }
+    } else if (chosen == actDetach) {
+        detachToNewWindow(index);
     } else if (chosen == actClose) {
         onTabCloseRequested(index);
     } else if (snapActs.contains(chosen)) {
@@ -1856,4 +1871,235 @@ void MainWindow::showAboutDialog()
         "Released under the GNU General Public License (GPL)."));
     box.setStandardButtons(QMessageBox::Ok);
     box.exec();
+}
+
+// ---- Multi-window: detach / adopt / drag -----------------------------------
+
+QList<MainWindow *> &MainWindow::allWindows()
+{
+    static QList<MainWindow *> list;
+    return list;
+}
+
+tscrt::SessionTab *MainWindow::detachTab(int index)
+{
+    if (index < 0 || index >= m_tabs->count())
+        return nullptr;
+
+    auto *tab = qobject_cast<tscrt::SessionTab *>(m_tabs->widget(index));
+    if (!tab)
+        return nullptr;
+
+    // Detach sessions from this window's SnapshotManager.
+    if (m_snapshotMgr) {
+        for (auto *p : tab->panes()) {
+            if (p && p->session())
+                m_snapshotMgr->detachSession(p->session());
+        }
+    }
+
+    // Disconnect all signals from this MainWindow to the tab.
+    disconnect(tab, nullptr, this, nullptr);
+
+    // Remove from tab widget without deleting.
+    m_tabs->removeTab(index);
+    tab->setParent(nullptr);
+    updateCentralView();
+    return tab;
+}
+
+void MainWindow::adoptTab(tscrt::SessionTab *tab, const QString &name)
+{
+    if (!tab)
+        return;
+
+    // Update every Pane's MainWindow pointer so reconnect, statusBar
+    // calls, etc. target the new window.
+    for (auto *p : tab->panes())
+        p->setMainWindow(this);
+
+    // Re-wire signals identical to openSessionByIndex().
+    const QString sessionName = tab->displayName();
+    auto attachSessionHooks = [this, sessionName](ISession *s) {
+        if (!s || !m_snapshotMgr) return;
+        m_snapshotMgr->attachSession(s, sessionName);
+    };
+    for (auto *p : tab->panes()) {
+        if (p && p->session())
+            attachSessionHooks(p->session());
+    }
+    connect(tab, &tscrt::SessionTab::buttonEditRequested,
+            this, &MainWindow::editButtonSlot);
+    connect(tab, &tscrt::SessionTab::sessionAboutToChange, this,
+            [this](ISession *old) {
+        if (m_snapshotMgr && old)
+            m_snapshotMgr->detachSession(old);
+    });
+    connect(tab, &tscrt::SessionTab::sessionRebound, this,
+            [attachSessionHooks](ISession *s) {
+        attachSessionHooks(s);
+    });
+    connect(tab, &tscrt::SessionTab::paneAdded, this,
+            [attachSessionHooks](tscrt::Pane *pane) {
+        if (pane && pane->session())
+            attachSessionHooks(pane->session());
+    });
+    connect(tab, &tscrt::SessionTab::paneRemoving, this,
+            [this](tscrt::Pane *pane) {
+        if (m_snapshotMgr && pane && pane->session())
+            m_snapshotMgr->detachSession(pane->session());
+    });
+    connect(tab, &tscrt::SessionTab::tabEmpty, this,
+            [this, tab] {
+        const int i = m_tabs->indexOf(tab);
+        if (i >= 0) onTabCloseRequested(i);
+    });
+
+    const int idx = m_tabs->addTab(tab, name);
+    m_tabs->setCurrentIndex(idx);
+
+    // Close button for the new tab.
+    {
+        auto *closeBtn = new QToolButton(m_tabs->tabBar());
+        closeBtn->setText(QStringLiteral("\u00D7"));
+        closeBtn->setAutoRaise(true);
+        closeBtn->setCursor(Qt::ArrowCursor);
+        closeBtn->setFocusPolicy(Qt::NoFocus);
+        closeBtn->setFixedSize(14, 14);
+        closeBtn->setToolTip(tr("Close tab"));
+        closeBtn->setStyleSheet(QStringLiteral(
+            "QToolButton {"
+            "  border: none; background: transparent;"
+            "  color: #888; padding: 0; margin: 0;"
+            "  font-size: 11pt; font-weight: bold;"
+            "}"
+            "QToolButton:hover {"
+            "  background: rgba(0, 0, 0, 0.15);"
+            "  color: #111; border-radius: 2px;"
+            "}"));
+        QPointer<QWidget> pageRef(tab);
+        connect(closeBtn, &QToolButton::clicked, this, [this, pageRef] {
+            if (!pageRef) return;
+            const int i = m_tabs->indexOf(pageRef.data());
+            if (i >= 0) onTabCloseRequested(i);
+        });
+        m_tabs->tabBar()->setTabButton(idx, QTabBar::RightSide, closeBtn);
+    }
+
+    updateCentralView();
+    if (auto *t = tab->terminal())
+        t->setFocus(Qt::OtherFocusReason);
+}
+
+void MainWindow::detachToNewWindow(int index)
+{
+    const QString name = m_tabs->tabText(index);
+    auto *tab = detachTab(index);
+    if (!tab)
+        return;
+
+    auto *win = new MainWindow;
+    win->setAttribute(Qt::WA_DeleteOnClose);
+    win->adoptTab(tab, name);
+    win->show();
+}
+
+// ---- Drag-and-drop between windows ----------------------------------------
+#include <QDrag>
+#include <QMimeData>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+
+static const QString kMimeTabDrag = QStringLiteral("application/x-tscrt-tab");
+
+// Install an event filter on the tab bar to start QDrag when the
+// user drags a tab far enough from the tab bar. This allows both
+// intra-window reordering (handled natively by QTabBar::setMovable)
+// and inter-window transfer (handled by our drop event).
+bool MainWindow::eventFilter(QObject *obj, QEvent *ev)
+{
+    if (obj == m_tabs->tabBar()) {
+        static QPoint dragStart;
+        static int    dragTabIndex = -1;
+
+        if (ev->type() == QEvent::MouseButtonPress) {
+            auto *me = static_cast<QMouseEvent *>(ev);
+            if (me->button() == Qt::LeftButton) {
+                dragStart    = me->pos();
+                dragTabIndex = m_tabs->tabBar()->tabAt(me->pos());
+            }
+        } else if (ev->type() == QEvent::MouseMove && dragTabIndex >= 0) {
+            auto *me = static_cast<QMouseEvent *>(ev);
+            if ((me->pos() - dragStart).manhattanLength() >= 40) {
+                // Start cross-window drag.
+                auto *mimeData = new QMimeData;
+                mimeData->setData(kMimeTabDrag,
+                    QByteArray::number(quintptr(this)) + '|' +
+                    QByteArray::number(dragTabIndex));
+
+                auto *drag = new QDrag(this);
+                drag->setMimeData(mimeData);
+
+                // Small pixmap preview (tab text rendered as label).
+                QPixmap px(200, 28);
+                px.fill(Qt::transparent);
+                QPainter painter(&px);
+                painter.setPen(Qt::white);
+                painter.setBrush(QColor(50, 50, 50, 200));
+                painter.drawRoundedRect(px.rect().adjusted(0,0,-1,-1), 4, 4);
+                painter.drawText(px.rect(), Qt::AlignCenter,
+                                 m_tabs->tabText(dragTabIndex));
+                drag->setPixmap(px);
+
+                dragTabIndex = -1;
+                Qt::DropAction result = drag->exec(Qt::MoveAction);
+                if (result == Qt::IgnoreAction) {
+                    // Dropped outside any TSCRT window → new window.
+                    const int idx = m_tabs->tabBar()->tabAt(dragStart);
+                    if (idx >= 0 && m_tabs->count() > 1)
+                        detachToNewWindow(idx);
+                }
+                return true;   // consume the event
+            }
+        } else if (ev->type() == QEvent::MouseButtonRelease) {
+            dragTabIndex = -1;
+        }
+    }
+    return QMainWindow::eventFilter(obj, ev);
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *ev)
+{
+    if (ev->mimeData()->hasFormat(kMimeTabDrag))
+        ev->acceptProposedAction();
+    else
+        QMainWindow::dragEnterEvent(ev);
+}
+
+void MainWindow::dropEvent(QDropEvent *ev)
+{
+    if (!ev->mimeData()->hasFormat(kMimeTabDrag)) {
+        QMainWindow::dropEvent(ev);
+        return;
+    }
+    const QByteArray payload = ev->mimeData()->data(kMimeTabDrag);
+    const QList<QByteArray> parts = payload.split('|');
+    if (parts.size() != 2) return;
+
+    auto *srcWin = reinterpret_cast<MainWindow *>(parts[0].toULongLong());
+    const int srcIndex = parts[1].toInt();
+
+    // Verify the source window is still alive.
+    if (!allWindows().contains(srcWin))
+        return;
+    // Don't drop onto self (reorder is handled by QTabBar::setMovable).
+    if (srcWin == this)
+        return;
+
+    const QString name = srcWin->tabWidget()->tabText(srcIndex);
+    auto *tab = srcWin->detachTab(srcIndex);
+    if (tab) {
+        adoptTab(tab, name);
+        ev->acceptProposedAction();
+    }
 }
