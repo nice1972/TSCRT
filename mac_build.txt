@@ -38,7 +38,7 @@ cd build && cpack -G DragNDrop
 
 This stages the .app, runs macdeployqt to bundle Qt frameworks
 and plugins, and produces:
-   build/tscrt_mac-1.0.0-macos.dmg
+   build/tscrt_mac-1.0.2-macos.dmg
 
 Notes
 ------
