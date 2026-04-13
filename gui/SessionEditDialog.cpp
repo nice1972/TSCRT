@@ -63,20 +63,15 @@ void SessionEditDialog::buildUi()
 
     m_termType = new QComboBox(genPage);
     m_termType->setEditable(true);
-    m_termType->addItem(QStringLiteral(""));               // empty = use global
     m_termType->addItem(QStringLiteral("xterm-256color"));
     m_termType->addItem(QStringLiteral("xterm"));
     m_termType->addItem(QStringLiteral("vt100"));
     m_termType->addItem(QStringLiteral("vt220"));
     m_termType->addItem(QStringLiteral("linux"));
     m_termType->addItem(QStringLiteral("ansi"));
-    m_termType->setCurrentIndex(0);
+    m_termType->setCurrentText(QString());
+    m_termType->lineEdit()->setPlaceholderText(tr("(use Preferences default)"));
     genForm->addRow(tr("Terminal type"), m_termType);
-    auto *termHint = new QLabel(tr("<small>Empty = use global default from Preferences</small>"),
-                                genPage);
-    termHint->setTextFormat(Qt::RichText);
-    termHint->setStyleSheet(QStringLiteral("color: gray;"));
-    genForm->addRow(QString(), termHint);
 
     genForm->addItem(new QSpacerItem(0, 8));
 
@@ -92,8 +87,6 @@ void SessionEditDialog::buildUi()
     fsLayout->addWidget(m_fsCmdLine);
     fsLayout->addWidget(m_fsButtons);
     genForm->addRow(fsGroup);
-
-    m_tabs->addTab(genPage, tr("General"));
 
     // ==== Connection tab ====
     auto *connPage = new QWidget;
@@ -198,6 +191,7 @@ void SessionEditDialog::buildUi()
     connLayout->addWidget(m_stack);
 
     m_tabs->addTab(connPage, tr("Connection"));
+    m_tabs->addTab(genPage, tr("General"));
 
     // ==== Advanced tab ====
     auto *advPage = new QWidget;
