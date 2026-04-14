@@ -700,7 +700,7 @@ SMTP settings were also imported.</source>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1527"/>
-        <location filename="../gui/MainWindow.cpp" line="2054"/>
+        <location filename="../gui/MainWindow.cpp" line="2082"/>
         <source>Close tab</source>
         <translation type="unfinished"></translation>
     </message>
@@ -786,29 +786,40 @@ SMTP settings were also imported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1923"/>
+        <location filename="../gui/MainWindow.cpp" line="1918"/>
+        <location filename="../gui/MainWindow.cpp" line="1951"/>
         <source>Export diagnostics</source>
         <translation>Diagnose exportieren</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1925"/>
+        <location filename="../gui/MainWindow.cpp" line="1921"/>
+        <source>&lt;b&gt;The diagnostic bundle will include:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;App log (&lt;code&gt;tscrt_win.log&lt;/code&gt;): connection events, error messages&lt;/li&gt;&lt;li&gt;System info: OS, Qt / libssh2 versions, locale&lt;/li&gt;&lt;li&gt;Paths and selected environment variables (may contain your Windows username)&lt;/li&gt;&lt;li&gt;Crash dump file names (contents are NOT included)&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;The bundle will NOT include:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Passwords or SSH private keys&lt;/li&gt;&lt;li&gt;Your session profile (hosts, snapshots, automation rules)&lt;/li&gt;&lt;li&gt;Snapshot files or per-session terminal capture logs&lt;/li&gt;&lt;li&gt;Commands you typed or terminal output&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Review the generated &lt;code&gt;.txt.gz&lt;/code&gt; before sharing.&lt;/p&gt;</source>
+        <translation>&lt;b&gt;Das Diagnose-Paket enthält:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;App-Log (&lt;code&gt;tscrt_win.log&lt;/code&gt;): Verbindungsereignisse, Fehlermeldungen&lt;/li&gt;&lt;li&gt;Systeminfo: OS, Qt / libssh2-Versionen, Sprache&lt;/li&gt;&lt;li&gt;Pfade und ausgewählte Umgebungsvariablen (können Ihren Windows-Benutzernamen enthalten)&lt;/li&gt;&lt;li&gt;Namen von Crash-Dump-Dateien (Inhalte werden NICHT übermittelt)&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Das Paket enthält NICHT:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Passwörter oder private SSH-Schlüssel&lt;/li&gt;&lt;li&gt;Ihr Sitzungsprofil (Hosts, Snapshots, Automatisierungsregeln)&lt;/li&gt;&lt;li&gt;Snapshot-Dateien oder sitzungsbezogene Terminal-Aufzeichnungen&lt;/li&gt;&lt;li&gt;Eingegebene Befehle oder Terminal-Ausgaben&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Prüfen Sie die erzeugte &lt;code&gt;.txt.gz&lt;/code&gt;-Datei vor der Weitergabe.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="1938"/>
+        <source>Continue</source>
+        <translation>Weiter</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="1953"/>
         <source>Diagnostic bundle (*.txt.gz);;All files (*)</source>
         <translation>Diagnose-Paket (*.txt.gz);;Alle Dateien (*)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1937"/>
+        <location filename="../gui/MainWindow.cpp" line="1965"/>
         <source>Export failed</source>
         <translation>Export fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1938"/>
+        <location filename="../gui/MainWindow.cpp" line="1966"/>
         <source>Could not write diagnostic bundle:
 %1</source>
         <translation>Diagnose-Paket konnte nicht geschrieben werden:
 %1</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1949"/>
+        <location filename="../gui/MainWindow.cpp" line="1977"/>
         <source>File: %1
 Uncompressed: %2
 Compressed: %3</source>
@@ -817,12 +828,12 @@ Unkomprimiert: %2
 Komprimiert: %3</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1954"/>
+        <location filename="../gui/MainWindow.cpp" line="1982"/>
         <source>Note: log content was truncated to fit the size cap.</source>
         <translation>Hinweis: Log-Inhalt wurde gekürzt, um die Größenbegrenzung einzuhalten.</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1958"/>
+        <location filename="../gui/MainWindow.cpp" line="1986"/>
         <source>Diagnostics exported</source>
         <translation>Diagnose exportiert</translation>
     </message>

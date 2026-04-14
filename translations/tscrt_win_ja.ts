@@ -700,7 +700,7 @@ SMTP settings were also imported.</source>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1527"/>
-        <location filename="../gui/MainWindow.cpp" line="2054"/>
+        <location filename="../gui/MainWindow.cpp" line="2082"/>
         <source>Close tab</source>
         <translation type="unfinished"></translation>
     </message>
@@ -786,29 +786,40 @@ SMTP settings were also imported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1923"/>
+        <location filename="../gui/MainWindow.cpp" line="1918"/>
+        <location filename="../gui/MainWindow.cpp" line="1951"/>
         <source>Export diagnostics</source>
         <translation>診断情報エクスポート</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1925"/>
+        <location filename="../gui/MainWindow.cpp" line="1921"/>
+        <source>&lt;b&gt;The diagnostic bundle will include:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;App log (&lt;code&gt;tscrt_win.log&lt;/code&gt;): connection events, error messages&lt;/li&gt;&lt;li&gt;System info: OS, Qt / libssh2 versions, locale&lt;/li&gt;&lt;li&gt;Paths and selected environment variables (may contain your Windows username)&lt;/li&gt;&lt;li&gt;Crash dump file names (contents are NOT included)&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;The bundle will NOT include:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Passwords or SSH private keys&lt;/li&gt;&lt;li&gt;Your session profile (hosts, snapshots, automation rules)&lt;/li&gt;&lt;li&gt;Snapshot files or per-session terminal capture logs&lt;/li&gt;&lt;li&gt;Commands you typed or terminal output&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Review the generated &lt;code&gt;.txt.gz&lt;/code&gt; before sharing.&lt;/p&gt;</source>
+        <translation>&lt;b&gt;診断バンドルに含まれるもの:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;アプリログ(&lt;code&gt;tscrt_win.log&lt;/code&gt;): 接続イベント、エラーメッセージ&lt;/li&gt;&lt;li&gt;システム情報: OS、Qt / libssh2 バージョン、ロケール&lt;/li&gt;&lt;li&gt;パスおよび一部の環境変数(Windows ユーザー名が含まれる場合があります)&lt;/li&gt;&lt;li&gt;クラッシュダンプのファイル名(内容は含まれません)&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;含まれないもの:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;パスワード、SSH 秘密鍵&lt;/li&gt;&lt;li&gt;セッション プロファイル(ホスト、スナップショット、自動化ルール)&lt;/li&gt;&lt;li&gt;スナップショット ファイルおよびセッションごとの端末キャプチャログ&lt;/li&gt;&lt;li&gt;入力したコマンドや端末出力&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;共有する前に、生成された &lt;code&gt;.txt.gz&lt;/code&gt; を確認してください。&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="1938"/>
+        <source>Continue</source>
+        <translation>続行</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="1953"/>
         <source>Diagnostic bundle (*.txt.gz);;All files (*)</source>
         <translation>診断バンドル (*.txt.gz);;すべてのファイル (*)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1937"/>
+        <location filename="../gui/MainWindow.cpp" line="1965"/>
         <source>Export failed</source>
         <translation>エクスポートに失敗</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1938"/>
+        <location filename="../gui/MainWindow.cpp" line="1966"/>
         <source>Could not write diagnostic bundle:
 %1</source>
         <translation>診断バンドルを書き込めませんでした:
 %1</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1949"/>
+        <location filename="../gui/MainWindow.cpp" line="1977"/>
         <source>File: %1
 Uncompressed: %2
 Compressed: %3</source>
@@ -817,12 +828,12 @@ Compressed: %3</source>
 圧縮: %3</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1954"/>
+        <location filename="../gui/MainWindow.cpp" line="1982"/>
         <source>Note: log content was truncated to fit the size cap.</source>
         <translation>注: サイズ上限に合わせてログ内容が切り詰められました。</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1958"/>
+        <location filename="../gui/MainWindow.cpp" line="1986"/>
         <source>Diagnostics exported</source>
         <translation>診断情報をエクスポートしました</translation>
     </message>

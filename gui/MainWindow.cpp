@@ -1912,6 +1912,34 @@ void MainWindow::showAboutDialog()
 
 void MainWindow::exportDiagnostics()
 {
+    // Disclosure dialog: be explicit about what is and isn't included, so
+    // users can decide to share the bundle with support.
+    QMessageBox consent(this);
+    consent.setWindowTitle(tr("Export diagnostics"));
+    consent.setIcon(QMessageBox::Information);
+    consent.setTextFormat(Qt::RichText);
+    consent.setText(tr(
+        "<b>The diagnostic bundle will include:</b>"
+        "<ul>"
+        "<li>App log (<code>tscrt_win.log</code>): connection events, error messages</li>"
+        "<li>System info: OS, Qt / libssh2 versions, locale</li>"
+        "<li>Paths and selected environment variables (may contain your Windows username)</li>"
+        "<li>Crash dump file names (contents are NOT included)</li>"
+        "</ul>"
+        "<b>The bundle will NOT include:</b>"
+        "<ul>"
+        "<li>Passwords or SSH private keys</li>"
+        "<li>Your session profile (hosts, snapshots, automation rules)</li>"
+        "<li>Snapshot files or per-session terminal capture logs</li>"
+        "<li>Commands you typed or terminal output</li>"
+        "</ul>"
+        "<p>Review the generated <code>.txt.gz</code> before sharing.</p>"));
+    consent.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    consent.button(QMessageBox::Ok)->setText(tr("Continue"));
+    consent.setDefaultButton(QMessageBox::Ok);
+    if (consent.exec() != QMessageBox::Ok)
+        return;
+
     const QString defaultName = QStringLiteral("tscrt-diag-%1.txt.gz")
         .arg(QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd-HHmmss")));
     const QString defaultDir = QStandardPaths::writableLocation(

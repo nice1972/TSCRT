@@ -690,7 +690,7 @@ SMTP settings were also imported.</source>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1527"/>
-        <location filename="../gui/MainWindow.cpp" line="2054"/>
+        <location filename="../gui/MainWindow.cpp" line="2082"/>
         <source>Close tab</source>
         <translation type="unfinished"></translation>
     </message>
@@ -731,29 +731,40 @@ SMTP settings were also imported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1923"/>
+        <location filename="../gui/MainWindow.cpp" line="1918"/>
+        <location filename="../gui/MainWindow.cpp" line="1951"/>
         <source>Export diagnostics</source>
         <translation>진단 정보 내보내기</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1925"/>
+        <location filename="../gui/MainWindow.cpp" line="1921"/>
+        <source>&lt;b&gt;The diagnostic bundle will include:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;App log (&lt;code&gt;tscrt_win.log&lt;/code&gt;): connection events, error messages&lt;/li&gt;&lt;li&gt;System info: OS, Qt / libssh2 versions, locale&lt;/li&gt;&lt;li&gt;Paths and selected environment variables (may contain your Windows username)&lt;/li&gt;&lt;li&gt;Crash dump file names (contents are NOT included)&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;The bundle will NOT include:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Passwords or SSH private keys&lt;/li&gt;&lt;li&gt;Your session profile (hosts, snapshots, automation rules)&lt;/li&gt;&lt;li&gt;Snapshot files or per-session terminal capture logs&lt;/li&gt;&lt;li&gt;Commands you typed or terminal output&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Review the generated &lt;code&gt;.txt.gz&lt;/code&gt; before sharing.&lt;/p&gt;</source>
+        <translation>&lt;b&gt;진단 번들에 포함되는 항목:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;앱 로그(&lt;code&gt;tscrt_win.log&lt;/code&gt;): 접속 이벤트, 오류 메시지&lt;/li&gt;&lt;li&gt;시스템 정보: OS, Qt / libssh2 버전, 로케일&lt;/li&gt;&lt;li&gt;경로 및 일부 환경변수(Windows 사용자명이 포함될 수 있음)&lt;/li&gt;&lt;li&gt;크래시 덤프 파일 이름 (내용은 포함되지 않음)&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;포함되지 않는 항목:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;비밀번호 및 SSH 개인 키&lt;/li&gt;&lt;li&gt;세션 프로파일(호스트, 스냅샷, 자동화 규칙)&lt;/li&gt;&lt;li&gt;스냅샷 파일 및 세션별 터미널 캡처 로그&lt;/li&gt;&lt;li&gt;입력한 명령 또는 터미널 출력&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;공유 전 생성된 &lt;code&gt;.txt.gz&lt;/code&gt; 파일을 확인하세요.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="1938"/>
+        <source>Continue</source>
+        <translation>계속</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="1953"/>
         <source>Diagnostic bundle (*.txt.gz);;All files (*)</source>
         <translation>진단 번들 (*.txt.gz);;모든 파일 (*)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1937"/>
+        <location filename="../gui/MainWindow.cpp" line="1965"/>
         <source>Export failed</source>
         <translation>내보내기 실패</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1938"/>
+        <location filename="../gui/MainWindow.cpp" line="1966"/>
         <source>Could not write diagnostic bundle:
 %1</source>
         <translation>진단 번들을 쓸 수 없습니다:
 %1</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1949"/>
+        <location filename="../gui/MainWindow.cpp" line="1977"/>
         <source>File: %1
 Uncompressed: %2
 Compressed: %3</source>
@@ -762,12 +773,12 @@ Compressed: %3</source>
 압축: %3</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1954"/>
+        <location filename="../gui/MainWindow.cpp" line="1982"/>
         <source>Note: log content was truncated to fit the size cap.</source>
         <translation>참고: 크기 제한을 맞추기 위해 로그 내용이 잘렸습니다.</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1958"/>
+        <location filename="../gui/MainWindow.cpp" line="1986"/>
         <source>Diagnostics exported</source>
         <translation>진단 정보 내보내기 완료</translation>
     </message>
