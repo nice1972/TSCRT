@@ -10,6 +10,18 @@
 
 ---
 
+## 다운로드
+
+미리 빌드된 배포 파일은 [GitHub Releases](https://github.com/nice1972/TSCRT/releases/latest) 에서 받을 수 있습니다.
+
+| 플랫폼 | 파일 | 비고 |
+|--------|------|------|
+| **Windows x64** | [tscrt_win-1.0.6-win64.exe](https://github.com/nice1972/TSCRT/releases/download/v1.0.6/tscrt_win-1.0.6-win64.exe) | NSIS 설치 관리자 |
+| **Ubuntu / Debian (amd64)** | [tscrt_1.0.6_amd64.deb](https://github.com/nice1972/TSCRT/releases/download/v1.0.6/tscrt_1.0.6_amd64.deb) | `sudo apt install ./tscrt_1.0.6_amd64.deb` |
+| **macOS** | — | `mac_build.txt` 참조하여 소스 빌드 |
+
+---
+
 ## 주요 기능
 
 ### 세션 / 터미널
