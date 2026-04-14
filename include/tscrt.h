@@ -44,7 +44,7 @@
 #define WRITE_TTY(fd, buf, len) \
     do { if (write((fd), (buf), (len)) < 0) { /* ignore */ } } while(0)
 
-#define TSCRT_VERSION        "1.00.04"
+#define TSCRT_VERSION        "1.0.6"
 #define TSCRT_DIR_NAME       "tscrt"
 #define TSCRT_PROFILE_NAME   "tscrt.profile"
 #define TSCRT_LOG_DIR_NAME   "logs"
