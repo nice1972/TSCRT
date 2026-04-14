@@ -50,11 +50,16 @@
   <li><b>Esegui snapshot &rarr;</b> &mdash; esegui uno snapshot sulla sessione di questa scheda.</li>
   <li><b>Fissa / Sblocca</b> &mdash; le schede fissate vengono ripristinate automaticamente al prossimo avvio.</li>
   <li><b>Stacca in nuova finestra</b> &mdash; sposta la scheda in una nuova finestra TSCRT. La sessione SSH/seriale resta connessa &mdash; nessuna disconnessione/riconnessione. Disabilitato quando c'è solo una scheda.</li>
+  <li><b>Collega scheda a scheda peer&hellip;</b> &mdash; abbina questa scheda a una scheda in un'altra istanza TSCRT sulla stessa macchina. Attivando una delle due schede si passa anche alla scheda peer nell'altra finestra. Utile per layout affiancati (es. console sul monitor sinistro, visualizzatore di log sul destro).</li>
+  <li><b>Scollega scheda</b> &mdash; appare al posto di <i>Collega</i> quando la scheda ha già un peer; rimuove l'abbinamento.</li>
   <li><b>Chiudi</b> &mdash; chiudi la scheda.</li>
 </ul>
 
 <h3>Trascinare schede tra finestre</h3>
 <p>Trascina una scheda dalla barra delle schede e rilasciala su un'altra finestra TSCRT per trasferire la sessione. Se la rilasci fuori da qualsiasi finestra TSCRT, viene creata automaticamente una nuova finestra. La connessione attiva viene mantenuta per tutto il processo.</p>
+
+<h3>Collegamenti di schede tra istanze</h3>
+<p>I collegamenti tra schede sono memorizzati nel profilo e si riconnettono automaticamente la prossima volta che entrambe le istanze TSCRT sono in esecuzione. I collegamenti sopravvivono ai riavvii. Il rilevamento dei peer avviene tramite un canale IPC solo locale; non viene generato traffico di rete.</p>
 
 <h2 id="panes">Pannelli divisi / Trasmissione input / Riconnessione automatica</h2>
 
@@ -169,6 +174,7 @@
   <li><b>Log &rarr; Apri cartella log</b> &mdash; un file con timestamp per sessione.</li>
   <li>Catture snapshot: sottocartella <code>snapshots/</code>.</li>
   <li>Interruttore di logging per sessione nella scheda Generale dell'editor di sessione.</li>
+  <li><b>Fallback automatico:</b> se non è possibile scrivere nella directory di log configurata (reparse point OneDrive senza accesso, Controlled Folder Access o restrizioni ACL), i log di sessione vengono invece scritti in <code>C:\TSCRT\sessions\</code> su Windows, oppure <code>~/TSCRT/sessions/</code> su macOS/Linux. <b>Apri cartella log</b> rileva questa condizione e apre automaticamente la directory di fallback, con un avviso nella barra di stato.</li>
 </ul>
 
 <h2 id="security">Sicurezza</h2>
@@ -191,6 +197,11 @@
 
 <h3>Dump di crash</h3>
 <p>Se TSCRT si blocca, viene scritto un dump in <code>~/tscrt/dumps/</code> con permessi riservati al proprietario (0600 su POSIX, ACL riservata al proprietario su Windows). I dump più vecchi di 7 giorni vengono eliminati automaticamente all'avvio.</p>
+
+<h2 id="diagnostics">Supporto &amp; diagnostica</h2>
+<p><b>Aiuto &rarr; Esporta diagnostica&hellip;</b> impacchetta un file di testo compresso gzip (<code>tscrt-diag-YYYYMMDD-HHMMSS.txt.gz</code>) contenente informazioni di sistema, percorsi risolti, variabili d'ambiente selezionate, un test di scrivibilità, i file di log recenti dell'applicazione (ultimi 7 giorni) e i nomi di eventuali dump di crash. La dimensione tipica è inferiore a 1 MB. La dimensione massima prima della compressione è limitata a 10 MB &mdash; i contenuti di log più vecchi vengono troncati con un marcatore esplicito se necessario.</p>
+<p>Una finestra di dialogo di consenso mostra il contenuto esatto prima che il bundle venga scritto. Il bundle <b>non include</b> password, chiavi private SSH, il profilo di sessione (host, snapshot, regole di automazione), file di snapshot, catture di terminale per sessione o i comandi digitati.</p>
+<p>Esamina il file <code>.txt.gz</code> generato prima di condividerlo con il supporto.</p>
 
 <h2 id="profile">Importazione / esportazione profilo</h2>
 <ul>

@@ -50,11 +50,16 @@
   <li><b>Snapshot ausführen &rarr;</b> &mdash; einen Snapshot auf der Sitzung dieses Tabs ausführen.</li>
   <li><b>Anheften / Lösen</b> &mdash; angeheftete Tabs werden beim nächsten Start automatisch wiederhergestellt.</li>
   <li><b>In neuem Fenster ablegen</b> &mdash; den Tab in ein brandneues TSCRT-Fenster verschieben. Die SSH-/serielle Sitzung bleibt verbunden &mdash; kein Trennen/Wiederverbinden. Deaktiviert, wenn nur ein Tab vorhanden ist.</li>
+  <li><b>Tab mit Peer-Tab verknüpfen&hellip;</b> &mdash; diesen Tab mit einem Tab in einer anderen TSCRT-Instanz auf derselben Maschine koppeln. Das Aktivieren eines der beiden Tabs wechselt auch den Peer-Tab im anderen Fenster. Nützlich für Side-by-Side-Layouts (z. B. Konsole auf dem linken Monitor, Log-Viewer auf dem rechten).</li>
+  <li><b>Tab-Verknüpfung aufheben</b> &mdash; erscheint anstelle von <i>Verknüpfen</i>, wenn der Tab bereits einen Peer hat; entfernt die Kopplung.</li>
   <li><b>Schließen</b> &mdash; den Tab schließen.</li>
 </ul>
 
 <h3>Tabs zwischen Fenstern ziehen</h3>
 <p>Ziehen Sie einen Tab aus der Tab-Leiste und legen Sie ihn auf einem anderen TSCRT-Fenster ab, um die Sitzung zu übertragen. Wenn Sie außerhalb eines TSCRT-Fensters ablegen, wird automatisch ein neues Fenster erstellt. Die aktive Verbindung bleibt dabei erhalten.</p>
+
+<h3>Tab-Verknüpfungen zwischen Instanzen</h3>
+<p>Tab-Verknüpfungen werden im Profil gespeichert und automatisch wieder hergestellt, wenn beide TSCRT-Instanzen das nächste Mal gleichzeitig laufen. Verknüpfungen überstehen Neustarts. Die Peer-Erkennung erfolgt über einen rein lokalen IPC-Kanal; es entsteht kein Netzwerkverkehr.</p>
 
 <h2 id="panes">Geteilte Bereiche / Eingabe-Broadcast / Auto-Wiederverbindung</h2>
 
@@ -169,6 +174,7 @@
   <li><b>Protokolle &rarr; Protokollordner öffnen</b> &mdash; eine Datei mit Zeitstempel pro Sitzung.</li>
   <li>Snapshot-Aufnahmen: Unterordner <code>snapshots/</code>.</li>
   <li>Sitzungsspezifischer Protokollierungsschalter im Tab Allgemein des Sitzungseditors.</li>
+  <li><b>Automatischer Fallback:</b> Wenn in das konfigurierte Protokollverzeichnis nicht geschrieben werden kann (OneDrive-Reparse-Point ohne Anmeldung, Controlled Folder Access oder ACL-Einschränkungen), werden Sitzungsprotokolle stattdessen unter Windows nach <code>C:\TSCRT\sessions\</code> bzw. unter macOS/Linux nach <code>~/TSCRT/sessions/</code> geschrieben. <b>Protokollordner öffnen</b> erkennt dies und öffnet automatisch das Fallback-Verzeichnis, mit einem Hinweis in der Statusleiste.</li>
 </ul>
 
 <h2 id="security">Sicherheit</h2>
@@ -191,6 +197,11 @@
 
 <h3>Absturzdumps</h3>
 <p>Wenn TSCRT abstürzt, wird ein Dump in <code>~/tscrt/dumps/</code> geschrieben, mit nur für den Eigentümer zugänglichen Berechtigungen (0600 unter POSIX, ACL nur für den Eigentümer unter Windows). Dumps, die älter als 7 Tage sind, werden beim Start automatisch gelöscht.</p>
+
+<h2 id="diagnostics">Support &amp; Diagnose</h2>
+<p><b>Hilfe &rarr; Diagnose exportieren&hellip;</b> packt eine gzip-komprimierte Textdatei (<code>tscrt-diag-YYYYMMDD-HHMMSS.txt.gz</code>), die Systeminformationen, aufgelöste Pfade, ausgewählte Umgebungsvariablen, eine Schreibbarkeitsprüfung, aktuelle App-Log-Dateien (letzte 7 Tage) und die Namen etwaiger Absturzdumps enthält. Die typische Größe liegt unter 1 MB. Die maximale Größe vor der Komprimierung ist auf 10 MB begrenzt &mdash; ältere Log-Inhalte werden bei Bedarf mit einem ausdrücklichen Marker abgeschnitten.</p>
+<p>Ein Einwilligungsdialog zeigt den exakten Inhalt an, bevor das Bundle geschrieben wird. Das Bundle <b>enthält nicht</b>: Passwörter, private SSH-Schlüssel, das Sitzungsprofil (Hosts, Snapshots, Automatisierungsregeln), Snapshot-Dateien, sitzungsspezifische Terminal-Aufzeichnungen oder die eingegebenen Befehle.</p>
+<p>Überprüfen Sie die generierte <code>.txt.gz</code>, bevor Sie sie mit dem Support teilen.</p>
 
 <h2 id="profile">Profil importieren / exportieren</h2>
 <ul>

@@ -50,11 +50,16 @@
   <li><b>Executar snapshot &rarr;</b> &mdash; executar um snapshot na sessão desta aba.</li>
   <li><b>Fixar / Desafixar</b> &mdash; as abas fixadas são restauradas automaticamente na próxima inicialização.</li>
   <li><b>Destacar para nova janela</b> &mdash; mover a aba para uma janela TSCRT totalmente nova. A sessão SSH/serial permanece conectada &mdash; sem desconexão/reconexão. Desabilitado quando há apenas uma aba.</li>
+  <li><b>Vincular aba à aba par&hellip;</b> &mdash; emparelhar esta aba com uma aba em outra instância do TSCRT na mesma máquina. Ativar qualquer uma das abas também alterna a aba par na outra janela. Útil para layouts lado a lado (por exemplo, console no monitor esquerdo, visualizador de logs no direito).</li>
+  <li><b>Desvincular aba</b> &mdash; aparece no lugar de <i>Vincular</i> quando a aba já tem um par; remove o emparelhamento.</li>
   <li><b>Fechar</b> &mdash; fechar a aba.</li>
 </ul>
 
 <h3>Arrastar abas entre janelas</h3>
 <p>Arraste uma aba da barra de abas e solte-a em outra janela do TSCRT para transferir a sessão. Se você soltá-la fora de qualquer janela do TSCRT, uma nova janela é criada automaticamente. A conexão ativa é preservada durante todo o processo.</p>
+
+<h3>Vínculos de abas entre instâncias</h3>
+<p>Os vínculos de abas são armazenados no perfil e se reconectam automaticamente na próxima vez que ambas as instâncias do TSCRT estiverem em execução. Os vínculos sobrevivem a reinicializações. A descoberta de pares ocorre por um canal IPC estritamente local; nenhum tráfego de rede é gerado.</p>
 
 <h2 id="panes">Painéis divididos / Difusão de entrada / Reconexão automática</h2>
 
@@ -169,6 +174,7 @@
   <li><b>Logs &rarr; Abrir pasta de logs</b> &mdash; um arquivo com timestamp por sessão.</li>
   <li>Capturas de snapshot: subpasta <code>snapshots/</code>.</li>
   <li>Alternância de log por sessão na aba Geral do editor de sessões.</li>
+  <li><b>Fallback automático:</b> se não for possível gravar no diretório de logs configurado (ponto de reanálise do OneDrive sem login, Controlled Folder Access ou restrições de ACL), os logs de sessão são gravados em <code>C:\TSCRT\sessions\</code> no Windows, ou <code>~/TSCRT/sessions/</code> no macOS/Linux. <b>Abrir pasta de logs</b> detecta isso e abre automaticamente o diretório de fallback, com um aviso na barra de status.</li>
 </ul>
 
 <h2 id="security">Segurança</h2>
@@ -191,6 +197,11 @@
 
 <h3>Despejos de falha</h3>
 <p>Se o TSCRT travar, um despejo é gravado em <code>~/tscrt/dumps/</code> com permissões exclusivas do proprietário (0600 no POSIX, ACL exclusiva do proprietário no Windows). Despejos com mais de 7 dias são excluídos automaticamente na inicialização.</p>
+
+<h2 id="diagnostics">Suporte &amp; diagnósticos</h2>
+<p><b>Ajuda &rarr; Exportar diagnósticos&hellip;</b> empacota um arquivo de texto compactado em gzip (<code>tscrt-diag-YYYYMMDD-HHMMSS.txt.gz</code>) contendo informações do sistema, caminhos resolvidos, variáveis de ambiente selecionadas, uma sondagem de gravação, arquivos de log recentes do aplicativo (últimos 7 dias) e os nomes de quaisquer despejos de falha. O tamanho típico é inferior a 1 MB. O tamanho máximo antes da compactação é limitado a 10 MB &mdash; o conteúdo de log mais antigo é truncado com um marcador explícito, se necessário.</p>
+<p>Uma caixa de diálogo de consentimento mostra o conteúdo exato antes de o pacote ser gravado. O pacote <b>não inclui</b> senhas, chaves privadas SSH, o perfil de sessão (hosts, snapshots, regras de automação), arquivos de snapshot, capturas de terminal por sessão, nem os comandos que você digitou.</p>
+<p>Revise o arquivo <code>.txt.gz</code> gerado antes de compartilhá-lo com o suporte.</p>
 
 <h2 id="profile">Importação / exportação de perfil</h2>
 <ul>

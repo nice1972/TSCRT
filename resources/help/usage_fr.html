@@ -50,11 +50,16 @@
   <li><b>Exécuter l'instantané &rarr;</b> &mdash; exécuter un instantané sur la session de cet onglet.</li>
   <li><b>Épingler / Désépingler</b> &mdash; les onglets épinglés sont automatiquement restaurés au prochain lancement.</li>
   <li><b>Détacher dans une nouvelle fenêtre</b> &mdash; déplacer l'onglet dans une toute nouvelle fenêtre TSCRT. La session SSH/série reste connectée &mdash; pas de déconnexion/reconnexion. Désactivé lorsqu'il n'y a qu'un seul onglet.</li>
+  <li><b>Lier l'onglet à un onglet pair&hellip;</b> &mdash; appariez cet onglet avec un onglet d'une autre instance de TSCRT sur la même machine. Activer l'un ou l'autre onglet bascule également l'onglet pair dans l'autre fenêtre. Utile pour les dispositions côte à côte (par exemple, console sur le moniteur gauche, visualiseur de journaux sur le droit).</li>
+  <li><b>Délier l'onglet</b> &mdash; apparaît à la place de <i>Lier</i> lorsque l'onglet a déjà un pair ; supprime l'appariement.</li>
   <li><b>Fermer</b> &mdash; fermer l'onglet.</li>
 </ul>
 
 <h3>Glisser les onglets entre les fenêtres</h3>
 <p>Faites glisser un onglet depuis la barre d'onglets et déposez-le sur une autre fenêtre TSCRT pour transférer la session. Si vous le déposez en dehors de toute fenêtre TSCRT, une nouvelle fenêtre est automatiquement créée. La connexion active est préservée tout au long.</p>
+
+<h3>Liens d'onglets entre instances</h3>
+<p>Les liens d'onglets sont stockés dans le profil et se reconnectent automatiquement la prochaine fois que les deux instances de TSCRT sont en cours d'exécution. Les liens survivent aux redémarrages. La découverte des pairs s'effectue via un canal IPC strictement local ; aucun trafic réseau n'est généré.</p>
 
 <h2 id="panes">Panneaux divisés / Diffusion d'entrée / Reconnexion automatique</h2>
 
@@ -169,6 +174,7 @@
   <li><b>Journaux &rarr; Ouvrir le dossier des journaux</b> &mdash; un fichier horodaté par session.</li>
   <li>Captures d'instantanés : sous-dossier <code>snapshots/</code>.</li>
   <li>Bascule de journalisation par session dans l'onglet Général de l'éditeur de session.</li>
+  <li><b>Repli automatique :</b> si le répertoire de journaux configuré ne peut pas être écrit (point de réanalyse OneDrive sans connexion, Controlled Folder Access ou restrictions ACL), les journaux de session sont écrits à la place dans <code>C:\TSCRT\sessions\</code> sous Windows, ou <code>~/TSCRT/sessions/</code> sous macOS/Linux. <b>Ouvrir le dossier des journaux</b> détecte cela et ouvre automatiquement le répertoire de repli, avec un avis dans la barre d'état.</li>
 </ul>
 
 <h2 id="security">Sécurité</h2>
@@ -191,6 +197,11 @@
 
 <h3>Vidages de plantage</h3>
 <p>Si TSCRT plante, un vidage est écrit dans <code>~/tscrt/dumps/</code> avec des permissions réservées au propriétaire (0600 sur POSIX, ACL réservée au propriétaire sous Windows). Les vidages de plus de 7 jours sont automatiquement supprimés au démarrage.</p>
+
+<h2 id="diagnostics">Support &amp; diagnostics</h2>
+<p><b>Aide &rarr; Exporter les diagnostics&hellip;</b> conditionne un fichier texte compressé en gzip (<code>tscrt-diag-YYYYMMDD-HHMMSS.txt.gz</code>) contenant des informations système, les chemins résolus, des variables d'environnement sélectionnées, une sonde d'écriture, les fichiers journaux récents de l'application (7 derniers jours), et les noms des éventuels vidages de plantage. La taille typique est inférieure à 1 Mo. La taille maximale avant compression est plafonnée à 10 Mo &mdash; le contenu de journal plus ancien est tronqué avec un marqueur explicite si nécessaire.</p>
+<p>Une boîte de dialogue de consentement affiche le contenu exact avant l'écriture du bundle. Le bundle <b>n'inclut pas</b> les mots de passe, les clés privées SSH, le profil de session (hôtes, instantanés, règles d'automatisation), les fichiers d'instantanés, les captures de terminal par session, ni les commandes que vous avez saisies.</p>
+<p>Examinez le fichier <code>.txt.gz</code> généré avant de le partager avec le support.</p>
 
 <h2 id="profile">Importation / exportation de profil</h2>
 <ul>

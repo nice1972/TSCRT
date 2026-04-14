@@ -50,11 +50,16 @@
   <li><b>Ejecutar instantánea &rarr;</b> &mdash; ejecutar una instantánea en la sesión de esta pestaña.</li>
   <li><b>Fijar / Desfijar</b> &mdash; las pestañas fijadas se restauran automáticamente en el siguiente inicio.</li>
   <li><b>Desacoplar en nueva ventana</b> &mdash; mover la pestaña a una ventana TSCRT totalmente nueva. La sesión SSH/serie permanece conectada &mdash; sin desconexión/reconexión. Deshabilitado cuando solo hay una pestaña.</li>
+  <li><b>Vincular pestaña con pestaña par&hellip;</b> &mdash; empareja esta pestaña con una pestaña de otra instancia de TSCRT en la misma máquina. Al activar cualquiera de las dos pestañas también se cambia la pestaña par en la otra ventana. Útil para disposiciones en paralelo (p. ej., consola en el monitor izquierdo, visor de registros en el derecho).</li>
+  <li><b>Desvincular pestaña</b> &mdash; aparece en lugar de <i>Vincular</i> cuando la pestaña ya tiene un par; elimina el emparejamiento.</li>
   <li><b>Cerrar</b> &mdash; cerrar la pestaña.</li>
 </ul>
 
 <h3>Arrastrar pestañas entre ventanas</h3>
 <p>Arrastre una pestaña desde la barra de pestañas y suéltela sobre otra ventana de TSCRT para transferir la sesión. Si la suelta fuera de cualquier ventana de TSCRT, se crea automáticamente una nueva ventana. La conexión activa se conserva durante todo el proceso.</p>
+
+<h3>Vínculos de pestañas entre instancias</h3>
+<p>Los vínculos de pestañas se guardan en el perfil y se reconectan automáticamente la próxima vez que ambas instancias de TSCRT estén en ejecución. Los vínculos sobreviven a los reinicios. El descubrimiento de pares se realiza a través de un canal IPC exclusivamente local; no se genera tráfico de red.</p>
 
 <h2 id="panes">Paneles divididos / Difusión de entrada / Reconexión automática</h2>
 
@@ -169,6 +174,7 @@
   <li><b>Registros &rarr; Abrir carpeta de registros</b> &mdash; un archivo con marca de tiempo por sesión.</li>
   <li>Capturas de instantáneas: subcarpeta <code>snapshots/</code>.</li>
   <li>Interruptor de registro por sesión en la pestaña General del editor de sesiones.</li>
+  <li><b>Respaldo automático:</b> si no se puede escribir en el directorio de registros configurado (punto de reanálisis de OneDrive sin inicio de sesión, Controlled Folder Access o restricciones de ACL), los registros de sesión se escriben en su lugar en <code>C:\TSCRT\sessions\</code> en Windows, o <code>~/TSCRT/sessions/</code> en macOS/Linux. <b>Abrir carpeta de registros</b> lo detecta y abre el directorio de respaldo automáticamente, con un aviso en la barra de estado.</li>
 </ul>
 
 <h2 id="security">Seguridad</h2>
@@ -191,6 +197,11 @@
 
 <h3>Volcados de fallo</h3>
 <p>Si TSCRT se bloquea, se escribe un volcado en <code>~/tscrt/dumps/</code> con permisos solo para el propietario (0600 en POSIX, ACL exclusiva del propietario en Windows). Los volcados de más de 7 días se eliminan automáticamente al inicio.</p>
+
+<h2 id="diagnostics">Soporte &amp; diagnósticos</h2>
+<p><b>Ayuda &rarr; Exportar diagnósticos&hellip;</b> empaqueta un archivo de texto comprimido con gzip (<code>tscrt-diag-YYYYMMDD-HHMMSS.txt.gz</code>) que contiene información del sistema, rutas resueltas, variables de entorno seleccionadas, una sonda de escritura, archivos de registro recientes de la aplicación (últimos 7 días) y los nombres de cualquier volcado de fallo. El tamaño típico es inferior a 1 MB. El tamaño máximo antes de comprimir está limitado a 10 MB &mdash; el contenido de registro más antiguo se trunca con un marcador explícito si es necesario.</p>
+<p>Un diálogo de consentimiento muestra el contenido exacto antes de escribir el paquete. El paquete <b>no incluye</b> contraseñas, claves privadas SSH, el perfil de sesión (hosts, instantáneas, reglas de automatización), archivos de instantáneas, capturas de terminal por sesión ni los comandos que ha escrito.</p>
+<p>Revise el archivo <code>.txt.gz</code> generado antes de compartirlo con soporte.</p>
 
 <h2 id="profile">Importar / exportar perfil</h2>
 <ul>

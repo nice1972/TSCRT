@@ -50,11 +50,16 @@
   <li><b>Run Snapshot &rarr;</b> &mdash; run a snapshot on this tab's session.</li>
   <li><b>Pin / Unpin</b> &mdash; pinned tabs are automatically restored on next launch.</li>
   <li><b>Detach to New Window</b> &mdash; move the tab into a brand-new TSCRT window. The SSH/serial session stays connected &mdash; no disconnect/reconnect. Disabled when there is only one tab.</li>
+  <li><b>Link Tab to Peer Tab&hellip;</b> &mdash; pair this tab with a tab in another TSCRT instance on the same machine. Activating either tab also switches the peer tab in the other window. Useful for side-by-side layouts (e.g., console on the left monitor, log viewer on the right).</li>
+  <li><b>Unlink Tab</b> &mdash; appears in place of <i>Link</i> when the tab already has a peer; removes the pairing.</li>
   <li><b>Close</b> &mdash; close the tab.</li>
 </ul>
 
 <h3>Drag tabs between windows</h3>
 <p>Drag a tab from the tab bar and drop it onto another TSCRT window to transfer the session. If you drop outside any TSCRT window, a new window is automatically created. The active connection is preserved throughout.</p>
+
+<h3>Cross-instance tab links</h3>
+<p>Tab links are stored in the profile and reconnect automatically the next time both TSCRT instances are running. Links survive restarts. Peer discovery happens over a local-only IPC channel; no network traffic is generated.</p>
 
 <h2 id="panes">Split panes / Input broadcast / Auto-reconnect</h2>
 
@@ -169,6 +174,7 @@
   <li><b>Logs &rarr; Open log folder</b> &mdash; one timestamped file per session.</li>
   <li>Snapshot captures: <code>snapshots/</code> subfolder.</li>
   <li>Per-session logging toggle in the session editor's General tab.</li>
+  <li><b>Automatic fallback:</b> if the configured log directory cannot be written to (OneDrive reparse point without sign-in, Controlled Folder Access, or ACL restrictions), session logs are written instead to <code>C:\TSCRT\sessions\</code> on Windows, or <code>~/TSCRT/sessions/</code> on macOS/Linux. <b>Open log folder</b> detects this and opens the fallback directory automatically, with a status-bar notice.</li>
 </ul>
 
 <h2 id="security">Security</h2>
@@ -191,6 +197,11 @@
 
 <h3>Crash dumps</h3>
 <p>If TSCRT crashes, a dump is written to <code>~/tscrt/dumps/</code> with owner-only permissions (0600 on POSIX, owner-only ACL on Windows). Dumps older than 7 days are automatically deleted on startup.</p>
+
+<h2 id="diagnostics">Support &amp; diagnostics</h2>
+<p><b>Help &rarr; Export diagnostics&hellip;</b> packages a gzipped text file (<code>tscrt-diag-YYYYMMDD-HHMMSS.txt.gz</code>) containing system info, resolved paths, selected environment variables, a writability probe, recent app log files (last 7 days), and the names of any crash dumps. Typical size is under 1 MB. The maximum pre-compression size is capped at 10 MB &mdash; older log content is truncated with an explicit marker if needed.</p>
+<p>A consent dialog shows the exact contents before the bundle is written. The bundle <b>does not include</b> passwords, SSH private keys, the session profile (hosts, snapshots, automation rules), snapshot files, per-session terminal captures, or the commands you typed.</p>
+<p>Review the generated <code>.txt.gz</code> before sharing it with support.</p>
 
 <h2 id="profile">Profile import / export</h2>
 <ul>
