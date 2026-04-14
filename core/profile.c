@@ -164,6 +164,15 @@ static int profile_read_file(profile_t *p, const char *path)
                 } else {
                     section = 0;
                 }
+            } else if (strncmp(s, "tab_link:", 9) == 0) {
+                if (p->tab_link_count < MAX_TAB_LINKS) {
+                    tab_link_t *lk = &p->tab_links[p->tab_link_count++];
+                    memset(lk, 0, sizeof(*lk));
+                    snprintf(lk->pair_id, sizeof(lk->pair_id), "%s", s + 9);
+                    section = 10;
+                } else {
+                    section = 0;
+                }
             }
             continue;
         }
@@ -367,6 +376,28 @@ static int profile_read_file(profile_t *p, const char *path)
                 snprintf(cur_rule->pattern, sizeof(cur_rule->pattern), "%s", val);
             else if (strcmp(key, "cooldown_sec") == 0)
                 cur_rule->cooldown_sec = atoi(val);
+        } else if (section == 10 && p->tab_link_count > 0) {
+            /* [tab_link:<pair_id>]
+             *   left_role     = A
+             *   left_session  = ...
+             *   left_slot     = 0
+             *   right_role    = B
+             *   right_session = ...
+             *   right_slot    = 0
+             */
+            tab_link_t *lk = &p->tab_links[p->tab_link_count - 1];
+            if (strcmp(key, "left_role") == 0)
+                lk->left_role = val[0] ? val[0] : 'A';
+            else if (strcmp(key, "left_session") == 0)
+                snprintf(lk->left_session, sizeof(lk->left_session), "%s", val);
+            else if (strcmp(key, "left_slot") == 0)
+                lk->left_slot = atoi(val);
+            else if (strcmp(key, "right_role") == 0)
+                lk->right_role = val[0] ? val[0] : 'B';
+            else if (strcmp(key, "right_session") == 0)
+                snprintf(lk->right_session, sizeof(lk->right_session), "%s", val);
+            else if (strcmp(key, "right_slot") == 0)
+                lk->right_slot = atoi(val);
         }
     }
 
@@ -580,6 +611,22 @@ static int profile_write_file(const profile_t *p, const char *path)
         if (r->pattern[0])
             fprintf(fp, "pattern = %s\n", r->pattern);
         fprintf(fp, "cooldown_sec = %d\n\n", r->cooldown_sec);
+    }
+
+    /* Tab links (cross-instance). One section per pair so we can keep
+     * endpoint metadata (role + session name + slot_index) readable. */
+    for (int i = 0; i < p->tab_link_count; i++) {
+        const tab_link_t *lk = &p->tab_links[i];
+        if (!lk->pair_id[0]) continue;
+        const char lr = lk->left_role  ? lk->left_role  : 'A';
+        const char rr = lk->right_role ? lk->right_role : 'B';
+        fprintf(fp, "[tab_link:%s]\n", lk->pair_id);
+        fprintf(fp, "left_role = %c\n",     lr);
+        fprintf(fp, "left_session = %s\n",  lk->left_session);
+        fprintf(fp, "left_slot = %d\n",     lk->left_slot);
+        fprintf(fp, "right_role = %c\n",    rr);
+        fprintf(fp, "right_session = %s\n", lk->right_session);
+        fprintf(fp, "right_slot = %d\n\n",  lk->right_slot);
     }
 
     fclose(fp);

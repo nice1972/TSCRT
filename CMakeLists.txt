@@ -98,6 +98,12 @@ set(GUI_SOURCES
     gui/LogSettingsDialog.cpp
     gui/CronSchedule.h
     gui/CronSchedule.cpp
+    gui/LinkBroker.h
+    gui/LinkBroker.cpp
+    gui/LinkDialog.h
+    gui/LinkDialog.cpp
+    gui/TabLayout.h
+    gui/TabLayout.cpp
 )
 
 if(WIN32)

@@ -8,8 +8,10 @@
 
 #include "tscrt.h"
 
+#include <QHash>
 #include <QList>
 #include <QMainWindow>
+#include <QPair>
 #include <QPointer>
 #include <QString>
 
@@ -147,4 +149,26 @@ private:
 
     // Snapshot coordinator (owns runners + cron ticker).
     tscrt::SnapshotManager *m_snapshotMgr = nullptr;
+
+    // Cross-instance tab-link bookkeeping. Pair id -> local tab bound to
+    // that link (rebuilt every time tabs change; see refreshLinkState()).
+    QHash<QString, QPointer<tscrt::SessionTab>> m_pairBindings;
+    // Guard so the initial refreshLinkState() on an empty window doesn't
+    // overwrite the saved layout before autoRestoreLayout() has had a
+    // chance to open the previously-persisted tabs.
+    bool m_layoutReadyToSave = false;
+
+public:
+    /// Recompute pair_id -> SessionTab bindings by matching every
+    /// profile tab_link against the current tab layout, and publish this
+    /// process's tab list to the LinkBroker so peers can discover it.
+    /// Call after any tab add/remove/rename/move.
+    void refreshLinkState();
+
+private:
+    void activateLocalTabForPair(const QString &pairId);
+    void propagateProfileLinksToOtherWindows();
+    void autoRestoreLayout();   // called once, by the first window of role
+    void saveRoleLayout() const; // writes current tabs of all windows
+    void broadcastCurrentLinks() const;
 };

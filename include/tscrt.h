@@ -76,6 +76,8 @@
 #define MAX_PATTERN_LEN      256
 #define TRIGGER_BUF_SIZE     1024
 
+#define MAX_TAB_LINKS        64
+
 #define MAX_SNAPSHOTS        16
 #define MAX_SNAPSHOT_CMDS    16
 #define MAX_SNAPSHOT_CMD_LEN 256
@@ -211,6 +213,29 @@ typedef struct {
     int  cooldown_sec;
 } snapshot_rule_t;
 
+/* Cross-instance tab link. A pair_id ties two tab "endpoints" together:
+ * activating the tab on one TSCRT instance switches the matching tab on
+ * any peer instance. Each endpoint is identified by (session_name,
+ * slot_index) where slot_index disambiguates duplicate tabs of the same
+ * session (0 = first tab opened for that session in the owning window,
+ * 1 = second, ...). Links are bidirectional — either endpoint can be on
+ * either instance; the scheme doesn't hard-code sides. */
+#define MAX_PAIR_ID_LEN 40
+/* left_role/right_role are single chars: 'A' for the primary process, 'B'
+ * for the auto-spawned sibling. They disambiguate which process owns
+ * which endpoint so a same-named session tab in both processes doesn't
+ * cause spurious self-binding. Legacy links with role == 0 fall back to
+ * ('A','B') at load time. */
+typedef struct {
+    char pair_id[MAX_PAIR_ID_LEN];      /* UUID without braces */
+    char left_role;                     /* 'A' or 'B' */
+    char left_session[MAX_NAME_LEN];
+    int  left_slot;
+    char right_role;                    /* 'A' or 'B' */
+    char right_session[MAX_NAME_LEN];
+    int  right_slot;
+} tab_link_t;
+
 typedef struct {
     char host[MAX_HOST_LEN];
     int  port;
@@ -240,6 +265,8 @@ typedef struct {
     snapshot_rule_t snapshot_rules[MAX_SNAPSHOT_RULES];
     int             snapshot_rule_count;
     smtp_config_t   smtp;
+    tab_link_t      tab_links[MAX_TAB_LINKS];
+    int             tab_link_count;
 } profile_t;
 
 #ifdef __cplusplus

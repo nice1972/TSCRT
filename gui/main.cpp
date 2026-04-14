@@ -12,6 +12,7 @@
 #endif
 
 #include "CrashHandler.h"
+#include "LinkBroker.h"
 #include "Logging.h"
 #include "MainWindow.h"
 
@@ -35,6 +36,19 @@ int main(int argc, char *argv[])
     app.setOrganizationName(QStringLiteral("tscrt"));
     app.setApplicationVersion(QStringLiteral("1.0.0"));
     app.setWindowIcon(QIcon(QStringLiteral(":/icons/app.png")));
+
+    // Cross-instance tab-link role assignment. "--role=B" forces role B
+    // (used when a primary TSCRT auto-spawns its sibling); otherwise we
+    // auto-detect: a running peer claiming role A pushes us to B, else
+    // we become A. Must be set before the first MainWindow so LinkBroker
+    // tags its registry entry correctly.
+    char role = 'A';
+    const QStringList args = app.arguments();
+    if (args.contains(QStringLiteral("--role=B")))
+        role = 'B';
+    else
+        role = tscrt::LinkBroker::detectAvailableRole();
+    tscrt::LinkBroker::instance()->setSelfRole(role);
 
     // Localization policy: English by default, regardless of system
     // locale. The user can opt in to a translation via Settings ->
