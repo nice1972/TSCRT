@@ -46,6 +46,7 @@ public slots:
     void showSessionManagerDialog();
     void showSettingsDialog();
     void showAboutDialog();
+    void exportDiagnostics();
     void setUiLanguage(const QString &langCode);
 
 public:

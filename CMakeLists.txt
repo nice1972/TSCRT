@@ -20,6 +20,7 @@ find_package(Qt6 6.4 REQUIRED COMPONENTS Core Gui Widgets Network LinguistTools)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBSSH2  REQUIRED IMPORTED_TARGET libssh2)
 pkg_check_modules(LIBVTERM REQUIRED IMPORTED_TARGET vterm)
+find_package(ZLIB REQUIRED)
 
 # libsecret (Linux Secret Service) — optional. When present, Credentials.cpp
 # stores passwords in the user's keyring instead of on disk in plaintext.
@@ -61,6 +62,8 @@ set(GUI_SOURCES
     gui/Logging.cpp
     gui/CrashHandler.h
     gui/CrashHandler.cpp
+    gui/DiagnosticExporter.h
+    gui/DiagnosticExporter.cpp
     gui/Credentials.h
     gui/Credentials.cpp
     gui/ActionParser.h
@@ -148,8 +151,8 @@ if(APPLE)
         OUTPUT_NAME                       tscrt_mac
         MACOSX_BUNDLE_GUI_IDENTIFIER      "com.tepseg.tscrt"
         MACOSX_BUNDLE_BUNDLE_NAME         "TSCRT"
-        MACOSX_BUNDLE_BUNDLE_VERSION      "1.0.2"
-        MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0.2"
+        MACOSX_BUNDLE_BUNDLE_VERSION      "1.00.04"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "1.00.04"
         MACOSX_BUNDLE_ICON_FILE           "tscrt_mac.icns"
         MACOSX_BUNDLE_COPYRIGHT           "© 2026 TePSEG Co., Ltd."
     )
@@ -288,7 +291,7 @@ endforeach()
 # Pack with CPack / NSIS.
 set(CPACK_PACKAGE_NAME              "tscrt_win")
 set(CPACK_PACKAGE_VENDOR            "TePSEG Co., Ltd.")
-set(CPACK_PACKAGE_VERSION           "1.0.2")
+set(CPACK_PACKAGE_VERSION           "1.00.04")
 set(CPACK_PACKAGE_FILE_NAME         "tscrt_win-${CPACK_PACKAGE_VERSION}-win64")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
     "TSCRT - SSH and serial console terminal emulator")
@@ -315,6 +318,20 @@ set(CPACK_NSIS_URL_INFO_ABOUT         "mailto:ygjeon@tepseg.com")
 set(CPACK_NSIS_CONTACT                "ygjeon@tepseg.com")
 set(CPACK_NSIS_MODIFY_PATH            OFF)
 set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
+
+# Kill any running tscrt_win.exe before extracting files, otherwise the
+# installer fails on Qt6Core.dll (and other locked DLLs) when the app is
+# running from the same install directory. Mirror the same shutdown in the
+# uninstaller so removing the app doesn't fail with file-in-use either.
+set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS
+"  DetailPrint \\\"Stopping any running tscrt_win.exe...\\\"
+  nsExec::ExecToLog 'taskkill /F /IM tscrt_win.exe /T'
+  Sleep 800")
+set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS
+"  DetailPrint \\\"Stopping any running tscrt_win.exe...\\\"
+  nsExec::ExecToLog 'taskkill /F /IM tscrt_win.exe /T'
+  Sleep 800")
+
 set(CPACK_NSIS_INSTALLED_ICON_NAME    "tscrt_win.exe")
 set(CPACK_NSIS_MUI_ICON
     "${CMAKE_CURRENT_SOURCE_DIR}/resources/tscrt_win.ico")
@@ -348,7 +365,7 @@ elseif(APPLE)
     # Pack with CPack / DragNDrop (.dmg).
     set(CPACK_PACKAGE_NAME              "tscrt_mac")
     set(CPACK_PACKAGE_VENDOR            "TePSEG Co., Ltd.")
-    set(CPACK_PACKAGE_VERSION           "1.0.2")
+    set(CPACK_PACKAGE_VERSION           "1.00.04")
     set(CPACK_PACKAGE_FILE_NAME         "tscrt_mac-${CPACK_PACKAGE_VERSION}-macos")
     set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
         "TSCRT - SSH and serial console terminal emulator")
@@ -378,7 +395,7 @@ else()
     # Pack with CPack / DEB.
     set(CPACK_PACKAGE_NAME              "tscrt")
     set(CPACK_PACKAGE_VENDOR            "TePSEG Co., Ltd.")
-    set(CPACK_PACKAGE_VERSION           "1.0.2")
+    set(CPACK_PACKAGE_VERSION           "1.00.04")
     set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
         "TSCRT - SSH and serial console terminal emulator")
     set(CPACK_RESOURCE_FILE_LICENSE
@@ -468,6 +485,7 @@ target_link_libraries(tscrt_win PRIVATE
     Qt6::Network
     PkgConfig::LIBSSH2
     PkgConfig::LIBVTERM
+    ZLIB::ZLIB
 )
 
 if(WIN32)

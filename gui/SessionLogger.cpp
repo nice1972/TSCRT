@@ -1,9 +1,12 @@
 #include "SessionLogger.h"
 
+#include "tscrt.h"
+
 #include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
 #include <QRegularExpression>
+#include <QStandardPaths>
 
 namespace {
 
@@ -17,6 +20,47 @@ QString sanitizeForFilename(const QString &in)
     return out;
 }
 
+/* Try to open `dir/name` for append. Returns true on success, otherwise
+ * leaves `file` unchanged and writes diagnostic info through qWarning. */
+bool tryOpenLogAt(QFile &file, const QString &dir, const QString &name,
+                  const char *label)
+{
+    QDir d(dir);
+    if (!d.exists()) {
+        if (!d.mkpath(QStringLiteral("."))) {
+            qWarning("SessionLogger[%s]: mkpath failed for %s",
+                     label, qUtf8Printable(dir));
+            return false;
+        }
+    }
+    QFile f(d.filePath(name));
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
+        qWarning("SessionLogger[%s]: cannot open %s — %s",
+                 label, qUtf8Printable(f.fileName()),
+                 qUtf8Printable(f.errorString()));
+        return false;
+    }
+    // Success: move the open handle into the member QFile.
+    f.close();
+    file.setFileName(d.filePath(name));
+    return file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text);
+}
+
+/* Last-resort fallback when the configured log dir (typically
+ * Documents/TSCRT) is blocked by OneDrive redirection / EDR / ACLs.
+ *   Windows: C:\TSCRT\sessions — visible to the user at the drive root.
+ *   Other:   ~/TSCRT/sessions.
+ * AppData/Roaming is deliberately NOT used — users asked for a visible
+ * top-level location. */
+QString fallbackSessionDir()
+{
+#ifdef Q_OS_WIN
+    return QStringLiteral("C:/TSCRT/sessions");
+#else
+    return QDir::homePath() + QStringLiteral("/TSCRT/sessions");
+#endif
+}
+
 } // namespace
 
 SessionLogger::SessionLogger(const QString &logDir,
@@ -25,10 +69,6 @@ SessionLogger::SessionLogger(const QString &logDir,
                              QObject       *parent)
     : QObject(parent)
 {
-    QDir dir(logDir);
-    if (!dir.exists())
-        dir.mkpath(QStringLiteral("."));
-
     const QString stamp = QDateTime::currentDateTime()
                               .toString(QStringLiteral("yyyyMMdd_HHmmss"));
 
@@ -37,10 +77,14 @@ SessionLogger::SessionLogger(const QString &logDir,
                                   sanitizeForFilename(host),
                                   stamp);
 
-    m_file.setFileName(dir.filePath(name));
-    if (!m_file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
-        qWarning("SessionLogger: cannot open %s",
-                 qUtf8Printable(m_file.fileName()));
+    if (tryOpenLogAt(m_file, logDir, name, "primary"))
+        return;
+
+    const QString fb = fallbackSessionDir();
+    if (!fb.isEmpty() && tryOpenLogAt(m_file, fb, name, "fallback")) {
+        qWarning("SessionLogger: using fallback dir %s because primary "
+                 "(%s) was not writable",
+                 qUtf8Printable(fb), qUtf8Printable(logDir));
     }
 }
 

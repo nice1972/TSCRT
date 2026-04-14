@@ -3,6 +3,7 @@
 #include "ButtonBar.h"
 #include "CommandLineWidget.h"
 #include "Credentials.h"
+#include "DiagnosticExporter.h"
 #include "HelpDialog.h"
 #include "ISession.h"
 #include "SerialSession.h"
@@ -48,6 +49,7 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QStandardPaths>
 #include <QStackedWidget>
 #include <QStatusBar>
 #include <QStyle>
@@ -453,6 +455,11 @@ void MainWindow::createMenus()
         dlg.exec();
     });
     helpMenu->addAction(actUsage);
+
+    auto *actDiag = new QAction(tr("&Export diagnostics..."), this);
+    connect(actDiag, &QAction::triggered, this, &MainWindow::exportDiagnostics);
+    helpMenu->addAction(actDiag);
+
     helpMenu->addSeparator();
     m_actAbout = new QAction(tr("&About TSCRT..."), this);
     connect(m_actAbout, &QAction::triggered, this, &MainWindow::showAboutDialog);
@@ -992,15 +999,50 @@ void MainWindow::openSnapshotFolder()
 
 void MainWindow::openLogFolder()
 {
-    const QString dir = QString::fromLocal8Bit(m_profile.common.log_dir);
-    if (dir.isEmpty()) {
+    const QString configured = QString::fromLocal8Bit(m_profile.common.log_dir);
+
+    auto isWritable = [](const QString &dir) -> bool {
+        if (dir.isEmpty()) return false;
+        QDir d(dir);
+        if (!d.exists() && !d.mkpath(QStringLiteral("."))) return false;
+        const QString probe = d.filePath(QStringLiteral(".tscrt_probe"));
+        QFile f(probe);
+        if (!f.open(QIODevice::WriteOnly)) return false;
+        f.close();
+        QFile::remove(probe);
+        return true;
+    };
+
+    QString target = configured;
+    bool usedFallback = false;
+
+    if (!isWritable(target)) {
+        // Configured dir is unreachable / read-only (OneDrive reparse,
+        // Controlled Folder Access, ACL, etc.). Fall back to the same
+        // visible top-level directory SessionLogger writes to.
+#ifdef Q_OS_WIN
+        target = QStringLiteral("C:/TSCRT/sessions");
+#else
+        target = QDir::homePath() + QStringLiteral("/TSCRT/sessions");
+#endif
+        QDir d(target);
+        if (!d.exists()) d.mkpath(QStringLiteral("."));
+        usedFallback = true;
+    }
+
+    if (target.isEmpty()) {
         QMessageBox::information(this, tr("Logs"),
             tr("Log directory is not configured yet."));
         return;
     }
-    QDir d(dir);
-    if (!d.exists()) d.mkpath(QStringLiteral("."));
-    QDesktopServices::openUrl(QUrl::fromLocalFile(d.absolutePath()));
+
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QDir(target).absolutePath()));
+
+    if (usedFallback) {
+        statusBar()->showMessage(
+            tr("Configured log directory is not writable — opened fallback: %1").arg(target),
+            7000);
+    }
 }
 
 void MainWindow::showLogSettingsDialog()
@@ -1866,6 +1908,54 @@ void MainWindow::showAboutDialog()
         "Released under the GNU General Public License (GPL)."));
     box.setStandardButtons(QMessageBox::Ok);
     box.exec();
+}
+
+void MainWindow::exportDiagnostics()
+{
+    const QString defaultName = QStringLiteral("tscrt-diag-%1.txt.gz")
+        .arg(QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd-HHmmss")));
+    const QString defaultDir = QStandardPaths::writableLocation(
+        QStandardPaths::DesktopLocation);
+    const QString suggested = QDir(defaultDir).filePath(defaultName);
+
+    const QString path = QFileDialog::getSaveFileName(
+        this,
+        tr("Export diagnostics"),
+        suggested,
+        tr("Diagnostic bundle (*.txt.gz);;All files (*)"));
+    if (path.isEmpty())
+        return;
+
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    tscrt::DiagnosticExporter::Options opts;
+    opts.daysBack = 7;
+    opts.maxBytes = 10 * 1024 * 1024;
+    const auto r = tscrt::DiagnosticExporter::exportBundle(path, opts);
+    QApplication::restoreOverrideCursor();
+
+    if (!r.ok) {
+        QMessageBox::warning(this, tr("Export failed"),
+                             tr("Could not write diagnostic bundle:\n%1").arg(r.error));
+        return;
+    }
+
+    const auto human = [](qint64 b) {
+        if (b < 1024) return QStringLiteral("%1 B").arg(b);
+        double kb = b / 1024.0;
+        if (kb < 1024.0) return QStringLiteral("%1 KB").arg(kb, 0, 'f', 1);
+        return QStringLiteral("%1 MB").arg(kb / 1024.0, 0, 'f', 2);
+    };
+
+    QString detail = tr("File: %1\nUncompressed: %2\nCompressed: %3")
+                         .arg(r.outputPath,
+                              human(r.originalBytes),
+                              human(r.compressedBytes));
+    if (r.truncated)
+        detail += QLatin1Char('\n') + tr("Note: log content was truncated to fit the size cap.");
+    if (!r.warnings.isEmpty())
+        detail += QLatin1String("\n\n") + r.warnings.join(QLatin1Char('\n'));
+
+    QMessageBox::information(this, tr("Diagnostics exported"), detail);
 }
 
 // ---- Multi-window: detach / adopt / drag -----------------------------------

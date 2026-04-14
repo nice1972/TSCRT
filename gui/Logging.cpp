@@ -10,6 +10,7 @@
 #include <QMutex>
 #include <QMutexLocker>
 #include <QStandardPaths>
+#include <QSysInfo>
 #include <QTextStream>
 #include <QThread>
 
@@ -24,8 +25,11 @@ constexpr qint64 kMaxBytes     = 5 * 1024 * 1024; // 5 MB
 constexpr int    kMaxRotations = 5;
 
 QMutex            g_mutex;
-QFile            *g_file    = nullptr;
-QtMessageHandler  g_prev    = nullptr;
+QFile            *g_file      = nullptr;
+QtMessageHandler  g_prev      = nullptr;
+QString           g_logDir;
+QString           g_logPath;
+QStringList       g_attempts;
 
 QString levelTag(QtMsgType t)
 {
@@ -45,7 +49,6 @@ void rotateIfNeeded(const QString &path)
     if (!info.exists() || info.size() < kMaxBytes)
         return;
 
-    // Drop oldest, shift the rest
     const QString last = QStringLiteral("%1.%2").arg(path).arg(kMaxRotations);
     if (QFile::exists(last))
         QFile::remove(last);
@@ -80,6 +83,67 @@ void messageHandler(QtMsgType type, const QMessageLogContext &ctx,
         g_prev(type, ctx, msg);
 }
 
+// Try to open log file at <base>/tscrt/logs/<name>.log. Returns opened
+// QFile* on success (caller owns), nullptr on failure; reason written to
+// `why`.
+// Try to open fileName for append inside `dir`. Creates `dir` recursively
+// if missing. On failure, writes reason to `why`. Returns opened QFile*
+// (caller owns) or nullptr.
+QFile *tryOpenAt(const QString &dir, const QString &fileName, QString *why)
+{
+    if (dir.isEmpty()) {
+        if (why) *why = QStringLiteral("empty dir path");
+        return nullptr;
+    }
+    QDir d(dir);
+    if (!d.exists()) {
+        if (!d.mkpath(QStringLiteral("."))) {
+            if (why) *why = QStringLiteral("mkpath failed");
+            return nullptr;
+        }
+    }
+
+    const QString path = d.filePath(fileName);
+    rotateIfNeeded(path);
+
+    auto *f = new QFile(path);
+    if (!f->open(QIODevice::Append | QIODevice::Text)) {
+        if (why) *why = QStringLiteral("open failed: %1").arg(f->errorString());
+        delete f;
+        return nullptr;
+    }
+    return f;
+}
+
+void writeBootDiagnostic()
+{
+    // Written before qInstallMessageHandler, so writes go via qInfo through
+    // the default handler AND this routine writes a copy directly to the
+    // file so that even if some later component breaks, the environment
+    // snapshot survives. Called with g_mutex NOT held.
+    QMutexLocker lock(&g_mutex);
+    if (!g_file || !g_file->isOpen())
+        return;
+    QTextStream out(g_file);
+    out.setEncoding(QStringConverter::Utf8);
+    out << "==== boot diagnostic ====\n"
+        << "  time:        " << QDateTime::currentDateTime().toString(Qt::ISODateWithMs) << "\n"
+        << "  version:     " << TSCRT_VERSION << "\n"
+        << "  qt:          " << qVersion() << "\n"
+        << "  os:          " << QSysInfo::prettyProductName() << "\n"
+        << "  kernel:      " << QSysInfo::kernelType() << " " << QSysInfo::kernelVersion() << "\n"
+        << "  arch:        " << QSysInfo::currentCpuArchitecture() << "\n"
+        << "  machine:     " << QSysInfo::machineHostName() << "\n"
+        << "  log dir:     " << g_logDir << "\n";
+    if (!g_attempts.isEmpty()) {
+        out << "  attempts:\n";
+        for (const QString &a : g_attempts)
+            out << "    - " << a << "\n";
+    }
+    out << "========================\n";
+    out.flush();
+}
+
 } // namespace
 
 QString installLogging()
@@ -88,37 +152,70 @@ QString installLogging()
     if (g_file)
         return g_file->fileName();
 
-    // Resolve %APPDATA%/tscrt/logs (matches profile_init() layout).
-    QString base = QString::fromLocal8Bit(tscrt_get_home());
-    QDir dir(base);
-    if (!dir.cd(QString::fromLatin1(TSCRT_DIR_NAME))) {
-        if (!dir.mkpath(QString::fromLatin1(TSCRT_DIR_NAME)))
-            return {};
-        dir.cd(QString::fromLatin1(TSCRT_DIR_NAME));
-    }
-    if (!dir.cd(QString::fromLatin1(TSCRT_LOG_DIR_NAME))) {
-        if (!dir.mkpath(QString::fromLatin1(TSCRT_LOG_DIR_NAME)))
-            return {};
-        dir.cd(QString::fromLatin1(TSCRT_LOG_DIR_NAME));
-    }
-
 #if defined(Q_OS_MACOS)
-    const QString path = dir.filePath(QStringLiteral("tscrt_mac.log"));
+    const QString fileName = QStringLiteral("tscrt_mac.log");
 #elif defined(Q_OS_LINUX)
-    const QString path = dir.filePath(QStringLiteral("tscrt_linux.log"));
+    const QString fileName = QStringLiteral("tscrt_linux.log");
 #else
-    const QString path = dir.filePath(QStringLiteral("tscrt_win.log"));
+    const QString fileName = QStringLiteral("tscrt_win.log");
 #endif
-    rotateIfNeeded(path);
 
-    auto *f = new QFile(path);
-    if (!f->open(QIODevice::Append | QIODevice::Text)) {
-        delete f;
+    struct Candidate { QString label; QString dir; };
+    QList<Candidate> candidates;
+
+    // Primary: <profile home>/tscrt/logs. tscrt_get_home() resolves to
+    // %APPDATA% on Windows, ~/Library/Application Support on macOS,
+    // ~/.config on Linux.
+    const QString home = QString::fromLocal8Bit(tscrt_get_home());
+    if (!home.isEmpty()) {
+        candidates.append({ QStringLiteral("profile"),
+                            QDir(home).filePath(QStringLiteral("%1/%2")
+                                .arg(QString::fromLatin1(TSCRT_DIR_NAME),
+                                     QString::fromLatin1(TSCRT_LOG_DIR_NAME))) });
+    }
+
+    // Fallback: a visible top-level directory the user can find easily
+    // when the profile home is blocked by OneDrive/EDR/ACLs. Deliberately
+    // NOT under AppData — users need to see it.
+#ifdef Q_OS_WIN
+    candidates.append({ QStringLiteral("toplevel"),
+                        QStringLiteral("C:/TSCRT/logs") });
+#else
+    candidates.append({ QStringLiteral("toplevel"),
+                        QDir::homePath() + QStringLiteral("/TSCRT/logs") });
+#endif
+
+    // Last resort: OS TEMP. Almost always writable; disposable.
+    candidates.append({ QStringLiteral("temp"),
+                        QStandardPaths::writableLocation(QStandardPaths::TempLocation) });
+
+    QFile *opened = nullptr;
+    for (const Candidate &c : candidates) {
+        if (c.dir.isEmpty()) continue;
+        QString why;
+        QFile *f = tryOpenAt(c.dir, fileName, &why);
+        if (f) {
+            opened = f;
+            g_attempts.append(QStringLiteral("%1 [%2] — opened").arg(c.dir, c.label));
+            break;
+        }
+        g_attempts.append(QStringLiteral("%1 [%2] — %3").arg(c.dir, c.label, why));
+    }
+
+    if (!opened) {
+        // Nothing worked; leave g_file null. Attempts list preserved for
+        // later diagnostic export.
         return {};
     }
-    g_file = f;
-    g_prev = qInstallMessageHandler(&messageHandler);
-    return path;
+
+    g_file    = opened;
+    g_logPath = opened->fileName();
+    g_logDir  = QFileInfo(g_logPath).absolutePath();
+    g_prev    = qInstallMessageHandler(&messageHandler);
+    lock.unlock();
+
+    writeBootDiagnostic();
+    return g_logPath;
 }
 
 void shutdownLogging()
@@ -133,6 +230,8 @@ void shutdownLogging()
         delete g_file;
         g_file = nullptr;
     }
+    g_logPath.clear();
+    g_logDir.clear();
 }
 
 void logBanner()
@@ -149,6 +248,24 @@ void logBanner()
           LIBSSH2_VERSION,
           VTERM_VERSION_MAJOR,
           VTERM_VERSION_MINOR);
+}
+
+QString currentLogDir()
+{
+    QMutexLocker lock(&g_mutex);
+    return g_logDir;
+}
+
+QString currentLogFile()
+{
+    QMutexLocker lock(&g_mutex);
+    return g_logPath;
+}
+
+QStringList logOpenAttempts()
+{
+    QMutexLocker lock(&g_mutex);
+    return g_attempts;
 }
 
 } // namespace tscrt
