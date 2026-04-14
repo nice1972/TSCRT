@@ -25,8 +25,10 @@ int main(int argc, char *argv[])
 #endif
 
     QApplication app(argc, argv);
-#ifdef Q_OS_MACOS
+#if defined(Q_OS_MACOS)
     app.setApplicationName(QStringLiteral("tscrt_mac"));
+#elif defined(Q_OS_LINUX)
+    app.setApplicationName(QStringLiteral("tscrt_linux"));
 #else
     app.setApplicationName(QStringLiteral("tscrt_win"));
 #endif

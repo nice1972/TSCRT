@@ -920,6 +920,17 @@ TRANSLATIONS = {
         "de": "Lösen", "es": "Desfijar", "fr": "Détacher",
         "it": "Rimuovi", "pt": "Desafixar", "ru": "Открепить",
     },
+    "Detach to New Window": {
+        "ko": "새 창으로 분리",
+        "ja": "新しいウィンドウに切り離す",
+        "zh": "分离到新窗口",
+        "de": "In neues Fenster lösen",
+        "es": "Separar en nueva ventana",
+        "fr": "Détacher dans une nouvelle fenêtre",
+        "it": "Stacca in nuova finestra",
+        "pt": "Destacar em nova janela",
+        "ru": "Открепить в новое окно",
+    },
     "Close": {
         "ko": "닫기", "ja": "閉じる", "zh": "关闭",
         "de": "Schließen", "es": "Cerrar", "fr": "Fermer",

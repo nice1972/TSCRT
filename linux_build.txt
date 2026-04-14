@@ -1,0 +1,77 @@
+TSCRT Linux (Ubuntu/Debian) Build Guide
+========================================
+
+1. Install dependencies (Ubuntu 22.04+ / Debian 12+)
+-----------------------------------------------------
+sudo apt update
+sudo apt install -y \
+    build-essential cmake ninja-build pkg-config \
+    qt6-base-dev qt6-tools-dev qt6-tools-dev-tools \
+    libqt6core6 libqt6gui6 libqt6widgets6 libqt6network6 \
+    libssh2-1-dev libvterm-dev libsecret-1-dev \
+    dpkg-dev
+
+Notes
+-----
+- libsecret-1-dev is optional: if missing, passwords are stored as
+  plaintext and a warning is printed at configure time.
+- Requires Qt 6.5+. On older Ubuntu (20.04) install Qt 6 from a
+  PPA or use the ``qt6`` meta-packages from the official Qt installer.
+
+2. Build
+---------
+./build-linux.sh
+   or manually:
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+
+Binary: build/tscrt_linux
+
+3. Run tests
+-------------
+ctest --test-dir build --output-on-failure
+
+4. Run (uninstalled)
+---------------------
+./build/tscrt_linux
+
+5. Create .deb package
+-----------------------
+cd build && cpack -G DEB
+
+Output: build/tscrt_1.0.2_amd64.deb (architecture detected via
+dpkg --print-architecture).
+
+6. Install / Uninstall
+-----------------------
+sudo apt install ./build/tscrt_1.0.2_amd64.deb
+   or
+sudo dpkg -i build/tscrt_1.0.2_amd64.deb
+
+Launch via the ``tscrt_linux`` command or the TSCRT entry in the
+application menu.
+
+Uninstall (removes binary, .desktop, and icons):
+sudo apt remove tscrt
+   or
+sudo dpkg -r tscrt
+
+User profile data (~/.config/tscrt/) is intentionally kept after
+uninstall. Remove it manually if desired.
+
+7. Credential storage
+----------------------
+When libsecret-1-dev is present at build time, passwords are stored
+in the user's Secret Service keyring (GNOME Keyring / KWallet via
+SecretService). Inspect entries with:
+
+secret-tool search service com.tepseg.tscrt
+
+On headless hosts without a running Secret Service, store will fall
+back to plaintext with a qWarning logged.
+
+8. DPAPI / Keychain migration
+------------------------------
+Profiles migrated from Windows (dpapi: prefix) or macOS (keychain:
+prefix) cannot be decrypted on Linux. Re-enter the passwords in
+Session Manager after importing.

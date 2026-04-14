@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=TSCRT
+GenericName=Terminal Emulator
+Comment=SSH and serial console terminal emulator
+Exec=tscrt_linux
+Icon=tscrt
+Terminal=false
+Categories=Network;TerminalEmulator;
+Keywords=ssh;serial;terminal;console;
+StartupNotify=true

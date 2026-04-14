@@ -139,8 +139,10 @@ void SessionEditDialog::buildUi()
 
     m_serDevice = new QLineEdit(serPage);
     m_serDevice->setMaxLength(MAX_DEVICE_LEN - 1);
-#ifdef _WIN32
+#if defined(_WIN32)
     m_serDevice->setPlaceholderText(QStringLiteral("COM3"));
+#elif defined(__linux__)
+    m_serDevice->setPlaceholderText(QStringLiteral("/dev/ttyUSB0"));
 #else
     m_serDevice->setPlaceholderText(QStringLiteral("/dev/cu.usbserial-xxx"));
 #endif

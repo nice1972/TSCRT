@@ -14,12 +14,18 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # Qt6 (MSYS2 UCRT64)
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Gui Widgets Network LinguistTools)
+find_package(Qt6 6.4 REQUIRED COMPONENTS Core Gui Widgets Network LinguistTools)
 
 # pkg-config for libssh2 / libvterm
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBSSH2  REQUIRED IMPORTED_TARGET libssh2)
 pkg_check_modules(LIBVTERM REQUIRED IMPORTED_TARGET vterm)
+
+# libsecret (Linux Secret Service) — optional. When present, Credentials.cpp
+# stores passwords in the user's keyring instead of on disk in plaintext.
+if(UNIX AND NOT APPLE)
+    pkg_check_modules(LIBSECRET IMPORTED_TARGET libsecret-1)
+endif()
 
 # ---- core (C, platform-portable) -----------------------------------------
 set(CORE_SOURCES
@@ -147,6 +153,9 @@ if(APPLE)
         MACOSX_BUNDLE_ICON_FILE           "tscrt_mac.icns"
         MACOSX_BUNDLE_COPYRIGHT           "© 2026 TePSEG Co., Ltd."
     )
+elseif(UNIX)
+    set_target_properties(tscrt_win PROPERTIES
+        OUTPUT_NAME tscrt_linux)
 endif()
 
 qt_add_translations(tscrt_win
@@ -352,7 +361,98 @@ elseif(APPLE)
 
     include(CPack)
 else()
-    install(TARGETS tscrt_win RUNTIME DESTINATION bin)
+    # ---- Linux (Ubuntu/Debian) install + CPack DEB --------------------
+    install(TARGETS tscrt_win
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+    install(FILES resources/tscrt.desktop
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+
+    install(FILES resources/tscrt_win.png
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/256x256/apps
+            RENAME tscrt.png)
+
+    install(FILES LICENSE.txt
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/tscrt)
+
+    # Pack with CPack / DEB.
+    set(CPACK_PACKAGE_NAME              "tscrt")
+    set(CPACK_PACKAGE_VENDOR            "TePSEG Co., Ltd.")
+    set(CPACK_PACKAGE_VERSION           "1.0.2")
+    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
+        "TSCRT - SSH and serial console terminal emulator")
+    set(CPACK_RESOURCE_FILE_LICENSE
+        "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
+
+    set(CPACK_GENERATOR "DEB")
+
+    # Detect host architecture for the package name and control field.
+    execute_process(COMMAND dpkg --print-architecture
+                    OUTPUT_VARIABLE _DEB_ARCH
+                    OUTPUT_STRIP_TRAILING_WHITESPACE
+                    RESULT_VARIABLE _DEB_ARCH_RC)
+    if(NOT _DEB_ARCH_RC EQUAL 0 OR _DEB_ARCH STREQUAL "")
+        set(_DEB_ARCH "amd64")
+    endif()
+
+    set(CPACK_PACKAGE_FILE_NAME
+        "tscrt_${CPACK_PACKAGE_VERSION}_${_DEB_ARCH}")
+    set(CPACK_DEBIAN_PACKAGE_NAME         "tscrt")
+    set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "${_DEB_ARCH}")
+    set(CPACK_DEBIAN_PACKAGE_MAINTAINER
+        "TePSEG <ygjeon@tepseg.com>")
+    set(CPACK_DEBIAN_PACKAGE_SECTION      "net")
+    set(CPACK_DEBIAN_PACKAGE_PRIORITY     "optional")
+    set(CPACK_DEBIAN_PACKAGE_HOMEPAGE
+        "https://github.com/nice1972/TSCRT")
+    set(CPACK_DEBIAN_PACKAGE_DESCRIPTION
+        "TSCRT - SSH and serial console terminal emulator\n Qt-based terminal for SSH and serial sessions with automation,\n session snapshots, and encrypted credential storage.")
+    # Auto-resolve shared-library deps; fall back to an explicit list for
+    # the subset dpkg-shlibdeps cannot see (pure runtime plugins etc.).
+    set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS    ON)
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS
+        "libc6, libssh2-1, libvterm0, libsecret-1-0, libqt6core6 | libqt6core6t64, libqt6gui6 | libqt6gui6t64, libqt6widgets6 | libqt6widgets6t64, libqt6network6 | libqt6network6t64")
+
+    # postinst / postrm: refresh icon + desktop caches so the launcher
+    # icon shows up right after install and disappears on remove.
+    set(_DEB_CONTROL_DIR "${CMAKE_CURRENT_BINARY_DIR}/debian-control")
+    file(MAKE_DIRECTORY "${_DEB_CONTROL_DIR}")
+    file(WRITE "${_DEB_CONTROL_DIR}/postinst"
+"#!/bin/sh
+set -e
+if command -v update-desktop-database >/dev/null 2>&1; then
+    update-desktop-database -q /usr/share/applications || true
+fi
+if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+    gtk-update-icon-cache -q -t /usr/share/icons/hicolor || true
+fi
+exit 0
+")
+    file(WRITE "${_DEB_CONTROL_DIR}/postrm"
+"#!/bin/sh
+set -e
+if [ \"$1\" = remove ] || [ \"$1\" = purge ]; then
+    if command -v update-desktop-database >/dev/null 2>&1; then
+        update-desktop-database -q /usr/share/applications || true
+    fi
+    if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+        gtk-update-icon-cache -q -t /usr/share/icons/hicolor || true
+    fi
+fi
+exit 0
+")
+    file(CHMOD "${_DEB_CONTROL_DIR}/postinst"
+         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                     GROUP_READ GROUP_EXECUTE
+                     WORLD_READ WORLD_EXECUTE)
+    file(CHMOD "${_DEB_CONTROL_DIR}/postrm"
+         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                     GROUP_READ GROUP_EXECUTE
+                     WORLD_READ WORLD_EXECUTE)
+    set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
+        "${_DEB_CONTROL_DIR}/postinst;${_DEB_CONTROL_DIR}/postrm")
+
+    include(CPack)
 endif()
 
 target_include_directories(tscrt_win PRIVATE
@@ -378,6 +478,17 @@ elseif(APPLE)
     find_library(SECURITY_FW Security)
     if(SECURITY_FW)
         target_link_libraries(tscrt_win PRIVATE ${SECURITY_FW})
+    endif()
+elseif(UNIX)
+    if(LIBSECRET_FOUND)
+        target_link_libraries(tscrt_win PRIVATE PkgConfig::LIBSECRET)
+        target_compile_definitions(tscrt_win PRIVATE TSCRT_HAS_LIBSECRET=1)
+    else()
+        target_compile_definitions(tscrt_win PRIVATE TSCRT_HAS_LIBSECRET=0)
+        message(WARNING
+            "libsecret-1 not found via pkg-config. Credentials will be "
+            "stored in plaintext. Install libsecret-1-dev to enable "
+            "keyring-backed encryption.")
     endif()
 endif()
 

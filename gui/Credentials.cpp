@@ -14,6 +14,17 @@
 #elif defined(__APPLE__)
   #include <CoreFoundation/CoreFoundation.h>
   #include <Security/Security.h>
+#elif defined(__linux__)
+  #if TSCRT_HAS_LIBSECRET
+    // libsecret transitively pulls in GIO, whose GDBusInterfaceInfo has a
+    // member named ``signals`` — that collides with Qt's signals keyword
+    // macro (defined as ``public:`` via qobjectdefs.h above). Save/restore
+    // the macro around the libsecret include so both APIs stay usable.
+    #pragma push_macro("signals")
+    #undef signals
+    #include <libsecret/secret.h>
+    #pragma pop_macro("signals")
+  #endif
 #endif
 
 namespace tscrt {
@@ -22,6 +33,7 @@ namespace {
 
 constexpr const char *kDpapiPrefix    = "dpapi:";
 constexpr const char *kKeychainPrefix = "keychain:";
+constexpr const char *kSecretPrefix   = "secret:";
 
 #ifdef _WIN32
 QByteArray dpapiProtect(const QByteArray &plain)
@@ -132,6 +144,68 @@ static QByteArray keychainLoad(const QString &account)
     CFRelease(accountRef);
     return out;
 }
+#elif defined(__linux__) && TSCRT_HAS_LIBSECRET
+// libsecret (Secret Service) backing. Each secret is stored under a
+// freshly-minted UUID so the profile only needs to retain the pointer.
+// The previous entry is intentionally orphaned on re-encrypt — cheap
+// and avoids chasing stale references.
+
+static const SecretSchema *tscrtSchema(void)
+{
+    static const SecretSchema s = {
+        "com.tepseg.tscrt.Secret",
+        SECRET_SCHEMA_NONE,
+        {
+            { "service", SECRET_SCHEMA_ATTRIBUTE_STRING },
+            { "account", SECRET_SCHEMA_ATTRIBUTE_STRING },
+            { nullptr, (SecretSchemaAttributeType)0 },
+        },
+        0, 0, 0, 0, 0, 0, 0, 0,
+    };
+    return &s;
+}
+
+static bool libsecretStore(const QString &account, const QByteArray &secret)
+{
+    GError *err = nullptr;
+    const QByteArray acct = account.toUtf8();
+    // secret_password_store_sync expects a NUL-terminated C string; our
+    // inputs come from QString::toUtf8() so embedded NULs are impossible.
+    gboolean ok = secret_password_store_sync(
+        tscrtSchema(), SECRET_COLLECTION_DEFAULT,
+        "TSCRT secret", secret.constData(),
+        nullptr, &err,
+        "service", "com.tepseg.tscrt",
+        "account", acct.constData(),
+        nullptr);
+    if (err) {
+        qWarning("libsecret store failed: %s", err->message);
+        g_error_free(err);
+        return false;
+    }
+    return ok == TRUE;
+}
+
+static QByteArray libsecretLoad(const QString &account)
+{
+    GError *err = nullptr;
+    const QByteArray acct = account.toUtf8();
+    gchar *pw = secret_password_lookup_sync(
+        tscrtSchema(), nullptr, &err,
+        "service", "com.tepseg.tscrt",
+        "account", acct.constData(),
+        nullptr);
+    if (err) {
+        qWarning("libsecret lookup failed: %s", err->message);
+        g_error_free(err);
+        return {};
+    }
+    if (!pw)
+        return {};
+    QByteArray out(pw);
+    secret_password_free(pw);
+    return out;
+}
 #endif
 
 } // namespace
@@ -139,7 +213,8 @@ static QByteArray keychainLoad(const QString &account)
 bool isEncrypted(const QString &stored)
 {
     return stored.startsWith(QString::fromLatin1(kDpapiPrefix))
-        || stored.startsWith(QString::fromLatin1(kKeychainPrefix));
+        || stored.startsWith(QString::fromLatin1(kKeychainPrefix))
+        || stored.startsWith(QString::fromLatin1(kSecretPrefix));
 }
 
 QString encryptSecret(const QString &plaintext)
@@ -164,8 +239,16 @@ QString encryptSecret(const QString &plaintext)
         return plaintext;
     }
     return QString::fromLatin1(kKeychainPrefix) + account;
+#elif defined(__linux__) && TSCRT_HAS_LIBSECRET
+    const QString account =
+        QUuid::createUuid().toString(QUuid::WithoutBraces);
+    if (!libsecretStore(account, plaintext.toUtf8())) {
+        qWarning("libsecret store failed; storing plaintext as fallback");
+        return plaintext;
+    }
+    return QString::fromLatin1(kSecretPrefix) + account;
 #else
-    // Linux: no OS-level secret store wired up yet; store plaintext.
+    // No OS-level secret store wired up on this build; store plaintext.
     return plaintext;
 #endif
 }
@@ -202,6 +285,21 @@ QString decryptSecret(const QString &stored)
         return QString::fromUtf8(data);
 #else
         qWarning("Keychain-backed secret cannot be decrypted on this platform");
+        return {};
+#endif
+    }
+
+    if (stored.startsWith(QString::fromLatin1(kSecretPrefix))) {
+#if defined(__linux__) && TSCRT_HAS_LIBSECRET
+        const QString account = stored.mid(int(qstrlen(kSecretPrefix)));
+        const QByteArray data = libsecretLoad(account);
+        if (data.isEmpty()) {
+            qWarning("libsecret lookup failed for stored secret");
+            return {};
+        }
+        return QString::fromUtf8(data);
+#else
+        qWarning("Secret-Service secret cannot be decrypted on this platform");
         return {};
 #endif
     }

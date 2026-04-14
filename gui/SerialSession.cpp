@@ -251,7 +251,11 @@ void SerialSession::runLoop()
             WriteFile(m_handle, txChunk.constData(),
                       (DWORD)txChunk.size(), &written, nullptr);
 #else
-            ::write(m_fd, txChunk.constData(), txChunk.size());
+            // Best-effort write. EPIPE/EAGAIN are transient and the next
+            // loop iteration will retry; losing a byte to a serial drop
+            // is fine.
+            ssize_t _w = ::write(m_fd, txChunk.constData(), txChunk.size());
+            (void)_w;
 #endif
         }
 

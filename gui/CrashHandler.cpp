@@ -94,11 +94,17 @@ static void posixSignalHandler(int sig, siginfo_t * /*info*/, void * /*ctx*/)
     // scrollback that should not be world-readable.
     int fd = ::open(g_dumpPath, O_WRONLY | O_CREAT | O_TRUNC, 0600);
     if (fd >= 0) {
+        // glibc marks write() warn_unused_result under _FORTIFY_SOURCE.
+        // We're already in a best-effort signal handler — swallow the
+        // result via a branch the compiler can't elide.
         const char *msg = "TSCRT crash — signal ";
-        (void)::write(fd, msg, strlen(msg));
+        ssize_t wn;
+        wn = ::write(fd, msg, strlen(msg));
+        (void)wn;
         char sigbuf[16];
         int n = snprintf(sigbuf, sizeof(sigbuf), "%d\n", sig);
-        (void)::write(fd, sigbuf, n);
+        wn = ::write(fd, sigbuf, n);
+        (void)wn;
 
         void *bt[64];
         int depth = backtrace(bt, 64);
