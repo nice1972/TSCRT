@@ -1,8 +1,10 @@
 # TSCRT
 
+**Windows, Linux, macOS 에서 모두 동작합니다.**
+
 **TSCRT** 는 Qt 6, libssh2, libvterm 으로 구현한 크로스플랫폼 SSH / 시리얼 콘솔 터미널 에뮬레이터입니다. 임베디드 장비, 네트워크 장비, 원격 서버를 다루는 엔지니어를 위해 안정적이고 스크립트로 자동화할 수 있는 다중 세션 콘솔을 목표로 합니다.
 
-[English](README.md) | [日本語](README.ja.md) | [中文](README.zh.md) | [Español](README.es.md) | [Français](README.fr.md) | [Deutsch](README.de.md) | [Português](README.pt.md) | [Русский](README.ru.md) | [Italiano](README.it.md)
+[English](README.md) | **한국어** | [日本語](README.ja.md) | [中文](README.zh.md) | [Español](README.es.md) | [Français](README.fr.md) | [Deutsch](README.de.md) | [Português](README.pt.md) | [Русский](README.ru.md) | [Italiano](README.it.md)
 
 ![TSCRT 분할창 SSH 세션](docs/images/tscrt-split-panes.png)
 
@@ -43,7 +45,7 @@
 - 크래시 핸들러 + 자동 재접속 (지수 백오프 + 지터)
 
 ### 다국어
-- UI 번역: **English**, **한국어**, **日本語**, **中文**
+- UI 번역: **English**, **한국어**, **日本語**, **中文**, **Deutsch**, **Español**, **Français**, **Italiano**, **Português**, **Русский**
 - 언어별 인앱 HTML 도움말
 
 ---

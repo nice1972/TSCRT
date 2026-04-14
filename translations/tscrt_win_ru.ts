@@ -6,7 +6,7 @@
     <message>
         <location filename="../gui/CommandLineWidget.cpp" line="12"/>
         <source>Type a command and press Enter…</source>
-        <translation type="unfinished"></translation>
+        <translation>Введите команду и нажмите Enter…</translation>
     </message>
 </context>
 <context>
@@ -14,12 +14,12 @@
     <message>
         <location filename="../gui/HelpDialog.cpp" line="13"/>
         <source>TSCRT — Usage guide</source>
-        <translation type="unfinished"></translation>
+        <translation>TSCRT — Руководство пользователя</translation>
     </message>
     <message>
         <location filename="../gui/HelpDialog.cpp" line="30"/>
         <source>&lt;p&gt;Usage guide not available for language &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Руководство пользователя недоступно для языка &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -27,27 +27,27 @@
     <message>
         <location filename="../gui/LogSettingsDialog.cpp" line="30"/>
         <source>Log settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Настройки журналов</translation>
     </message>
     <message>
         <location filename="../gui/LogSettingsDialog.cpp" line="37"/>
         <source>Session logs (and snapshot captures) are saved under the directory below. Each session writes its own timestamped file; snapshots go into a &lt;b&gt;snapshots/&lt;/b&gt; subfolder.</source>
-        <translation type="unfinished"></translation>
+        <translation>Журналы сеансов (и снимки) сохраняются в указанном ниже каталоге. Каждый сеанс пишет собственный файл с меткой времени; снимки помещаются во вложенную папку &lt;b&gt;snapshots/&lt;/b&gt;.</translation>
     </message>
     <message>
         <location filename="../gui/LogSettingsDialog.cpp" line="50"/>
         <source>Browse...</source>
-        <translation type="unfinished"></translation>
+        <translation>Обзор...</translation>
     </message>
     <message>
         <location filename="../gui/LogSettingsDialog.cpp" line="52"/>
         <source>Log directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Каталог журналов:</translation>
     </message>
     <message>
         <location filename="../gui/LogSettingsDialog.cpp" line="57"/>
         <source>Session log directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Каталог журналов сеанса</translation>
     </message>
 </context>
 <context>
@@ -56,27 +56,27 @@
         <location filename="../gui/MainWindow.cpp" line="216"/>
         <location filename="../gui/MainWindow.cpp" line="221"/>
         <source>Profile error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка профиля</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="217"/>
         <source>Cannot initialize profile directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось инициализировать каталог профиля.</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="222"/>
         <source>Failed to load profile; defaults will be used.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось загрузить профиль; будут использованы значения по умолчанию.</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="228"/>
         <source>&amp;File</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Файл</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="230"/>
         <source>&amp;Close tab</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Закрыть вкладку</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="231"/>
@@ -86,95 +86,95 @@
     <message>
         <location filename="../gui/MainWindow.cpp" line="238"/>
         <source>&amp;Export</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Экспорт</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="239"/>
         <location filename="../gui/MainWindow.cpp" line="250"/>
         <source>&amp;Full profile...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Полный профиль...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="241"/>
         <location filename="../gui/MainWindow.cpp" line="252"/>
         <source>&amp;Sessions only...</source>
-        <translation type="unfinished"></translation>
+        <translation>Только &amp;сеансы...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="244"/>
         <location filename="../gui/MainWindow.cpp" line="255"/>
         <source>S&amp;napshots only...</source>
-        <translation type="unfinished"></translation>
+        <translation>Только с&amp;нимки...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="249"/>
         <source>&amp;Import</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Импорт</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="262"/>
         <source>&amp;Logs</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Журналы</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="264"/>
         <source>&amp;Open log folder</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Открыть папку журналов</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="271"/>
         <source>&amp;Log settings...</source>
-        <translation type="unfinished"></translation>
+        <translation>Настройки &amp;журналов...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="279"/>
         <source>E&amp;xit</source>
-        <translation type="unfinished"></translation>
+        <translation>В&amp;ыход</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="284"/>
         <source>&amp;Sessions</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Сеансы</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="286"/>
         <source>S&amp;napshots</source>
-        <translation type="unfinished"></translation>
+        <translation>С&amp;нимки</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="288"/>
         <source>&amp;View</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Вид</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="291"/>
         <source>Show &amp;Command Line</source>
-        <translation type="unfinished"></translation>
+        <translation>Показать &amp;командную строку</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="293"/>
         <source>Show Action &amp;Buttons</source>
-        <translation type="unfinished"></translation>
+        <translation>Показать кнопки &amp;действий</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="295"/>
         <source>Show &amp;Status Bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Показать &amp;строку состояния</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="316"/>
         <source>&amp;Full Screen	F11</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Полный экран	F11</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="322"/>
         <source>Se&amp;ttings</source>
-        <translation type="unfinished"></translation>
+        <translation>Нас&amp;тройки</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="323"/>
         <source>&amp;Preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Параметры...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="324"/>
@@ -184,12 +184,12 @@
     <message>
         <location filename="../gui/MainWindow.cpp" line="328"/>
         <source>&amp;Language</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Язык</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="359"/>
         <source>&amp;Reload profile</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Перезагрузить профиль</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="360"/>
@@ -199,85 +199,85 @@
     <message>
         <location filename="../gui/MainWindow.cpp" line="367"/>
         <source>Profile reloaded.</source>
-        <translation type="unfinished"></translation>
+        <translation>Профиль перезагружен.</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="371"/>
         <source>&amp;Help</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Справка</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="372"/>
         <source>&amp;Usage guide...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Руководство пользователя...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="379"/>
         <source>&amp;About TSCRT...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;О TSCRT...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="386"/>
         <source>Session Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Менеджер сеансов</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="442"/>
         <source>Ready · libssh2 %1 · libvterm %2.%3</source>
-        <translation type="unfinished"></translation>
+        <translation>Готово · libssh2 %1 · libvterm %2.%3</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="510"/>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="512"/>
         <source>Rename...</source>
-        <translation type="unfinished"></translation>
+        <translation>Переименовать...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="513"/>
         <source>Edit...</source>
-        <translation type="unfinished"></translation>
+        <translation>Изменить...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="514"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="516"/>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Копировать</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="517"/>
         <location filename="../gui/MainWindow.cpp" line="655"/>
         <source>Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>Вставить</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="546"/>
         <source>Rename session</source>
-        <translation type="unfinished"></translation>
+        <translation>Переименовать сеанс</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="547"/>
         <source>New name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Новое имя:</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="551"/>
         <location filename="../gui/MainWindow.cpp" line="1428"/>
         <source>Rename</source>
-        <translation type="unfinished"></translation>
+        <translation>Переименовать</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="551"/>
         <location filename="../gui/MainWindow.cpp" line="591"/>
         <source>Name cannot be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя не может быть пустым.</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="561"/>
@@ -292,7 +292,7 @@
         <location filename="../gui/MainWindow.cpp" line="1575"/>
         <location filename="../gui/MainWindow.cpp" line="1627"/>
         <source>Save failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка сохранения</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="562"/>
@@ -306,22 +306,22 @@
     <message>
         <location filename="../gui/MainWindow.cpp" line="591"/>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Изменить</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="618"/>
         <source>Delete session</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить сеанс</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="619"/>
         <source>Delete session &quot;%1&quot;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить сеанс &quot;%1&quot;?</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="646"/>
         <source>Copied session &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сеанс &quot;%1&quot; скопирован.</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="656"/>
@@ -331,17 +331,17 @@
     <message>
         <location filename="../gui/MainWindow.cpp" line="734"/>
         <source>SSH Sessions</source>
-        <translation type="unfinished"></translation>
+        <translation>Сеансы SSH</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="739"/>
         <source>Serial Sessions</source>
-        <translation type="unfinished"></translation>
+        <translation>Последовательные сеансы</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="774"/>
         <source>&amp;New</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Создать</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="775"/>
@@ -351,7 +351,7 @@
     <message>
         <location filename="../gui/MainWindow.cpp" line="779"/>
         <source>&amp;Sessions...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Сеансы...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="780"/>
@@ -361,28 +361,28 @@
     <message>
         <location filename="../gui/MainWindow.cpp" line="787"/>
         <source>(no sessions defined)</source>
-        <translation type="unfinished"></translation>
+        <translation>(сеансы не определены)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="797"/>
         <source>SSH · %1 (%2@%3:%4)</source>
-        <translation type="unfinished"></translation>
+        <translation>SSH · %1 (%2@%3:%4)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="803"/>
         <source>Serial · %1 (%2 %3 baud)</source>
-        <translation type="unfinished"></translation>
+        <translation>Последовательный · %1 (%2 %3 baud)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="822"/>
         <source>&amp;Run on current session</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Запустить в текущем сеансе</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="824"/>
         <location filename="../gui/MainWindow.cpp" line="1436"/>
         <source>(no snapshots defined)</source>
-        <translation type="unfinished"></translation>
+        <translation>(снимки не определены)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="832"/>
@@ -392,22 +392,22 @@
     <message>
         <location filename="../gui/MainWindow.cpp" line="844"/>
         <source>&amp;Manage snapshots...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Управление снимками...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="849"/>
         <source>&amp;Automation rules...</source>
-        <translation type="unfinished"></translation>
+        <translation>Правила &amp;автоматизации...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="856"/>
         <source>&amp;Browse snapshots...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Обзор снимков...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="863"/>
         <source>Open snapshot &amp;folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть &amp;папку снимков</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="876"/>
@@ -424,12 +424,12 @@
         <location filename="../gui/MainWindow.cpp" line="882"/>
         <location filename="../gui/MainWindow.cpp" line="900"/>
         <source>Snapshots saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Снимки сохранены.</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="919"/>
         <source>Logs</source>
-        <translation type="unfinished"></translation>
+        <translation>Журналы</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="920"/>
@@ -439,7 +439,7 @@
     <message>
         <location filename="../gui/MainWindow.cpp" line="940"/>
         <source>Log settings saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Настройки журналов сохранены.</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="948"/>
@@ -450,7 +450,7 @@
         <location filename="../gui/MainWindow.cpp" line="1133"/>
         <location filename="../gui/MainWindow.cpp" line="1138"/>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспорт</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="949"/>
@@ -460,7 +460,7 @@
     <message>
         <location filename="../gui/MainWindow.cpp" line="959"/>
         <source>Export profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспортировать профиль</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="960"/>
@@ -470,7 +470,7 @@
         <location filename="../gui/MainWindow.cpp" line="1116"/>
         <location filename="../gui/MainWindow.cpp" line="1153"/>
         <source>TSCRT profile (*.profile);;All files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Профиль TSCRT (*.profile);;Все файлы (*)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="966"/>
@@ -491,13 +491,13 @@ Note: SSH and SMTP passwords are DPAPI-encrypted for the current Windows user an
         <location filename="../gui/MainWindow.cpp" line="1060"/>
         <location filename="../gui/MainWindow.cpp" line="1146"/>
         <source>Exported: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспортировано: %1</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="983"/>
         <location filename="../gui/MainWindow.cpp" line="987"/>
         <source>Import profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Импортировать профиль</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="988"/>
@@ -517,7 +517,7 @@ Open session tabs will keep running on the old profile; new tabs use the importe
         <location filename="../gui/MainWindow.cpp" line="1198"/>
         <location filename="../gui/MainWindow.cpp" line="1205"/>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Импорт</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1002"/>
@@ -539,7 +539,7 @@ Open session tabs will keep running on the old profile; new tabs use the importe
     <message>
         <location filename="../gui/MainWindow.cpp" line="1035"/>
         <source>Export sessions</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспортировать сеансы</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1050"/>
@@ -559,7 +559,7 @@ SSH passwords stored as DPAPI ciphertext will not decrypt on another Windows acc
     <message>
         <location filename="../gui/MainWindow.cpp" line="1066"/>
         <source>Import sessions</source>
-        <translation type="unfinished"></translation>
+        <translation>Импортировать сеансы</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1073"/>
@@ -582,7 +582,7 @@ SSH passwords stored as DPAPI ciphertext will not decrypt on another Windows acc
     <message>
         <location filename="../gui/MainWindow.cpp" line="1115"/>
         <source>Export snapshots</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспортировать снимки</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1139"/>
@@ -595,7 +595,7 @@ The SMTP password is DPAPI-encrypted and will not decrypt on another Windows acc
     <message>
         <location filename="../gui/MainWindow.cpp" line="1152"/>
         <source>Import snapshots</source>
-        <translation type="unfinished"></translation>
+        <translation>Импортировать снимки</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1206"/>
@@ -611,7 +611,7 @@ SMTP settings were also imported.</source>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1215"/>
         <source>Save session</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить сеанс</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1216"/>
@@ -626,37 +626,37 @@ SMTP settings were also imported.</source>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1291"/>
         <source>SSH Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Пароль SSH</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1292"/>
         <source>Password for %1@%2:</source>
-        <translation type="unfinished"></translation>
+        <translation>Пароль для %1@%2:</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1327"/>
         <source>Connecting to %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Подключение к %1...</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1330"/>
         <source>Connected: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Подключено: %1</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1333"/>
         <source>Session error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка сеанса</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1334"/>
         <source>Error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: %1</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1337"/>
         <source>Disconnected: %1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Отключено: %1 (%2)</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1361"/>
@@ -666,68 +666,68 @@ SMTP settings were also imported.</source>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1429"/>
         <source>Duplicate</source>
-        <translation type="unfinished"></translation>
+        <translation>Дублировать</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1433"/>
         <source>Run Snapshot</source>
-        <translation type="unfinished"></translation>
+        <translation>Запустить снимок</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1450"/>
         <source>Unpin</source>
-        <translation type="unfinished"></translation>
+        <translation>Открепить</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1450"/>
         <source>Pin</source>
-        <translation type="unfinished"></translation>
+        <translation>Закрепить</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1452"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Закрыть</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1485"/>
         <source>Rename Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>Переименовать вкладку</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1485"/>
         <source>Tab name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя вкладки:</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1565"/>
         <source>Preferences saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметры сохранены.</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1583"/>
         <source>Sessions saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сеансы сохранены.</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1603"/>
         <location filename="../gui/MainWindow.cpp" line="1607"/>
         <source>Edit button</source>
-        <translation type="unfinished"></translation>
+        <translation>Изменить кнопку</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1604"/>
         <source>Label:</source>
-        <translation type="unfinished"></translation>
+        <translation>Метка:</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1608"/>
         <source>Action (escape: \r \n \t \b \e \p \\):</source>
-        <translation type="unfinished"></translation>
+        <translation>Действие (escape: \r \n \t \b \e \p \\):</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1710"/>
         <source>About TSCRT</source>
-        <translation type="unfinished"></translation>
+        <translation>О TSCRT</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.cpp" line="1714"/>
@@ -745,7 +745,7 @@ SMTP settings were also imported.</source>
     <message>
         <location filename="../gui/main.cpp" line="54"/>
         <source>TSCRT - Crash report</source>
-        <translation type="unfinished"></translation>
+        <translation>TSCRT - Отчёт о сбое</translation>
     </message>
     <message>
         <location filename="../gui/main.cpp" line="55"/>
@@ -753,7 +753,10 @@ SMTP settings were also imported.</source>
 %1
 
 Would you like to keep it for inspection?</source>
-        <translation type="unfinished"></translation>
+        <translation>Обнаружен отчёт о сбое предыдущего запуска:
+%1
+
+Сохранить его для анализа?</translation>
     </message>
 </context>
 <context>
@@ -761,143 +764,143 @@ Would you like to keep it for inspection?</source>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="32"/>
         <source>Session</source>
-        <translation type="unfinished"></translation>
+        <translation>Сеанс</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="44"/>
         <source>&amp;Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Имя:</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="47"/>
         <source>SSH</source>
-        <translation type="unfinished"></translation>
+        <translation>SSH</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="48"/>
         <source>Serial</source>
-        <translation type="unfinished"></translation>
+        <translation>Последовательный</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="49"/>
         <source>&amp;Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Тип:</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="51"/>
         <source>Save session log</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить журнал сеанса</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="55"/>
         <source>Show command line in fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>Показывать командную строку в полноэкранном режиме</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="59"/>
         <source>Show button bar in fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>Показывать панель кнопок в полноэкранном режиме</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="72"/>
         <source>&amp;Host:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Хост:</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="77"/>
         <source>&amp;Port:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Порт:</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="81"/>
         <source>&amp;Username:</source>
-        <translation type="unfinished"></translation>
+        <translation>Им&amp;я пользователя:</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="86"/>
         <source>Pass&amp;word:</source>
-        <translation type="unfinished"></translation>
+        <translation>Паро&amp;ль:</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="90"/>
         <source>Optional private key (OpenSSH .pem)</source>
-        <translation type="unfinished"></translation>
+        <translation>Необязательный закрытый ключ (OpenSSH .pem)</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="91"/>
         <source>Browse...</source>
-        <translation type="unfinished"></translation>
+        <translation>Обзор...</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="95"/>
         <source>&amp;Key file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Файл &amp;ключа:</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="105"/>
         <source>&amp;Device:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Устройство:</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="112"/>
         <source>&amp;Baud rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Скорость в &amp;baud:</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="117"/>
         <source>Data &amp;bits:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Биты данных:</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="122"/>
         <source>&amp;Stop bits:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Стоп-биты:</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="125"/>
         <location filename="../gui/SessionEditDialog.cpp" line="131"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="126"/>
         <source>Odd</source>
-        <translation type="unfinished"></translation>
+        <translation>Нечётный</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="127"/>
         <source>Even</source>
-        <translation type="unfinished"></translation>
+        <translation>Чётный</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="128"/>
         <source>Pa&amp;rity:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ч&amp;ётность:</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="132"/>
         <source>Hardware</source>
-        <translation type="unfinished"></translation>
+        <translation>Аппаратное</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="133"/>
         <source>Software</source>
-        <translation type="unfinished"></translation>
+        <translation>Программное</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="134"/>
         <source>&amp;Flow control:</source>
-        <translation type="unfinished"></translation>
+        <translation>Управление &amp;потоком:</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="159"/>
         <source>Select private key</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать закрытый ключ</translation>
     </message>
     <message>
         <location filename="../gui/SessionEditDialog.cpp" line="160"/>
         <source>Key files (*.pem *.key);;All files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Файлы ключей (*.pem *.key);;Все файлы (*)</translation>
     </message>
 </context>
 <context>
@@ -905,114 +908,114 @@ Would you like to keep it for inspection?</source>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="52"/>
         <source>Session Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Менеджер сеансов</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="61"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="61"/>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Тип</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="61"/>
         <source>Host / Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Хост / Устройство</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="62"/>
         <source>Port / Baud</source>
-        <translation type="unfinished"></translation>
+        <translation>Порт / baud</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="62"/>
         <source>User</source>
-        <translation type="unfinished"></translation>
+        <translation>Пользователь</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="62"/>
         <source>Key file</source>
-        <translation type="unfinished"></translation>
+        <translation>Файл ключа</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="62"/>
         <source>Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Журнал</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="85"/>
         <source>&amp;Add...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Добавить...</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="86"/>
         <source>&amp;Edit...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Изменить...</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="87"/>
         <source>&amp;Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Удалить</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="88"/>
         <source>&amp;Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Копировать</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="89"/>
         <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Вставить</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="124"/>
         <source>on</source>
-        <translation type="unfinished"></translation>
+        <translation>вкл</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="124"/>
         <source>off</source>
-        <translation type="unfinished"></translation>
+        <translation>выкл</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="173"/>
         <source>Limit reached</source>
-        <translation type="unfinished"></translation>
+        <translation>Достигнут предел</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="174"/>
         <source>Maximum number of sessions (%1) reached.</source>
-        <translation type="unfinished"></translation>
+        <translation>Достигнуто максимальное количество сеансов (%1).</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="188"/>
         <location filename="../gui/SessionManagerDialog.cpp" line="212"/>
         <source>Invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>Недопустимо</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="188"/>
         <location filename="../gui/SessionManagerDialog.cpp" line="212"/>
         <source>Session name is required.</source>
-        <translation type="unfinished"></translation>
+        <translation>Требуется имя сеанса.</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="226"/>
         <source>Delete session</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить сеанс</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="227"/>
         <source>Delete session &quot;%1&quot;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить сеанс &quot;%1&quot;?</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="255"/>
         <source>Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>Вставить</translation>
     </message>
     <message>
         <location filename="../gui/SessionManagerDialog.cpp" line="256"/>
@@ -1025,29 +1028,29 @@ Would you like to keep it for inspection?</source>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="47"/>
         <source>Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметры</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="53"/>
         <source>Common</source>
-        <translation type="unfinished"></translation>
+        <translation>Общие</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="54"/>
         <source>Buttons</source>
-        <translation type="unfinished"></translation>
+        <translation>Кнопки</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="55"/>
         <location filename="../gui/SettingsDialog.cpp" line="241"/>
         <location filename="../gui/SettingsDialog.cpp" line="244"/>
         <source>Startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Запуск</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="56"/>
         <source>Triggers</source>
-        <translation type="unfinished"></translation>
+        <translation>Триггеры</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="57"/>
@@ -1055,27 +1058,27 @@ Would you like to keep it for inspection?</source>
         <location filename="../gui/SettingsDialog.cpp" line="410"/>
         <location filename="../gui/SettingsDialog.cpp" line="413"/>
         <source>Periodic</source>
-        <translation type="unfinished"></translation>
+        <translation>Периодически</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="58"/>
         <source>SMTP</source>
-        <translation type="unfinished"></translation>
+        <translation>SMTP</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="118"/>
         <source>Terminal type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Тип терминала:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="119"/>
         <source>Encoding:</source>
-        <translation type="unfinished"></translation>
+        <translation>Кодировка:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="120"/>
         <source>Scrollback:</source>
-        <translation type="unfinished"></translation>
+        <translation>Буфер прокрутки:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="123"/>
@@ -1085,12 +1088,12 @@ Would you like to keep it for inspection?</source>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="145"/>
         <source>Bottom-bar buttons. Escape sequences: \r \n \t \b \e \p \\</source>
-        <translation type="unfinished"></translation>
+        <translation>Кнопки нижней панели. Escape-последовательности: \r \n \t \b \e \p \\</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="151"/>
         <source>Label</source>
-        <translation type="unfinished"></translation>
+        <translation>Метка</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="151"/>
@@ -1098,160 +1101,160 @@ Would you like to keep it for inspection?</source>
         <location filename="../gui/SettingsDialog.cpp" line="287"/>
         <location filename="../gui/SettingsDialog.cpp" line="370"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Действие</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="192"/>
         <location filename="../gui/SettingsDialog.cpp" line="275"/>
         <location filename="../gui/SettingsDialog.cpp" line="357"/>
         <source>Session:</source>
-        <translation type="unfinished"></translation>
+        <translation>Сеанс:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="197"/>
         <location filename="../gui/SettingsDialog.cpp" line="280"/>
         <location filename="../gui/SettingsDialog.cpp" line="362"/>
         <source>&amp;Add</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Добавить</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="198"/>
         <location filename="../gui/SettingsDialog.cpp" line="281"/>
         <location filename="../gui/SettingsDialog.cpp" line="363"/>
         <source>&amp;Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Удалить</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="204"/>
         <location filename="../gui/SettingsDialog.cpp" line="370"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="236"/>
         <location filename="../gui/SettingsDialog.cpp" line="319"/>
         <location filename="../gui/SettingsDialog.cpp" line="403"/>
         <source>Limit</source>
-        <translation type="unfinished"></translation>
+        <translation>Предел</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="237"/>
         <source>Maximum startup entries reached.</source>
-        <translation type="unfinished"></translation>
+        <translation>Достигнуто максимальное количество записей запуска.</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="242"/>
         <location filename="../gui/SettingsDialog.cpp" line="408"/>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="245"/>
         <location filename="../gui/SettingsDialog.cpp" line="327"/>
         <location filename="../gui/SettingsDialog.cpp" line="414"/>
         <source>Action:</source>
-        <translation type="unfinished"></translation>
+        <translation>Действие:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="287"/>
         <source>Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Шаблон</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="319"/>
         <source>Maximum trigger entries reached.</source>
-        <translation type="unfinished"></translation>
+        <translation>Достигнуто максимальное количество триггеров.</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="323"/>
         <location filename="../gui/SettingsDialog.cpp" line="326"/>
         <source>Trigger</source>
-        <translation type="unfinished"></translation>
+        <translation>Триггер</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="324"/>
         <source>Pattern (substring):</source>
-        <translation type="unfinished"></translation>
+        <translation>Шаблон (подстрока):</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="370"/>
         <source>Interval (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Интервал (с)</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="403"/>
         <source>Maximum periodic entries reached.</source>
-        <translation type="unfinished"></translation>
+        <translation>Достигнуто максимальное количество периодических записей.</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="411"/>
         <source>Interval (seconds):</source>
-        <translation type="unfinished"></translation>
+        <translation>Интервал (секунды):</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="455"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="455"/>
         <source>STARTTLS</source>
-        <translation type="unfinished"></translation>
+        <translation>STARTTLS</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="455"/>
         <source>SMTPS (implicit TLS)</source>
-        <translation type="unfinished"></translation>
+        <translation>SMTPS (неявный TLS)</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="474"/>
         <source> s</source>
-        <translation type="unfinished"></translation>
+        <translation> с</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="476"/>
         <source>SMTP host:</source>
-        <translation type="unfinished"></translation>
+        <translation>SMTP-хост:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="477"/>
         <source>Port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Порт:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="478"/>
         <source>Security:</source>
-        <translation type="unfinished"></translation>
+        <translation>Безопасность:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="479"/>
         <source>Username:</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя пользователя:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="480"/>
         <source>Password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Пароль:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="481"/>
         <source>From address:</source>
-        <translation type="unfinished"></translation>
+        <translation>Адрес отправителя:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="482"/>
         <source>From name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя отправителя:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="483"/>
         <source>Timeout:</source>
-        <translation type="unfinished"></translation>
+        <translation>Тайм-аут:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="485"/>
         <source>Send test email...</source>
-        <translation type="unfinished"></translation>
+        <translation>Отправить тестовое письмо...</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="515"/>
@@ -1259,27 +1262,27 @@ Would you like to keep it for inspection?</source>
         <location filename="../gui/SettingsDialog.cpp" line="543"/>
         <location filename="../gui/SettingsDialog.cpp" line="546"/>
         <source>SMTP test</source>
-        <translation type="unfinished"></translation>
+        <translation>Тест SMTP</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="516"/>
         <source>Fill in host and From address first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сначала заполните хост и адрес отправителя.</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="521"/>
         <source>Send test email to:</source>
-        <translation type="unfinished"></translation>
+        <translation>Отправить тестовое письмо на:</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="544"/>
         <source>Test email sent to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Тестовое письмо отправлено на %1</translation>
     </message>
     <message>
         <location filename="../gui/SettingsDialog.cpp" line="547"/>
         <source>Send failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка отправки: %1</translation>
     </message>
 </context>
 <context>
@@ -1287,89 +1290,89 @@ Would you like to keep it for inspection?</source>
     <message>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="28"/>
         <source>Snapshot browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Обозреватель снимков</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="41"/>
         <source>Snapshot folder is not configured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Папка снимков не настроена.</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="56"/>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>Обновить</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="58"/>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="127"/>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="184"/>
         <source>Send to administrator</source>
-        <translation type="unfinished"></translation>
+        <translation>Отправить администратору</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="124"/>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="125"/>
         <source>Reveal in file manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Показать в файловом менеджере</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="129"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="167"/>
         <source>Delete snapshot</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить снимок</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="168"/>
         <source>Delete &quot;%1&quot;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить &quot;%1&quot;?</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="173"/>
         <source>Delete failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка удаления</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="174"/>
         <source>Could not delete %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось удалить %1</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="185"/>
         <source>Select a snapshot file first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сначала выберите файл снимка.</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="190"/>
         <source>SMTP not configured</source>
-        <translation type="unfinished"></translation>
+        <translation>SMTP не настроен</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="191"/>
         <source>Configure an SMTP server under Settings → SMTP before using this action.</source>
-        <translation type="unfinished"></translation>
+        <translation>Настройте SMTP-сервер в разделе Настройки → SMTP перед использованием этого действия.</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="198"/>
         <source>No administrator address</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет адреса администратора</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="199"/>
         <source>The SMTP &quot;From&quot; address is empty. Set it in Settings → SMTP; that address is used as the administrator recipient.</source>
-        <translation type="unfinished"></translation>
+        <translation>SMTP-адрес &quot;From&quot; пуст. Задайте его в разделе Настройки → SMTP; этот адрес используется как получатель-администратор.</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="208"/>
         <source>[TSCRT] Snapshot %1</source>
-        <translation type="unfinished"></translation>
+        <translation>[TSCRT] Снимок %1</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="209"/>
@@ -1377,22 +1380,25 @@ Would you like to keep it for inspection?</source>
 
 File: %3
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Прикреплённый файл снимка TSCRT был переслан пользователем %1 в %2.
+
+Файл: %3
+</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="228"/>
         <source>Sent</source>
-        <translation type="unfinished"></translation>
+        <translation>Отправлено</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="229"/>
         <source>Snapshot &quot;%1&quot; sent to %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Снимок &quot;%1&quot; отправлен на %2.</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotBrowserDialog.cpp" line="236"/>
         <source>Send failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка отправки</translation>
     </message>
 </context>
 <context>
@@ -1401,146 +1407,146 @@ File: %3
         <location filename="../gui/SnapshotsDialog.cpp" line="41"/>
         <location filename="../gui/SnapshotsDialog.cpp" line="47"/>
         <source>Snapshots</source>
-        <translation type="unfinished"></translation>
+        <translation>Снимки</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="48"/>
         <source>Automation rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Правила автоматизации</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="74"/>
         <location filename="../gui/SnapshotsDialog.cpp" line="340"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="75"/>
         <source>Duplicate</source>
-        <translation type="unfinished"></translation>
+        <translation>Дублировать</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="76"/>
         <location filename="../gui/SnapshotsDialog.cpp" line="341"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="90"/>
         <source>e.g. TSCRT {session} {snapshot} {timestamp}</source>
-        <translation type="unfinished"></translation>
+        <translation>напр. TSCRT {session} {snapshot} {timestamp}</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="91"/>
         <source>Send email when finished</source>
-        <translation type="unfinished"></translation>
+        <translation>Отправить письмо по завершении</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="92"/>
         <source>Attach as file (otherwise inline)</source>
-        <translation type="unfinished"></translation>
+        <translation>Прикрепить как файл (иначе в теле письма)</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="94"/>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя:</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="95"/>
         <source>Description:</source>
-        <translation type="unfinished"></translation>
+        <translation>Описание:</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="96"/>
         <source>Subject:</source>
-        <translation type="unfinished"></translation>
+        <translation>Тема:</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="102"/>
         <source>Commands (sent in order; escape sequences: \r \n \t \e):</source>
-        <translation type="unfinished"></translation>
+        <translation>Команды (отправляются по порядку; escape-последовательности: \r \n \t \e):</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="105"/>
         <source>Command</source>
-        <translation type="unfinished"></translation>
+        <translation>Команда</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="105"/>
         <source>Delay (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Задержка (мс)</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="106"/>
         <source>Prompt regex</source>
-        <translation type="unfinished"></translation>
+        <translation>Регулярное выражение приглашения</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="106"/>
         <source>Max wait (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Макс. ожидание (мс)</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="113"/>
         <source>Add command</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить команду</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="114"/>
         <source>Delete command</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить команду</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="120"/>
         <source>Recipients (one per line):</source>
-        <translation type="unfinished"></translation>
+        <translation>Получатели (по одному в строке):</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="243"/>
         <location filename="../gui/SnapshotsDialog.cpp" line="263"/>
         <source>Limit</source>
-        <translation type="unfinished"></translation>
+        <translation>Предел</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="244"/>
         <location filename="../gui/SnapshotsDialog.cpp" line="264"/>
         <source>Maximum snapshot count reached.</source>
-        <translation type="unfinished"></translation>
+        <translation>Достигнуто максимальное количество снимков.</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="325"/>
         <source>Rules fire a registered snapshot automatically. Kinds: on_connect, cron, pattern. Leave Session blank to apply to every session.</source>
-        <translation type="unfinished"></translation>
+        <translation>Правила автоматически запускают зарегистрированный снимок. Виды: on_connect, cron, pattern. Оставьте поле Сеанс пустым, чтобы применить ко всем сеансам.</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="331"/>
         <source>Kind</source>
-        <translation type="unfinished"></translation>
+        <translation>Вид</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="331"/>
         <source>Session</source>
-        <translation type="unfinished"></translation>
+        <translation>Сеанс</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="331"/>
         <source>Snapshot</source>
-        <translation type="unfinished"></translation>
+        <translation>Снимок</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="332"/>
         <source>Cron expr</source>
-        <translation type="unfinished"></translation>
+        <translation>Выражение cron</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="332"/>
         <source>Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Шаблон</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotsDialog.cpp" line="332"/>
         <source>Cooldown (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Перерыв (с)</translation>
     </message>
 </context>
 <context>
@@ -1548,27 +1554,27 @@ File: %3
     <message>
         <location filename="../gui/TerminalWidget.cpp" line="59"/>
         <source>Terminal display</source>
-        <translation type="unfinished"></translation>
+        <translation>Отображение терминала</translation>
     </message>
     <message>
         <location filename="../gui/TerminalWidget.cpp" line="60"/>
         <source>Interactive terminal session</source>
-        <translation type="unfinished"></translation>
+        <translation>Интерактивный сеанс терминала</translation>
     </message>
     <message>
         <location filename="../gui/TerminalWidget.cpp" line="776"/>
         <source>&amp;Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Копировать</translation>
     </message>
     <message>
         <location filename="../gui/TerminalWidget.cpp" line="781"/>
         <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Вставить</translation>
     </message>
     <message>
         <location filename="../gui/TerminalWidget.cpp" line="786"/>
         <source>Clear &amp;screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Очистить &amp;экран</translation>
     </message>
 </context>
 <context>
@@ -1577,33 +1583,33 @@ File: %3
         <location filename="../gui/ButtonBar.cpp" line="118"/>
         <location filename="../gui/ButtonBar.cpp" line="158"/>
         <source>loop</source>
-        <translation type="unfinished"></translation>
+        <translation>цикл</translation>
     </message>
     <message>
         <location filename="../gui/ButtonBar.cpp" line="129"/>
         <location filename="../gui/ButtonBar.cpp" line="173"/>
         <source>mark</source>
-        <translation type="unfinished"></translation>
+        <translation>отметка</translation>
     </message>
     <message>
         <location filename="../gui/ButtonBar.cpp" line="140"/>
         <source>?</source>
-        <translation type="unfinished"></translation>
+        <translation>?</translation>
     </message>
     <message>
         <location filename="../gui/ButtonBar.cpp" line="152"/>
         <source>loop ●</source>
-        <translation type="unfinished"></translation>
+        <translation>цикл ●</translation>
     </message>
     <message>
         <location filename="../gui/ButtonBar.cpp" line="167"/>
         <source>mark ●</source>
-        <translation type="unfinished"></translation>
+        <translation>отметка ●</translation>
     </message>
     <message>
         <location filename="../gui/ButtonBar.cpp" line="183"/>
         <source>Edit button...</source>
-        <translation type="unfinished"></translation>
+        <translation>Изменить кнопку...</translation>
     </message>
 </context>
 <context>
@@ -1611,35 +1617,35 @@ File: %3
     <message>
         <location filename="../gui/SessionTab.cpp" line="142"/>
         <source>Mark</source>
-        <translation type="unfinished"></translation>
+        <translation>Отметка</translation>
     </message>
     <message>
         <location filename="../gui/SessionTab.cpp" line="143"/>
         <source>Highlight pattern (empty to clear):</source>
-        <translation type="unfinished"></translation>
+        <translation>Шаблон подсветки (пусто для очистки):</translation>
     </message>
     <message>
         <location filename="../gui/SessionTab.cpp" line="186"/>
         <location filename="../gui/SessionTab.cpp" line="189"/>
         <location filename="../gui/SessionTab.cpp" line="271"/>
         <source>Loop</source>
-        <translation type="unfinished"></translation>
+        <translation>Цикл</translation>
     </message>
     <message>
         <location filename="../gui/SessionTab.cpp" line="187"/>
         <source>Command to repeat:</source>
-        <translation type="unfinished"></translation>
+        <translation>Команда для повтора:</translation>
     </message>
     <message>
         <location filename="../gui/SessionTab.cpp" line="190"/>
         <location filename="../gui/SessionTab.cpp" line="272"/>
         <source>Interval (seconds):</source>
-        <translation type="unfinished"></translation>
+        <translation>Интервал (секунды):</translation>
     </message>
     <message>
         <location filename="../gui/SessionTab.cpp" line="284"/>
         <source>TSCRT help</source>
-        <translation type="unfinished"></translation>
+        <translation>Справка TSCRT</translation>
     </message>
     <message>
         <location filename="../gui/SessionTab.cpp" line="285"/>
@@ -1652,22 +1658,22 @@ File: %3
     <message>
         <location filename="../gui/SmtpClient.cpp" line="46"/>
         <source>SMTP client is busy</source>
-        <translation type="unfinished"></translation>
+        <translation>SMTP-клиент занят</translation>
     </message>
     <message>
         <location filename="../gui/SmtpClient.cpp" line="50"/>
         <source>No recipients</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет получателей</translation>
     </message>
     <message>
         <location filename="../gui/SmtpClient.cpp" line="54"/>
         <source>SMTP host is not configured</source>
-        <translation type="unfinished"></translation>
+        <translation>SMTP-хост не настроен</translation>
     </message>
     <message>
         <location filename="../gui/SmtpClient.cpp" line="342"/>
         <source>SMTP timeout</source>
-        <translation type="unfinished"></translation>
+        <translation>Тайм-аут SMTP</translation>
     </message>
 </context>
 <context>
@@ -1685,27 +1691,27 @@ File: %3
     <message>
         <location filename="../gui/SnapshotManager.cpp" line="240"/>
         <source>Snapshot saved: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Снимок сохранён: %1</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotManager.cpp" line="244"/>
         <source>Snapshot failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка снимка: %1</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotManager.cpp" line="258"/>
         <source>SMTP host not configured — email skipped</source>
-        <translation type="unfinished"></translation>
+        <translation>SMTP-хост не настроен — письмо пропущено</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotManager.cpp" line="286"/>
         <source>Email sent: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Письмо отправлено: %1</translation>
     </message>
     <message>
         <location filename="../gui/SnapshotManager.cpp" line="291"/>
         <source>Email failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка письма: %1</translation>
     </message>
 </context>
 </TS>

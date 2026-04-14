@@ -2,38 +2,218 @@
 <head><meta charset="utf-8"><title>Guida all'uso di TSCRT</title></head>
 <body style="font-family:Segoe UI,Arial,sans-serif; font-size:10pt; color:#e0e0e0; background:#1e1e1e;">
 <h1>Guida all'uso di TSCRT</h1>
-<p>TSCRT e un emulatore di terminale per SSH2 e console seriali.</p>
+<p>TSCRT è un emulatore di terminale per SSH2 e console seriali. Questa guida illustra tutte le funzionalità principali. Vai a una sezione:</p>
 <ul>
-  <li><a href="#sessions">Sessioni</a> | <a href="#tabs">Schede</a> | <a href="#panes">Pannelli</a> | <a href="#buttons">Pulsanti</a> | <a href="#snapshots">Snapshot</a></li>
-  <li><a href="#rules">Regole</a> | <a href="#triggers">Trigger</a> | <a href="#smtp">SMTP</a> | <a href="#logs">Log</a> | <a href="#security">Sicurezza</a> | <a href="#shortcuts">Scorciatoie</a></li>
+  <li><a href="#sessions">Sessioni</a></li>
+  <li><a href="#tabs">Schede e multifinestra</a></li>
+  <li><a href="#panes">Pannelli divisi / Trasmissione input / Riconnessione automatica</a></li>
+  <li><a href="#buttons">Pulsanti (con esempi)</a></li>
+  <li><a href="#snapshots">Snapshot (con esempi)</a></li>
+  <li><a href="#rules">Regole di automazione</a></li>
+  <li><a href="#triggers">Trigger, periodici, azioni di avvio</a></li>
+  <li><a href="#smtp">SMTP (invio e-mail)</a></li>
+  <li><a href="#logs">Log</a></li>
+  <li><a href="#security">Sicurezza</a></li>
+  <li><a href="#profile">Importazione / esportazione profilo</a></li>
+  <li><a href="#shortcuts">Scorciatoie da tastiera</a></li>
 </ul>
+
 <h2 id="sessions">Sessioni</h2>
-<p>Editor con tre schede: <b>Connection</b>, <b>General</b> (tipo di terminale per sessione), <b>Advanced</b>.</p>
-<h2 id="tabs">Schede e multi-finestra</h2>
-<p><kbd>Ctrl+Alt+&larr;/&rarr;</kbd> navigazione. <kbd>F11</kbd> schermo intero. Clic destro: Rinomina, Duplica, Fissa, <b>Separa in nuova finestra</b>. Trascina schede tra finestre.</p>
-<h2 id="panes">Pannelli divisi / Broadcast / Riconnessione</h2>
-<p><kbd>Ctrl+Shift+H/V/W</kbd> dividere/chiudere. <kbd>B</kbd> broadcast (<span style="color:#e05a00"><b>arancione</b></span>). Riconnessione: max 100, ritardo min 250 ms, tetto 30 s.</p>
+<p>Una <b>sessione</b> è una definizione di connessione &mdash; SSH o seriale.</p>
+<ul>
+  <li><b>Sessioni &rarr; Gestisci sessioni&hellip;</b> &mdash; aggiungi, modifica, duplica o elimina sessioni. Le sessioni sono raggruppate in un albero nel pannello di sinistra.</li>
+  <li><b>SSH</b> richiede host, porta, nome utente e una password o un file di chiave privata.</li>
+  <li><b>Seriale</b> richiede un nome di dispositivo (es. <code>COM3</code> su Windows, <code>/dev/cu.usbserial-xxx</code> su macOS), baud rate, bit di dati/stop/parità e controllo di flusso.</li>
+  <li>Fai doppio clic su una sessione nel pannello di sinistra per aprirla in una nuova scheda.</li>
+</ul>
+
+<h3>Editor di sessione (tre schede)</h3>
+<p>L'editor di sessione è organizzato in tre schede:</p>
+<ul>
+  <li><b>Connessione</b> &mdash; host/porta/utente/password/chiave (SSH) o dispositivo/baud/impostazioni di linea (seriale). Questa scheda si apre per prima, così i campi modificati più di frequente sono immediatamente visibili.</li>
+  <li><b>Generale</b> &mdash; nome sessione, tipo di connessione, <b>tipo di terminale</b> per sessione (es. <code>xterm-256color</code>, <code>vt100</code>), interruttore di logging della sessione e opzioni di visualizzazione a schermo intero. Se il tipo di terminale viene lasciato vuoto, viene utilizzato il valore predefinito globale da <i>Impostazioni &rarr; Preferenze</i>.</li>
+  <li><b>Avanzate</b> &mdash; impostazioni di riconnessione automatica (tentativi massimi, ritardo base) e keepalive SSH (intervallo, keepalive TCP). Il gruppo keepalive è nascosto per le sessioni seriali.</li>
+</ul>
+
+<h2 id="tabs">Schede e multifinestra</h2>
+<ul>
+  <li>Ogni connessione aperta vive nella propria scheda. Il titolo della scheda mostra il nome della sessione; una piccola <b>&times;</b> accanto al nome chiude solo quella scheda.</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;</kbd> / <kbd>&rarr;</kbd> &mdash; passa alla scheda precedente / successiva.</li>
+  <li><kbd>F11</kbd> &mdash; attiva/disattiva schermo intero (nasconde pannello e barra dei menu). Tutte le scorciatoie continuano a funzionare a schermo intero.</li>
+</ul>
+
+<h3>Menu contestuale della scheda (tasto destro)</h3>
+<p>Fai clic destro sul titolo di una scheda per accedere a:</p>
+<ul>
+  <li><b>Rinomina</b> &mdash; cambia il titolo della scheda visualizzato.</li>
+  <li><b>Duplica</b> &mdash; apri la stessa sessione in una nuova scheda.</li>
+  <li><b>Esegui snapshot &rarr;</b> &mdash; esegui uno snapshot sulla sessione di questa scheda.</li>
+  <li><b>Fissa / Sblocca</b> &mdash; le schede fissate vengono ripristinate automaticamente al prossimo avvio.</li>
+  <li><b>Stacca in nuova finestra</b> &mdash; sposta la scheda in una nuova finestra TSCRT. La sessione SSH/seriale resta connessa &mdash; nessuna disconnessione/riconnessione. Disabilitato quando c'è solo una scheda.</li>
+  <li><b>Chiudi</b> &mdash; chiudi la scheda.</li>
+</ul>
+
+<h3>Trascinare schede tra finestre</h3>
+<p>Trascina una scheda dalla barra delle schede e rilasciala su un'altra finestra TSCRT per trasferire la sessione. Se la rilasci fuori da qualsiasi finestra TSCRT, viene creata automaticamente una nuova finestra. La connessione attiva viene mantenuta per tutto il processo.</p>
+
+<h2 id="panes">Pannelli divisi / Trasmissione input / Riconnessione automatica</h2>
+
+<h3>Pannelli divisi</h3>
+<p>Una singola scheda può contenere più pannelli terminale disposti in un albero divisorio ricorsivo. La divisione riutilizza il profilo del pannello attivo, così il nuovo pannello finisce sullo stesso host.</p>
+<ul>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> &mdash; dividi orizzontalmente (affiancati).</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> &mdash; dividi verticalmente (sopra / sotto).</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> &mdash; chiudi il pannello attivo. Chiudere l'ultimo pannello chiude la scheda.</li>
+  <li>Le divisioni sono ricorsive: una divisione orizzontale seguita da una verticale produce una griglia.</li>
+  <li>Il pannello attivo è contrassegnato da un <span style="color:#3a80ff"><b>bordo blu di 1 px</b></span>. I clic del mouse e il focus della tastiera lo aggiornano automaticamente.</li>
+  <li>Trascina la maniglia del divisore per ridimensionare.</li>
+  <li>Barra di ricerca, Segno, Ciclo e la riga di comando agiscono sempre sul <b>pannello attivo</b>.</li>
+</ul>
+
+<h3>Trasmissione input</h3>
+<p>Replica i tasti premuti su più pannelli &mdash; utile per amministrare una flotta di server.</p>
+<ul>
+  <li>Attiva/disattiva con <b>Visualizza &rarr; Trasmetti input</b> o <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd>.</li>
+  <li>Quando abilitata, ogni pannello riceve un <span style="color:#e05a00"><b>bordo arancione</b></span>.</li>
+  <li>Tasti, incolla, input IME e report del mouse da un pannello vengono inoltrati a tutti gli altri pannelli.</li>
+  <li>L'interruttore è <b>per scheda</b>.</li>
+</ul>
+
+<h3>Riconnessione automatica e keepalive SSH</h3>
+<p>Configurati nella scheda <b>Avanzate</b> dell'editor di sessione.</p>
+<ul>
+  <li><b>Riconnessione automatica</b> &mdash; ripristina la sessione dopo una caduta. Le schede chiuse manualmente non verranno riconnesse.</li>
+  <li><b>Tentativi massimi</b> &mdash; limite di resa. <code>0</code> = illimitato (tetto rigido a 100).</li>
+  <li><b>Ritardo base (ms)</b> &mdash; backoff iniziale (minimo 250 ms). Ogni nuovo tentativo raddoppia, soffitto 30 s, con jitter di 0&ndash;250 ms.<br>Esempio con base 500: <code>500 ms &rarr; 1 s &rarr; 2 s &rarr; 4 s &rarr; 8 s &rarr; 16 s &rarr; 30 s &hellip;</code></li>
+  <li><b>Keepalive SSH (s)</b> (solo SSH) &mdash; intervallo di keepalive di libssh2. Consigliato 30 s.</li>
+  <li><b>Keepalive TCP</b> (solo SSH) &mdash; <code>SO_KEEPALIVE</code> sul socket.</li>
+</ul>
+<p><b>Durante la riconnessione:</b> la barra di stato mostra l'avanzamento; il buffer di scorrimento viene preservato; ogni pannello ha il proprio stato di riconnessione indipendente.</p>
+
 <h2 id="buttons">Pulsanti</h2>
-<p>Max 20. <code>\r</code>=Invio, <code>\e</code>=ESC, <code>\p</code>=pausa 1s. Escape sconosciuti ignorati.</p>
-<h2 id="snapshots">Snapshot</h2>
-<p><b>Snapshots &rarr; Manage&hellip;</b> expect_prompt su finestra scorrevole di 64 KB.</p>
-<h2 id="rules">Regole di automazione</h2>
-<p><b>on_connect</b> / <b>cron</b> / <b>pattern</b> (+ cooldown).</p>
-<h2 id="triggers">Trigger / Periodici / Avvio</h2>
-<p>Limite: 2 s per pattern, max 20 in 10 s per sessione.</p>
-<h2 id="smtp">SMTP</h2>
-<p>STARTTLS/SMTPS obbligatorio. Validazione TLS forzata. Password crittografate (DPAPI/Keychain).</p>
-<h2 id="logs">Log</h2>
-<p><b>Logs &rarr; Open log folder</b>.</p>
-<h2 id="security">Sicurezza</h2>
-<p>Verifica chiave SSH (TOFU). Credenziali: DPAPI/Keychain. Dump: solo proprietario, pulizia auto 7 giorni.</p>
-<h2 id="shortcuts">Scorciatoie</h2>
+<p>Fino a 20 pulsanti di azione definiti dall'utente nella barra inferiore. Clic per inviare, clic destro per modificare.</p>
+
+<h3>Sintassi della stringa di azione</h3>
 <table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
-<tr><td><kbd>Ctrl+T</kbd></td><td>Nuova scheda</td></tr>
-<tr><td><kbd>Ctrl+W</kbd></td><td>Chiudi scheda</td></tr>
-<tr><td><kbd>F11</kbd></td><td>Schermo intero</td></tr>
-<tr><td><kbd>Ctrl+Shift+H/V</kbd></td><td>Dividi</td></tr>
-<tr><td><kbd>Ctrl+Shift+B</kbd></td><td>Broadcast</td></tr>
+<tr><th>Escape</th><th>Significato</th></tr>
+<tr><td><code>\r</code></td><td>Ritorno a capo (Invio)</td></tr>
+<tr><td><code>\n</code></td><td>Avanzamento riga</td></tr>
+<tr><td><code>\t</code></td><td>Tabulazione</td></tr>
+<tr><td><code>\b</code></td><td>Backspace</td></tr>
+<tr><td><code>\e</code></td><td>Escape (0x1B)</td></tr>
+<tr><td><code>\p</code></td><td>Pausa di 1 secondo</td></tr>
+<tr><td><code>\\</code></td><td>Backslash letterale</td></tr>
 </table>
+<p><b>Nota:</b> Le sequenze di escape sconosciute (es. <code>\q</code>) vengono scartate silenziosamente e registrate come avviso. Vengono elaborati solo gli escape elencati sopra.</p>
+
+<h3>Esempi</h3>
+<p><b>1.</b> Invia un comando: <code>uptime\r</code></p>
+<p><b>2.</b> Login seriale: <code>\r\padmin\rs3cret\r</code> (Invio &rarr; 1 s &rarr; admin+Invio &rarr; password+Invio)</p>
+<p><b>3.</b> Invia Ctrl-C: <code>\x03</code></p>
+<p><b>4.</b> ESC poi diagnostica: <code>\e\pshow interfaces\r</code></p>
+
+<h3>Pulsanti Ciclo e Segno</h3>
+<ul>
+  <li><b>Ciclo</b> &mdash; clic destro su un pulsante utente &rarr; <i>Ripeti questo pulsante</i> per ripetere a intervalli.</li>
+  <li><b>Segno</b> &mdash; inserisci un marcatore con timestamp nel log della sessione. Clic sinistro = segna, clic destro = modifica etichetta.</li>
+</ul>
+
+<h2 id="snapshots">Snapshot</h2>
+<p>Uno <b>snapshot</b> è una sequenza di comandi denominata che viene eseguita su una sessione, cattura l'output e scrive un file con timestamp. Facoltativamente invia il risultato per e-mail.</p>
+
+<h3>Configurazione</h3>
+<p><b>Snapshot &rarr; Gestisci snapshot&hellip;</b></p>
+<ul>
+  <li><b>Nome / descrizione</b></li>
+  <li><b>Comandi</b> &mdash; ogni riga: stringa del comando, ritardo (ms), prompt atteso opzionale (regex), attesa massima (ms).</li>
+  <li><b>Destinatari</b>, <b>modello oggetto</b> (<code>{session}</code>, <code>{snapshot}</code>, <code>{timestamp}</code>).</li>
+  <li><b>Invia e-mail</b> / <b>Allega file</b>.</li>
+</ul>
+<p>La regex del prompt atteso viene confrontata con una finestra mobile di 64 KB dell'output del passaggio, il che impedisce a modelli patologici di bloccare la GUI.</p>
+
+<h3>Esecuzione</h3>
+<ul>
+  <li>Menu: <b>Snapshot &rarr; &lt;nome&gt;</b>, o clic destro su una scheda &rarr; <b>Esegui snapshot</b>.</li>
+  <li>File: <i>directory log</i><code>/snapshots/</code>. Sfoglia tramite <b>Snapshot &rarr; Sfoglia snapshot&hellip;</b>.</li>
+</ul>
+
+<h2 id="rules">Regole di automazione</h2>
+<p><b>Snapshot &rarr; Regole di automazione&hellip;</b></p>
+<ul>
+  <li><b>on_connect</b> &mdash; esegui una volta alla connessione della sessione.</li>
+  <li><b>cron</b> &mdash; pianificazione cron a 5 campi.</li>
+  <li><b>pattern</b> &mdash; corrispondenza regex sull'output della sessione, con raffreddamento (secondi).</li>
+</ul>
+
+<h2 id="triggers">Trigger, periodici, azioni di avvio</h2>
+<p>Configurati in <b>Impostazioni &rarr; Preferenze</b>:</p>
+<ul>
+  <li><b>Trigger</b> &mdash; rilevano pattern nell'output della sessione e inviano un'azione. A velocità limitata: ogni trigger ha un raffreddamento di 2 s per pattern e un tetto globale di 20 attivazioni ogni 10 s su tutti i trigger di una sessione.</li>
+  <li><b>Periodici</b> &mdash; inviano un'azione ogni N secondi.</li>
+  <li><b>Azioni di avvio</b> &mdash; inviano un'azione una volta alla connessione.</li>
+</ul>
+
+<h2 id="smtp">SMTP</h2>
+<p><b>Impostazioni &rarr; SMTP&hellip;</b></p>
+<ul>
+  <li><b>Host / porta</b></li>
+  <li><b>Sicurezza</b> &mdash; Nessuna, STARTTLS o SMTPS. <b>Se è configurato un nome utente, è richiesto STARTTLS o SMTPS</b> &mdash; l'autenticazione in chiaro viene rifiutata per prevenire la fuga di credenziali.</li>
+  <li><b>Nome utente / password</b> &mdash; la password è cifrata a riposo (DPAPI su Windows, Keychain su macOS).</li>
+  <li><b>Indirizzo / nome mittente</b> &mdash; usato anche come indirizzo destinatario per <i>Invia all'amministratore</i>.</li>
+  <li><b>Timeout (s)</b></li>
+</ul>
+<p>La convalida del certificato TLS è obbligatoria: i certificati autofirmati, scaduti o con nome host non corrispondente vengono rifiutati con un messaggio di errore chiaro.</p>
+
+<h2 id="logs">Log</h2>
+<ul>
+  <li><b>Log &rarr; Apri cartella log</b> &mdash; un file con timestamp per sessione.</li>
+  <li>Catture snapshot: sottocartella <code>snapshots/</code>.</li>
+  <li>Interruttore di logging per sessione nella scheda Generale dell'editor di sessione.</li>
+</ul>
+
+<h2 id="security">Sicurezza</h2>
+
+<h3>Verifica della chiave host SSH</h3>
+<p>TSCRT utilizza un modello <b>Trust On First Use (TOFU)</b>. Alla prima connessione a un server, la chiave host viene fissata in <code>~/tscrt/known_hosts</code> (formato OpenSSH) e la sua impronta SHA-256 viene registrata.</p>
+<ul>
+  <li><b>Corrispondenza</b> &mdash; la connessione procede silenziosamente.</li>
+  <li><b>Nuovo host</b> &mdash; la chiave viene fissata e resa persistente automaticamente.</li>
+  <li><b>Non corrispondenza</b> &mdash; la connessione viene <b>rifiutata</b> con un errore che mostra l'impronta del server e il percorso di known_hosts. Questo protegge dagli attacchi man-in-the-middle. Se la chiave del server è legittimamente cambiata, rimuovi la voce obsoleta dal file known_hosts e riconnettiti.</li>
+</ul>
+
+<h3>Archiviazione credenziali</h3>
+<ul>
+  <li><b>Windows</b> &mdash; le password SSH e SMTP sono cifrate con DPAPI, legate all'account utente corrente. Il file di profilo è inoltre protetto da una ACL riservata al proprietario.</li>
+  <li><b>macOS</b> &mdash; le password sono archiviate nel Keychain di sistema (tramite Security.framework). Il profilo contiene solo un riferimento <code>keychain:&lt;uuid&gt;</code>.</li>
+  <li><b>Linux</b> &mdash; le password sono attualmente archiviate in chiaro nel profilo (permessi 0600). Una versione futura potrebbe integrare libsecret.</li>
+  <li>I profili migrati da Windows a macOS perderanno le password cifrate. Reinseriscile dopo la migrazione.</li>
+</ul>
+
+<h3>Dump di crash</h3>
+<p>Se TSCRT si blocca, viene scritto un dump in <code>~/tscrt/dumps/</code> con permessi riservati al proprietario (0600 su POSIX, ACL riservata al proprietario su Windows). I dump più vecchi di 7 giorni vengono eliminati automaticamente all'avvio.</p>
+
+<h2 id="profile">Importazione / esportazione profilo</h2>
+<ul>
+  <li><b>File &rarr; Esporta profilo&hellip;</b> &mdash; completo o parziale.</li>
+  <li><b>File &rarr; Importa profilo&hellip;</b> &mdash; unito al profilo corrente; i conflitti vengono segnalati.</li>
+</ul>
+
+<h2 id="shortcuts">Scorciatoie da tastiera</h2>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><th>Scorciatoia</th><th>Azione</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>T</kbd></td><td>Nuova scheda dalla sessione corrente</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>W</kbd></td><td>Chiudi scheda corrente</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;</kbd> / <kbd>&rarr;</kbd></td><td>Scheda precedente / successiva</td></tr>
+<tr><td><kbd>F11</kbd></td><td>Alterna schermo intero</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>L</kbd></td><td>Focalizza riga di comando</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>F</kbd></td><td>Apri barra Trova / Segno</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd></td><td>Dividi pannello orizzontalmente</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd></td><td>Dividi pannello verticalmente</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd></td><td>Chiudi pannello attivo</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd></td><td>Alterna trasmissione input</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></td><td>Gestisci snapshot</td></tr>
+</table>
+<p>Tutte le scorciatoie funzionano in modalità schermo intero.</p>
+
 </body>
 </html>

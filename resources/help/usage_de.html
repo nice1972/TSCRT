@@ -2,38 +2,218 @@
 <head><meta charset="utf-8"><title>TSCRT Benutzerhandbuch</title></head>
 <body style="font-family:Segoe UI,Arial,sans-serif; font-size:10pt; color:#e0e0e0; background:#1e1e1e;">
 <h1>TSCRT Benutzerhandbuch</h1>
-<p>TSCRT ist ein Terminalemulator fuer SSH2 und serielle Konsolen.</p>
+<p>TSCRT ist ein Terminal-Emulator für SSH2 und serielle Konsolen. Dieses Handbuch führt durch alle wichtigen Funktionen. Zu einem Abschnitt springen:</p>
 <ul>
-  <li><a href="#sessions">Sitzungen</a> | <a href="#tabs">Tabs</a> | <a href="#panes">Fenster</a> | <a href="#buttons">Schaltflaechen</a> | <a href="#snapshots">Snapshots</a></li>
-  <li><a href="#rules">Regeln</a> | <a href="#triggers">Trigger</a> | <a href="#smtp">SMTP</a> | <a href="#logs">Protokolle</a> | <a href="#security">Sicherheit</a> | <a href="#shortcuts">Tastenkuerzel</a></li>
+  <li><a href="#sessions">Sitzungen</a></li>
+  <li><a href="#tabs">Tabs &amp; Mehrfenster</a></li>
+  <li><a href="#panes">Geteilte Bereiche / Eingabe-Broadcast / Auto-Wiederverbindung</a></li>
+  <li><a href="#buttons">Schaltflächen (mit Beispielen)</a></li>
+  <li><a href="#snapshots">Snapshots (mit Beispielen)</a></li>
+  <li><a href="#rules">Automatisierungsregeln</a></li>
+  <li><a href="#triggers">Trigger, periodische Aktionen, Startaktionen</a></li>
+  <li><a href="#smtp">SMTP (E-Mail-Versand)</a></li>
+  <li><a href="#logs">Protokolle</a></li>
+  <li><a href="#security">Sicherheit</a></li>
+  <li><a href="#profile">Profil importieren / exportieren</a></li>
+  <li><a href="#shortcuts">Tastenkürzel</a></li>
 </ul>
+
 <h2 id="sessions">Sitzungen</h2>
-<p>Editor mit drei Tabs: <b>Connection</b>, <b>General</b> (Terminaltyp pro Sitzung), <b>Advanced</b>.</p>
-<h2 id="tabs">Tabs und Mehrfenster</h2>
-<p><kbd>Ctrl+Alt+&larr;/&rarr;</kbd> Navigation. <kbd>F11</kbd> Vollbild. Rechtsklick: Umbenennen, Duplizieren, Anheften, <b>In neues Fenster trennen</b>. Tabs zwischen Fenstern ziehen.</p>
-<h2 id="panes">Geteilte Fenster / Broadcast / Wiederverbindung</h2>
-<p><kbd>Ctrl+Shift+H/V/W</kbd> teilen/schliessen. <kbd>B</kbd> Broadcast (<span style="color:#e05a00"><b>orangener</b></span> Rand). Wiederverbindung: max 100, Mindestverzoegerung 250 ms, Obergrenze 30 s.</p>
-<h2 id="buttons">Schaltflaechen</h2>
-<p>Max 20. <code>\r</code>=Enter, <code>\e</code>=ESC, <code>\p</code>=1s Pause. Unbekannte Escapes werden ignoriert.</p>
-<h2 id="snapshots">Snapshots</h2>
-<p><b>Snapshots &rarr; Manage&hellip;</b> expect_prompt auf 64-KB-Gleitfenster.</p>
-<h2 id="rules">Automatisierungsregeln</h2>
-<p><b>on_connect</b> / <b>cron</b> / <b>pattern</b> (+ Abklingzeit).</p>
-<h2 id="triggers">Trigger / Periodisch / Startaktionen</h2>
-<p>Ratenbegrenzung: 2 s pro Muster, max 20 in 10 s pro Sitzung.</p>
-<h2 id="smtp">SMTP</h2>
-<p>STARTTLS/SMTPS erforderlich. TLS-Validierung erzwungen. Passwoerter verschluesselt (DPAPI/Keychain).</p>
-<h2 id="logs">Protokolle</h2>
-<p><b>Logs &rarr; Open log folder</b>.</p>
-<h2 id="security">Sicherheit</h2>
-<p>SSH-Host-Key-Verifizierung (TOFU). Credentials: DPAPI/Keychain. Dumps: Nur-Eigentuemer-Rechte, automatische Bereinigung nach 7 Tagen.</p>
-<h2 id="shortcuts">Tastenkuerzel</h2>
+<p>Eine <b>Sitzung</b> ist eine Verbindungsdefinition &mdash; entweder SSH oder seriell.</p>
+<ul>
+  <li><b>Sitzungen &rarr; Sitzungen verwalten&hellip;</b> &mdash; Sitzungen hinzufügen, bearbeiten, duplizieren oder löschen. Sitzungen sind in einem Baum im linken Dock gruppiert.</li>
+  <li><b>SSH</b> erfordert Host, Port, Benutzername und entweder ein Passwort oder eine Privatschlüsseldatei.</li>
+  <li><b>Seriell</b> erfordert einen Gerätenamen (z. B. <code>COM3</code> unter Windows, <code>/dev/cu.usbserial-xxx</code> unter macOS), Baudrate, Daten-/Stopp-/Paritätsbits und Flusskontrolle.</li>
+  <li>Doppelklicken Sie auf eine Sitzung im linken Dock, um sie in einem neuen Tab zu öffnen.</li>
+</ul>
+
+<h3>Sitzungseditor (drei Tabs)</h3>
+<p>Der Sitzungseditor ist in drei Tabs gegliedert:</p>
+<ul>
+  <li><b>Verbindung</b> &mdash; Host/Port/Benutzername/Passwort/Schlüssel (SSH) oder Gerät/Baud/Leitungseinstellungen (seriell). Dieser Tab wird zuerst geöffnet, damit die am häufigsten geänderten Felder sofort sichtbar sind.</li>
+  <li><b>Allgemein</b> &mdash; Sitzungsname, Verbindungstyp, sitzungsspezifischer <b>Terminaltyp</b> (z. B. <code>xterm-256color</code>, <code>vt100</code>), Umschalter für Sitzungsprotokollierung und Vollbild-Anzeigeoptionen. Wenn der Terminaltyp leer bleibt, wird die globale Voreinstellung aus <i>Einstellungen &rarr; Präferenzen</i> verwendet.</li>
+  <li><b>Erweitert</b> &mdash; Einstellungen zur automatischen Wiederverbindung (maximale Versuche, Basisverzögerung) und SSH-Keepalive (Intervall, TCP-Keepalive). Die Keepalive-Gruppe ist bei seriellen Sitzungen ausgeblendet.</li>
+</ul>
+
+<h2 id="tabs">Tabs &amp; Mehrfenster</h2>
+<ul>
+  <li>Jede geöffnete Verbindung lebt in einem eigenen Tab. Der Tab-Titel zeigt den Sitzungsnamen; ein kleines <b>&times;</b> neben dem Namen schließt nur diesen Tab.</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;</kbd> / <kbd>&rarr;</kbd> &mdash; zum vorherigen / nächsten Tab wechseln.</li>
+  <li><kbd>F11</kbd> &mdash; Vollbild umschalten (blendet Dock und Menüleiste aus). Alle Tastenkürzel funktionieren weiterhin im Vollbildmodus.</li>
+</ul>
+
+<h3>Tab-Kontextmenü (Rechtsklick)</h3>
+<p>Rechtsklick auf einen Tab-Titel, um Folgendes aufzurufen:</p>
+<ul>
+  <li><b>Umbenennen</b> &mdash; den angezeigten Tab-Titel ändern.</li>
+  <li><b>Duplizieren</b> &mdash; dieselbe Sitzung in einem neuen Tab öffnen.</li>
+  <li><b>Snapshot ausführen &rarr;</b> &mdash; einen Snapshot auf der Sitzung dieses Tabs ausführen.</li>
+  <li><b>Anheften / Lösen</b> &mdash; angeheftete Tabs werden beim nächsten Start automatisch wiederhergestellt.</li>
+  <li><b>In neuem Fenster ablegen</b> &mdash; den Tab in ein brandneues TSCRT-Fenster verschieben. Die SSH-/serielle Sitzung bleibt verbunden &mdash; kein Trennen/Wiederverbinden. Deaktiviert, wenn nur ein Tab vorhanden ist.</li>
+  <li><b>Schließen</b> &mdash; den Tab schließen.</li>
+</ul>
+
+<h3>Tabs zwischen Fenstern ziehen</h3>
+<p>Ziehen Sie einen Tab aus der Tab-Leiste und legen Sie ihn auf einem anderen TSCRT-Fenster ab, um die Sitzung zu übertragen. Wenn Sie außerhalb eines TSCRT-Fensters ablegen, wird automatisch ein neues Fenster erstellt. Die aktive Verbindung bleibt dabei erhalten.</p>
+
+<h2 id="panes">Geteilte Bereiche / Eingabe-Broadcast / Auto-Wiederverbindung</h2>
+
+<h3>Geteilte Bereiche</h3>
+<p>Ein einzelner Tab kann mehrere Terminalbereiche enthalten, die in einem rekursiven Teilerbaum angeordnet sind. Das Teilen verwendet das Profil des aktiven Bereichs wieder, sodass der neue Bereich auf demselben Host landet.</p>
+<ul>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> &mdash; horizontal teilen (nebeneinander).</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> &mdash; vertikal teilen (oben / unten).</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> &mdash; den aktiven Bereich schließen. Das Schließen des letzten Bereichs schließt den Tab.</li>
+  <li>Teilungen sind rekursiv: Eine horizontale Teilung gefolgt von einer vertikalen Teilung erzeugt ein Gitter.</li>
+  <li>Der aktive Bereich ist mit einem <span style="color:#3a80ff"><b>1 px breiten blauen Rahmen</b></span> markiert. Mausklicks und Tastaturfokus aktualisieren ihn automatisch.</li>
+  <li>Ziehen Sie den Teiler-Griff, um die Größe zu ändern.</li>
+  <li>Suchleiste, Markierung, Schleife und die Befehlszeile wirken immer auf den <b>aktiven Bereich</b>.</li>
+</ul>
+
+<h3>Eingabe-Broadcast</h3>
+<p>Tastenanschläge über mehrere Bereiche spiegeln &mdash; nützlich für die Verwaltung einer Serverflotte.</p>
+<ul>
+  <li>Umschalten mit <b>Ansicht &rarr; Eingabe senden</b> oder <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd>.</li>
+  <li>Während aktiviert erhält jeder Bereich einen <span style="color:#e05a00"><b>orangefarbenen Rahmen</b></span>.</li>
+  <li>Tastenanschläge, Einfügen, IME-Eingabe und Mausberichte von einem Bereich werden an jeden anderen Bereich weitergeleitet.</li>
+  <li>Der Schalter gilt <b>pro Tab</b>.</li>
+</ul>
+
+<h3>Auto-Wiederverbindung und SSH-Keepalive</h3>
+<p>Im Tab <b>Erweitert</b> des Sitzungseditors konfiguriert.</p>
+<ul>
+  <li><b>Automatisch wiederverbinden</b> &mdash; die Sitzung nach einem Abbruch wiederherstellen. Manuell geschlossene Tabs werden nicht wiederverbunden.</li>
+  <li><b>Maximale Versuche</b> &mdash; Abbruchgrenze. <code>0</code> = unbegrenzt (hartes Limit bei 100).</li>
+  <li><b>Basisverzögerung (ms)</b> &mdash; anfänglicher Backoff (mindestens 250 ms). Jeder erneute Versuch verdoppelt sich, Obergrenze 30 s, mit 0&ndash;250 ms Jitter.<br>Beispiel mit Basis 500: <code>500 ms &rarr; 1 s &rarr; 2 s &rarr; 4 s &rarr; 8 s &rarr; 16 s &rarr; 30 s &hellip;</code></li>
+  <li><b>SSH-Keepalive (s)</b> (nur SSH) &mdash; libssh2-Keepalive-Intervall. Empfohlen 30 s.</li>
+  <li><b>TCP-Keepalive</b> (nur SSH) &mdash; <code>SO_KEEPALIVE</code> auf dem Socket.</li>
+</ul>
+<p><b>Während der Wiederverbindung:</b> Die Statusleiste zeigt den Fortschritt; der Scrollback bleibt erhalten; jeder Bereich hat seinen eigenen unabhängigen Wiederverbindungsstatus.</p>
+
+<h2 id="buttons">Schaltflächen</h2>
+<p>Bis zu 20 benutzerdefinierte Aktionsschaltflächen in der unteren Leiste. Klicken zum Senden, Rechtsklick zum Bearbeiten.</p>
+
+<h3>Aktionszeichenfolgensyntax</h3>
 <table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
-<tr><td><kbd>Ctrl+T</kbd></td><td>Neuer Tab</td></tr>
-<tr><td><kbd>Ctrl+W</kbd></td><td>Tab schliessen</td></tr>
-<tr><td><kbd>F11</kbd></td><td>Vollbild</td></tr>
-<tr><td><kbd>Ctrl+Shift+H/V</kbd></td><td>Teilen</td></tr>
-<tr><td><kbd>Ctrl+Shift+B</kbd></td><td>Broadcast</td></tr>
+<tr><th>Escape</th><th>Bedeutung</th></tr>
+<tr><td><code>\r</code></td><td>Wagenrücklauf (Enter)</td></tr>
+<tr><td><code>\n</code></td><td>Zeilenvorschub</td></tr>
+<tr><td><code>\t</code></td><td>Tabulator</td></tr>
+<tr><td><code>\b</code></td><td>Rücktaste</td></tr>
+<tr><td><code>\e</code></td><td>Escape (0x1B)</td></tr>
+<tr><td><code>\p</code></td><td>1 Sekunde pausieren</td></tr>
+<tr><td><code>\\</code></td><td>Literaler Backslash</td></tr>
 </table>
+<p><b>Hinweis:</b> Unbekannte Escape-Sequenzen (z. B. <code>\q</code>) werden stillschweigend verworfen und als Warnung protokolliert. Nur die oben aufgeführten Escapes werden verarbeitet.</p>
+
+<h3>Beispiele</h3>
+<p><b>1.</b> Einen Befehl senden: <code>uptime\r</code></p>
+<p><b>2.</b> Serielle Anmeldung: <code>\r\padmin\rs3cret\r</code> (Enter &rarr; 1 s &rarr; admin+Enter &rarr; Passwort+Enter)</p>
+<p><b>3.</b> Strg-C senden: <code>\x03</code></p>
+<p><b>4.</b> ESC dann diagnostizieren: <code>\e\pshow interfaces\r</code></p>
+
+<h3>Schleife und Markierungsschaltflächen</h3>
+<ul>
+  <li><b>Schleife</b> &mdash; Rechtsklick auf eine Benutzerschaltfläche &rarr; <i>Diese Schaltfläche wiederholen</i>, um in einem Intervall zu wiederholen.</li>
+  <li><b>Markierung</b> &mdash; einen Zeitstempelmarker in das Sitzungsprotokoll einfügen. Linksklick = markieren, Rechtsklick = Bezeichnung bearbeiten.</li>
+</ul>
+
+<h2 id="snapshots">Snapshots</h2>
+<p>Ein <b>Snapshot</b> ist eine benannte Befehlsfolge, die auf einer Sitzung ausgeführt wird, Ausgaben erfasst und eine Datei mit Zeitstempel schreibt. Optional wird das Ergebnis per E-Mail versendet.</p>
+
+<h3>Konfigurieren</h3>
+<p><b>Snapshots &rarr; Snapshots verwalten&hellip;</b></p>
+<ul>
+  <li><b>Name / Beschreibung</b></li>
+  <li><b>Befehle</b> &mdash; jede Zeile: Befehlszeichenfolge, Verzögerung (ms), optionaler Erwartungsprompt (Regex), maximale Wartezeit (ms).</li>
+  <li><b>Empfänger</b>, <b>Betreffvorlage</b> (<code>{session}</code>, <code>{snapshot}</code>, <code>{timestamp}</code>).</li>
+  <li><b>E-Mail senden</b> / <b>Datei anhängen</b>.</li>
+</ul>
+<p>Die Erwartungsprompt-Regex wird gegen ein rollendes 64-KB-Fenster der Schrittausgabe abgeglichen, was verhindert, dass pathologische Muster die GUI blockieren.</p>
+
+<h3>Ausführen</h3>
+<ul>
+  <li>Menü: <b>Snapshots &rarr; &lt;Name&gt;</b> oder Rechtsklick auf einen Tab &rarr; <b>Snapshot ausführen</b>.</li>
+  <li>Dateien: <i>Log-Verzeichnis</i><code>/snapshots/</code>. Durchsuchen über <b>Snapshots &rarr; Snapshots durchsuchen&hellip;</b>.</li>
+</ul>
+
+<h2 id="rules">Automatisierungsregeln</h2>
+<p><b>Snapshots &rarr; Automatisierungsregeln&hellip;</b></p>
+<ul>
+  <li><b>on_connect</b> &mdash; einmal beim Sitzungsaufbau ausführen.</li>
+  <li><b>cron</b> &mdash; 5-Feld-Cron-Zeitplan.</li>
+  <li><b>pattern</b> &mdash; Regex-Übereinstimmung in der Sitzungsausgabe, mit Abklingzeit (Sekunden).</li>
+</ul>
+
+<h2 id="triggers">Trigger, periodische Aktionen, Startaktionen</h2>
+<p>Konfiguriert in <b>Einstellungen &rarr; Präferenzen</b>:</p>
+<ul>
+  <li><b>Trigger</b> &mdash; Muster in der Sitzungsausgabe erkennen und eine Aktion senden. Ratengesteuert: Jeder Trigger hat eine 2-s-Abklingzeit pro Muster und ein globales Limit von 20 Auslösungen pro 10 s über alle Trigger einer Sitzung.</li>
+  <li><b>Periodische Aktionen</b> &mdash; alle N Sekunden eine Aktion senden.</li>
+  <li><b>Startaktionen</b> &mdash; einmal beim Verbinden eine Aktion senden.</li>
+</ul>
+
+<h2 id="smtp">SMTP</h2>
+<p><b>Einstellungen &rarr; SMTP&hellip;</b></p>
+<ul>
+  <li><b>Host / Port</b></li>
+  <li><b>Sicherheit</b> &mdash; Keine, STARTTLS oder SMTPS. <b>Wenn ein Benutzername konfiguriert ist, ist STARTTLS oder SMTPS erforderlich</b> &mdash; Klartext-Authentifizierung wird abgelehnt, um das Leaken von Zugangsdaten zu verhindern.</li>
+  <li><b>Benutzername / Passwort</b> &mdash; das Passwort wird verschlüsselt gespeichert (DPAPI unter Windows, Keychain unter macOS).</li>
+  <li><b>Absenderadresse / Name</b> &mdash; wird auch als Zieladresse für <i>An Administrator senden</i> verwendet.</li>
+  <li><b>Timeout (s)</b></li>
+</ul>
+<p>Die TLS-Zertifikatsvalidierung wird erzwungen: selbstsignierte, abgelaufene oder mit nicht übereinstimmendem Hostnamen versehene Zertifikate werden mit einer klaren Fehlermeldung abgelehnt.</p>
+
+<h2 id="logs">Protokolle</h2>
+<ul>
+  <li><b>Protokolle &rarr; Protokollordner öffnen</b> &mdash; eine Datei mit Zeitstempel pro Sitzung.</li>
+  <li>Snapshot-Aufnahmen: Unterordner <code>snapshots/</code>.</li>
+  <li>Sitzungsspezifischer Protokollierungsschalter im Tab Allgemein des Sitzungseditors.</li>
+</ul>
+
+<h2 id="security">Sicherheit</h2>
+
+<h3>SSH-Hostschlüsselverifizierung</h3>
+<p>TSCRT verwendet ein <b>Trust On First Use (TOFU)</b>-Modell. Bei der ersten Verbindung zu einem Server wird der Hostschlüssel an <code>~/tscrt/known_hosts</code> (OpenSSH-Format) gebunden und sein SHA-256-Fingerabdruck protokolliert.</p>
+<ul>
+  <li><b>Übereinstimmung</b> &mdash; die Verbindung wird stillschweigend fortgesetzt.</li>
+  <li><b>Neuer Host</b> &mdash; der Schlüssel wird automatisch gebunden und persistiert.</li>
+  <li><b>Abweichung</b> &mdash; die Verbindung wird <b>abgelehnt</b> mit einer Fehlermeldung, die den Server-Fingerabdruck und den known_hosts-Pfad anzeigt. Dies schützt vor Man-in-the-Middle-Angriffen. Wenn der Server-Schlüssel sich tatsächlich geändert hat, entfernen Sie den veralteten Eintrag aus der known_hosts-Datei und verbinden Sie sich erneut.</li>
+</ul>
+
+<h3>Speicherung von Zugangsdaten</h3>
+<ul>
+  <li><b>Windows</b> &mdash; SSH- und SMTP-Passwörter werden mit DPAPI verschlüsselt, gebunden an das aktuelle Benutzerkonto. Die Profildatei wird zusätzlich durch eine ACL nur für den Eigentümer geschützt.</li>
+  <li><b>macOS</b> &mdash; Passwörter werden im System-Keychain gespeichert (über Security.framework). Das Profil enthält nur eine Referenz <code>keychain:&lt;uuid&gt;</code>.</li>
+  <li><b>Linux</b> &mdash; Passwörter werden derzeit im Profil als Klartext gespeichert (0600-Berechtigungen). Eine zukünftige Version könnte libsecret integrieren.</li>
+  <li>Von Windows nach macOS migrierte Profile verlieren verschlüsselte Passwörter. Geben Sie diese nach der Migration erneut ein.</li>
+</ul>
+
+<h3>Absturzdumps</h3>
+<p>Wenn TSCRT abstürzt, wird ein Dump in <code>~/tscrt/dumps/</code> geschrieben, mit nur für den Eigentümer zugänglichen Berechtigungen (0600 unter POSIX, ACL nur für den Eigentümer unter Windows). Dumps, die älter als 7 Tage sind, werden beim Start automatisch gelöscht.</p>
+
+<h2 id="profile">Profil importieren / exportieren</h2>
+<ul>
+  <li><b>Datei &rarr; Profil exportieren&hellip;</b> &mdash; vollständig oder teilweise.</li>
+  <li><b>Datei &rarr; Profil importieren&hellip;</b> &mdash; wird in das aktuelle Profil gemischt; Konflikte werden gemeldet.</li>
+</ul>
+
+<h2 id="shortcuts">Tastenkürzel</h2>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><th>Kürzel</th><th>Aktion</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>T</kbd></td><td>Neuer Tab aus aktueller Sitzung</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>W</kbd></td><td>Aktuellen Tab schließen</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;</kbd> / <kbd>&rarr;</kbd></td><td>Vorheriger / nächster Tab</td></tr>
+<tr><td><kbd>F11</kbd></td><td>Vollbild umschalten</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>L</kbd></td><td>Befehlszeile fokussieren</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>F</kbd></td><td>Suchen- / Markierungsleiste öffnen</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd></td><td>Bereich horizontal teilen</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd></td><td>Bereich vertikal teilen</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd></td><td>Aktiven Bereich schließen</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd></td><td>Eingabe-Broadcast umschalten</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></td><td>Snapshots verwalten</td></tr>
+</table>
+<p>Alle Tastenkürzel funktionieren im Vollbildmodus.</p>
+
 </body>
 </html>

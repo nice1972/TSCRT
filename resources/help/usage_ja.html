@@ -1,17 +1,17 @@
 <html>
 <head><meta charset="utf-8"><title>TSCRT 使用ガイド</title></head>
-<body style="font-family:'Yu Gothic UI','Meiryo',sans-serif; font-size:10pt; color:#e0e0e0; background:#1e1e1e;">
+<body style="font-family:Segoe UI,Arial,sans-serif; font-size:10pt; color:#e0e0e0; background:#1e1e1e;">
 <h1>TSCRT 使用ガイド</h1>
-<p>TSCRTはSSH2およびシリアルコンソール用のターミナルエミュレータです。主要な機能へのリンク:</p>
+<p>TSCRT は SSH2 およびシリアルコンソール向けのターミナルエミュレーターです。このガイドではすべての主要機能を解説します。セクションへジャンプ:</p>
 <ul>
   <li><a href="#sessions">セッション</a></li>
-  <li><a href="#tabs">タブ &amp; マルチウィンドウ</a></li>
-  <li><a href="#panes">分割ペイン / 入力ブロードキャスト / 自動再接続</a></li>
-  <li><a href="#buttons">ボタン（例付き）</a></li>
-  <li><a href="#snapshots">スナップショット（例付き）</a></li>
+  <li><a href="#tabs">タブとマルチウィンドウ</a></li>
+  <li><a href="#panes">ペイン分割 / 入力ブロードキャスト / 自動再接続</a></li>
+  <li><a href="#buttons">ボタン(例付き)</a></li>
+  <li><a href="#snapshots">スナップショット(例付き)</a></li>
   <li><a href="#rules">自動化ルール</a></li>
-  <li><a href="#triggers">トリガー / 定期実行 / 起動アクション</a></li>
-  <li><a href="#smtp">SMTP（メール送信）</a></li>
+  <li><a href="#triggers">トリガー、定期実行、起動アクション</a></li>
+  <li><a href="#smtp">SMTP(メール送信)</a></li>
   <li><a href="#logs">ログ</a></li>
   <li><a href="#security">セキュリティ</a></li>
   <li><a href="#profile">プロファイルのインポート / エクスポート</a></li>
@@ -19,98 +19,201 @@
 </ul>
 
 <h2 id="sessions">セッション</h2>
-<p><b>セッション</b>はSSHまたはシリアル接続の定義です。</p>
+<p><b>セッション</b>とは接続定義のことで、SSH またはシリアルのいずれかです。</p>
 <ul>
-  <li><b>Sessions &rarr; Manage sessions&hellip;</b> &mdash; セッションの追加・編集・複製・削除。左ドックのツリーに整理されます。</li>
-  <li><b>SSH</b>: ホスト、ポート、ユーザー名、パスワードまたは秘密鍵ファイル。</li>
-  <li><b>シリアル</b>: デバイス名（例: <code>COM3</code>）、ボーレート、データ/ストップ/パリティビット、フロー制御。</li>
-</ul>
-<h3>セッションエディタ（3タブ構成）</h3>
-<ul>
-  <li><b>Connection</b> &mdash; 接続パラメータ。</li>
-  <li><b>General</b> &mdash; セッション名、接続タイプ、セッションごとの<b>端末タイプ</b>（空 = グローバルデフォルト使用）、ログ設定、全画面表示オプション。</li>
-  <li><b>Advanced</b> &mdash; 自動再接続設定、SSH keepalive。</li>
+  <li><b>セッション &rarr; セッション管理&hellip;</b> &mdash; セッションの追加、編集、複製、削除。セッションは左側ドックのツリーでグループ化されます。</li>
+  <li><b>SSH</b> にはホスト、ポート、ユーザー名、およびパスワードまたは秘密鍵ファイルが必要です。</li>
+  <li><b>シリアル</b> にはデバイス名(例: Windows では <code>COM3</code>、macOS では <code>/dev/cu.usbserial-xxx</code>)、ボーレート、データ/ストップ/パリティビット、フロー制御が必要です。</li>
+  <li>左側ドックでセッションをダブルクリックすると、新しいタブで開きます。</li>
 </ul>
 
-<h2 id="tabs">タブ &amp; マルチウィンドウ</h2>
+<h3>セッションエディター(3 つのタブ)</h3>
+<p>セッションエディターは 3 つのタブに分かれています:</p>
 <ul>
-  <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;</kbd> / <kbd>&rarr;</kbd> &mdash; 前 / 次のタブ。</li>
-  <li><kbd>F11</kbd> &mdash; 全画面切替。すべてのショートカットは全画面でも動作します。</li>
+  <li><b>接続</b> &mdash; ホスト/ポート/ユーザー名/パスワード/鍵(SSH)またはデバイス/ボーレート/ライン設定(シリアル)。最も頻繁に変更されるフィールドをすぐに表示するため、このタブが最初に開きます。</li>
+  <li><b>一般</b> &mdash; セッション名、接続タイプ、セッションごとの<b>ターミナルタイプ</b>(例: <code>xterm-256color</code>、<code>vt100</code>)、セッションログの切り替え、フルスクリーン表示オプション。ターミナルタイプを空のままにすると、<i>設定 &rarr; 環境設定</i>のグローバルデフォルトが使用されます。</li>
+  <li><b>詳細設定</b> &mdash; 自動再接続設定(最大試行回数、基本遅延)と SSH キープアライブ(間隔、TCP キープアライブ)。キープアライブグループはシリアルセッションでは非表示になります。</li>
 </ul>
-<h3>タブ右クリックメニュー</h3>
-<ul>
-  <li><b>Rename</b> / <b>Duplicate</b> / <b>Run Snapshot</b> / <b>Pin</b></li>
-  <li><b>Detach to New Window</b> &mdash; タブを新しいTSCRTウィンドウに分離（接続維持）。</li>
-</ul>
-<h3>ウィンドウ間タブドラッグ</h3>
-<p>タブをドラッグして別のTSCRTウィンドウにドロップ、またはウィンドウ外にドロップで新規ウィンドウ作成。接続は維持されます。</p>
 
-<h2 id="panes">分割ペイン / 入力ブロードキャスト / 自動再接続</h2>
-<h3>分割ペイン</h3>
+<h2 id="tabs">タブとマルチウィンドウ</h2>
 <ul>
-  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> &mdash; 水平分割。<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> &mdash; 垂直分割。</li>
-  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> &mdash; アクティブペインを閉じる。</li>
-  <li>アクティブペインは<span style="color:#3a80ff"><b>青色ボーダー</b></span>で表示。</li>
+  <li>開かれた各接続は独自のタブに存在します。タブタイトルはセッション名を表示し、名前の横の小さな <b>&times;</b> でそのタブだけを閉じます。</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;</kbd> / <kbd>&rarr;</kbd> &mdash; 前 / 次のタブへ移動。</li>
+  <li><kbd>F11</kbd> &mdash; フルスクリーンの切り替え(ドックとメニューバーを非表示)。すべてのショートカットはフルスクリーンでも動作します。</li>
 </ul>
+
+<h3>タブのコンテキストメニュー(右クリック)</h3>
+<p>タブタイトルを右クリックすると、以下にアクセスできます:</p>
+<ul>
+  <li><b>名前の変更</b> &mdash; 表示されるタブタイトルを変更。</li>
+  <li><b>複製</b> &mdash; 同じセッションを新しいタブで開く。</li>
+  <li><b>スナップショットを実行 &rarr;</b> &mdash; このタブのセッションでスナップショットを実行。</li>
+  <li><b>固定 / 固定解除</b> &mdash; 固定されたタブは次回起動時に自動的に復元されます。</li>
+  <li><b>新しいウィンドウに切り離す</b> &mdash; タブを全く新しい TSCRT ウィンドウに移動。SSH/シリアルセッションは接続されたまま &mdash; 切断/再接続はありません。タブが 1 つしかない場合は無効です。</li>
+  <li><b>閉じる</b> &mdash; タブを閉じる。</li>
+</ul>
+
+<h3>ウィンドウ間でのタブのドラッグ</h3>
+<p>タブバーからタブをドラッグし、別の TSCRT ウィンドウにドロップしてセッションを移動します。TSCRT ウィンドウ外にドロップすると、新しいウィンドウが自動的に作成されます。アクティブな接続は終始保持されます。</p>
+
+<h2 id="panes">ペイン分割 / 入力ブロードキャスト / 自動再接続</h2>
+
+<h3>ペイン分割</h3>
+<p>1 つのタブには、再帰的なスプリッターツリーに配置された複数のターミナルペインを含めることができます。分割はアクティブペインのプロファイルを再利用するため、新しいペインは同じホスト上に開きます。</p>
+<ul>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> &mdash; 水平分割(左右に並べる)。</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> &mdash; 垂直分割(上下に並べる)。</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> &mdash; アクティブペインを閉じる。最後のペインを閉じるとタブが閉じます。</li>
+  <li>分割は再帰的です: 水平分割の後に垂直分割を行うとグリッドが生成されます。</li>
+  <li>アクティブペインは <span style="color:#3a80ff"><b>1 px の青い枠線</b></span> でマークされます。マウスクリックとキーボードフォーカスにより自動更新されます。</li>
+  <li>スプリッターハンドルをドラッグしてサイズ変更します。</li>
+  <li>検索バー、マーク、ループ、コマンドラインは常に<b>アクティブペイン</b>に作用します。</li>
+</ul>
+
 <h3>入力ブロードキャスト</h3>
+<p>複数のペインにキー入力をミラーリング &mdash; サーバー群の管理に便利です。</p>
 <ul>
-  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd>で切替。全ペインに<span style="color:#e05a00"><b>オレンジ色ボーダー</b></span>。タブ単位。</li>
+  <li><b>表示 &rarr; 入力をブロードキャスト</b> または <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> で切り替え。</li>
+  <li>有効な間、各ペインには <span style="color:#e05a00"><b>オレンジの枠線</b></span> が表示されます。</li>
+  <li>あるペインからのキー入力、貼り付け、IME 入力、マウス報告は他のすべてのペインに転送されます。</li>
+  <li>切り替えは<b>タブごと</b>です。</li>
 </ul>
-<h3>自動再接続</h3>
+
+<h3>自動再接続と SSH キープアライブ</h3>
+<p>セッションエディターの<b>詳細設定</b>タブで構成します。</p>
 <ul>
-  <li><b>Max attempts</b>: ハード上限100回。<b>Base delay</b>: 最小250 ms、指数バックオフ、上限30 s。</li>
-  <li>スクロールバックは維持されます。各ペインは独立した再接続状態を持ちます。</li>
+  <li><b>自動再接続</b> &mdash; 切断後にセッションを復元します。手動で閉じられたタブは再接続されません。</li>
+  <li><b>最大試行回数</b> &mdash; 断念の上限。<code>0</code> = 無制限(ハード上限 100)。</li>
+  <li><b>基本遅延(ms)</b> &mdash; 初期バックオフ(最小 250 ms)。各再試行で倍増し、上限 30 s、0&ndash;250 ms のジッターがあります。<br>基本 500 の例: <code>500 ms &rarr; 1 s &rarr; 2 s &rarr; 4 s &rarr; 8 s &rarr; 16 s &rarr; 30 s &hellip;</code></li>
+  <li><b>SSH キープアライブ(s)</b>(SSH のみ) &mdash; libssh2 のキープアライブ間隔。推奨は 30 s。</li>
+  <li><b>TCP キープアライブ</b>(SSH のみ) &mdash; ソケットの <code>SO_KEEPALIVE</code>。</li>
 </ul>
+<p><b>再接続中:</b> ステータスバーに進捗が表示されます。スクロールバックは保持されます。各ペインは独自の独立した再接続状態を持ちます。</p>
 
 <h2 id="buttons">ボタン</h2>
-<p>最大20個。アクション文字列: <code>\r</code>=Enter, <code>\n</code>=LF, <code>\t</code>=Tab, <code>\b</code>=BS, <code>\e</code>=ESC, <code>\p</code>=1秒待機, <code>\\</code>=\。未定義のエスケープは無視されます。</p>
-<p><b>Loop</b>: ボタンを右クリック &rarr; 一定間隔で繰り返し。<b>Mark</b>: ログにマーカー挿入。</p>
+<p>下部バーには最大 20 個のユーザー定義アクションボタンがあります。クリックで送信、右クリックで編集。</p>
 
-<h2 id="snapshots">スナップショット</h2>
-<p><b>Snapshots &rarr; Manage snapshots&hellip;</b>で設定。expect_promptは64 KBローリングウィンドウでマッチング。</p>
-<p>実行: メニューまたはタブ右クリック &rarr; <b>Run Snapshot</b>。</p>
+<h3>アクション文字列の構文</h3>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><th>エスケープ</th><th>意味</th></tr>
+<tr><td><code>\r</code></td><td>キャリッジリターン(Enter)</td></tr>
+<tr><td><code>\n</code></td><td>ラインフィード</td></tr>
+<tr><td><code>\t</code></td><td>タブ</td></tr>
+<tr><td><code>\b</code></td><td>バックスペース</td></tr>
+<tr><td><code>\e</code></td><td>エスケープ(0x1B)</td></tr>
+<tr><td><code>\p</code></td><td>1 秒間のポーズ</td></tr>
+<tr><td><code>\\</code></td><td>リテラルのバックスラッシュ</td></tr>
+</table>
+<p><b>注:</b> 不明なエスケープシーケンス(例: <code>\q</code>)は静かに破棄され、警告としてログに記録されます。上記のエスケープのみが処理されます。</p>
 
-<h2 id="rules">自動化ルール</h2>
-<p><b>on_connect</b> / <b>cron</b>（5フィールド） / <b>pattern</b>（正規表現+クールダウン）。</p>
+<h3>例</h3>
+<p><b>1.</b> コマンドを送信: <code>uptime\r</code></p>
+<p><b>2.</b> シリアルログイン: <code>\r\padmin\rs3cret\r</code>(Enter &rarr; 1 s &rarr; admin+Enter &rarr; password+Enter)</p>
+<p><b>3.</b> Ctrl-C を送信: <code>\x03</code></p>
+<p><b>4.</b> ESC の後に診断: <code>\e\pshow interfaces\r</code></p>
 
-<h2 id="triggers">トリガー / 定期実行 / 起動アクション</h2>
-<p><b>Settings &rarr; Preferences</b>。トリガーはレート制限付き: パターンごと2秒、セッションごと10秒に最大20回。</p>
-
-<h2 id="smtp">SMTP</h2>
+<h3>ループボタンとマークボタン</h3>
 <ul>
-  <li><b>ユーザー名設定時はSTARTTLS/SMTPS必須</b>（平文認証拒否）。</li>
-  <li>パスワードは暗号化保存（Windows: DPAPI、macOS: Keychain）。</li>
-  <li>TLS証明書検証は強制。</li>
+  <li><b>ループ</b> &mdash; ユーザーボタンを右クリック &rarr; <i>このボタンをループ</i>で、一定間隔で繰り返します。</li>
+  <li><b>マーク</b> &mdash; タイムスタンプ付きマーカーをセッションログに挿入。左クリック = マーク、右クリック = ラベル編集。</li>
 </ul>
 
+<h2 id="snapshots">スナップショット</h2>
+<p><b>スナップショット</b>とは、セッション上で実行される名前付きのコマンド列で、出力をキャプチャしタイムスタンプ付きファイルに書き込みます。必要に応じて結果をメールで送信します。</p>
+
+<h3>構成</h3>
+<p><b>スナップショット &rarr; スナップショット管理&hellip;</b></p>
+<ul>
+  <li><b>名前 / 説明</b></li>
+  <li><b>コマンド</b> &mdash; 各行: コマンド文字列、遅延(ms)、オプションの期待プロンプト(正規表現)、最大待機時間(ms)。</li>
+  <li><b>受信者</b>、<b>件名テンプレート</b>(<code>{session}</code>、<code>{snapshot}</code>、<code>{timestamp}</code>)。</li>
+  <li><b>メール送信</b> / <b>ファイル添付</b>。</li>
+</ul>
+<p>期待プロンプトの正規表現は、ステップの出力のローリング 64 KB ウィンドウに対して照合されるため、病的なパターンが GUI を停止させることを防ぎます。</p>
+
+<h3>実行</h3>
+<ul>
+  <li>メニュー: <b>スナップショット &rarr; &lt;名前&gt;</b>、またはタブを右クリック &rarr; <b>スナップショットを実行</b>。</li>
+  <li>ファイル: <i>ログディレクトリ</i><code>/snapshots/</code>。<b>スナップショット &rarr; スナップショットを参照&hellip;</b> から参照。</li>
+</ul>
+
+<h2 id="rules">自動化ルール</h2>
+<p><b>スナップショット &rarr; 自動化ルール&hellip;</b></p>
+<ul>
+  <li><b>on_connect</b> &mdash; セッション接続時に一度実行。</li>
+  <li><b>cron</b> &mdash; 5 フィールドの cron スケジュール。</li>
+  <li><b>pattern</b> &mdash; セッション出力に対する正規表現一致、クールダウン(秒)付き。</li>
+</ul>
+
+<h2 id="triggers">トリガー、定期実行、起動アクション</h2>
+<p><b>設定 &rarr; 環境設定</b>で構成:</p>
+<ul>
+  <li><b>トリガー</b> &mdash; セッション出力のパターンに一致させてアクションを送信。レート制限あり: 各トリガーはパターンあたり 2 秒のクールダウン、セッション内のすべてのトリガー合計で 10 秒あたり 20 回の発火というグローバル上限があります。</li>
+  <li><b>定期実行</b> &mdash; N 秒ごとにアクションを送信。</li>
+  <li><b>起動アクション</b> &mdash; 接続時に一度アクションを送信。</li>
+</ul>
+
+<h2 id="smtp">SMTP</h2>
+<p><b>設定 &rarr; SMTP&hellip;</b></p>
+<ul>
+  <li><b>ホスト / ポート</b></li>
+  <li><b>セキュリティ</b> &mdash; なし、STARTTLS、または SMTPS。<b>ユーザー名が構成されている場合、STARTTLS または SMTPS が必要です</b> &mdash; 資格情報漏洩を防ぐため、プレーンテキスト認証は拒否されます。</li>
+  <li><b>ユーザー名 / パスワード</b> &mdash; パスワードは保存時に暗号化されます(Windows では DPAPI、macOS では Keychain)。</li>
+  <li><b>送信者アドレス / 名前</b> &mdash; <i>管理者に送信</i>の宛先アドレスとしても使用されます。</li>
+  <li><b>タイムアウト(s)</b></li>
+</ul>
+<p>TLS 証明書検証が強制されます: 自己署名、期限切れ、またはホスト名が一致しない証明書は明確なエラーメッセージとともに拒否されます。</p>
+
 <h2 id="logs">ログ</h2>
-<p><b>Logs &rarr; Open log folder</b>。スナップショット: <code>snapshots/</code>。ログ記録のオン/オフはGeneralタブ。</p>
+<ul>
+  <li><b>ログ &rarr; ログフォルダを開く</b> &mdash; セッションごとに 1 つのタイムスタンプ付きファイル。</li>
+  <li>スナップショットキャプチャ: <code>snapshots/</code> サブフォルダ。</li>
+  <li>セッションごとのログ切り替えは、セッションエディターの一般タブにあります。</li>
+</ul>
 
 <h2 id="security">セキュリティ</h2>
-<h3>SSHホスト鍵検証（TOFU）</h3>
-<p>初回接続で<code>~/tscrt/known_hosts</code>に固定。不一致時は接続拒否（中間者攻撃防御）。</p>
-<h3>認証情報</h3>
-<p>Windows: DPAPI + owner-only ACL。macOS: キーチェーン。Linux: 平文（0600）。</p>
+
+<h3>SSH ホスト鍵の検証</h3>
+<p>TSCRT は <b>Trust On First Use (TOFU)</b> モデルを使用します。サーバーへの最初の接続時に、ホスト鍵は <code>~/tscrt/known_hosts</code>(OpenSSH 形式)に固定され、その SHA-256 フィンガープリントがログに記録されます。</p>
+<ul>
+  <li><b>一致</b> &mdash; 接続は静かに進行します。</li>
+  <li><b>新規ホスト</b> &mdash; 鍵は自動的に固定され永続化されます。</li>
+  <li><b>不一致</b> &mdash; 接続は<b>拒否</b>され、サーバーのフィンガープリントと known_hosts のパスを示すエラーが表示されます。これは中間者攻撃から保護します。サーバーの鍵が正当に変更された場合は、known_hosts ファイルから古いエントリを削除して再接続してください。</li>
+</ul>
+
+<h3>資格情報の保管</h3>
+<ul>
+  <li><b>Windows</b> &mdash; SSH および SMTP パスワードは現在のユーザーアカウントに紐付けられた DPAPI で暗号化されます。プロファイルファイルは所有者のみの ACL でさらに保護されます。</li>
+  <li><b>macOS</b> &mdash; パスワードはシステム Keychain に保存されます(Security.framework 経由)。プロファイルには <code>keychain:&lt;uuid&gt;</code> 参照のみが含まれます。</li>
+  <li><b>Linux</b> &mdash; パスワードは現在プロファイル内にプレーンテキストで保存されます(0600 権限)。将来のバージョンで libsecret と統合される可能性があります。</li>
+  <li>Windows から macOS に移行されたプロファイルは暗号化されたパスワードを失います。移行後に再入力してください。</li>
+</ul>
+
 <h3>クラッシュダンプ</h3>
-<p>owner-only権限。7日超で自動削除。</p>
+<p>TSCRT がクラッシュした場合、ダンプは所有者のみのアクセス権(POSIX では 0600、Windows では所有者のみの ACL)で <code>~/tscrt/dumps/</code> に書き込まれます。7 日以上古いダンプは起動時に自動的に削除されます。</p>
 
-<h2 id="profile">プロファイル</h2>
-<p><b>File &rarr; Export/Import profile&hellip;</b></p>
+<h2 id="profile">プロファイルのインポート / エクスポート</h2>
+<ul>
+  <li><b>ファイル &rarr; プロファイルをエクスポート&hellip;</b> &mdash; 完全または部分。</li>
+  <li><b>ファイル &rarr; プロファイルをインポート&hellip;</b> &mdash; 現在のプロファイルにマージされ、競合が報告されます。</li>
+</ul>
 
-<h2 id="shortcuts">ショートカット</h2>
+<h2 id="shortcuts">キーボードショートカット</h2>
 <table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
-<tr><th>ショートカット</th><th>動作</th></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>T</kbd></td><td>新しいタブ</td></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>W</kbd></td><td>タブを閉じる</td></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;/&rarr;</kbd></td><td>前/次のタブ</td></tr>
-<tr><td><kbd>F11</kbd></td><td>全画面</td></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>L</kbd></td><td>コマンドライン</td></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>F</kbd></td><td>検索/Mark</td></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H/V</kbd></td><td>分割</td></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd></td><td>ペインを閉じる</td></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd></td><td>ブロードキャスト</td></tr>
+<tr><th>ショートカット</th><th>アクション</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>T</kbd></td><td>現在のセッションから新しいタブ</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>W</kbd></td><td>現在のタブを閉じる</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;</kbd> / <kbd>&rarr;</kbd></td><td>前 / 次のタブ</td></tr>
+<tr><td><kbd>F11</kbd></td><td>フルスクリーンの切り替え</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>L</kbd></td><td>コマンドラインにフォーカス</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>F</kbd></td><td>検索 / マークバーを開く</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd></td><td>ペインを水平分割</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd></td><td>ペインを垂直分割</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd></td><td>アクティブペインを閉じる</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd></td><td>入力ブロードキャストの切り替え</td></tr>
 <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></td><td>スナップショット管理</td></tr>
 </table>
-<p>すべてのショートカットは全画面モードでも動作します。</p>
+<p>すべてのショートカットはフルスクリーンモードでも動作します。</p>
+
 </body>
 </html>

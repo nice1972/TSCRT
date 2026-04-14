@@ -1,39 +1,219 @@
 <html>
-<head><meta charset="utf-8"><title>Guide d'utilisation TSCRT</title></head>
+<head><meta charset="utf-8"><title>Guide d'utilisation de TSCRT</title></head>
 <body style="font-family:Segoe UI,Arial,sans-serif; font-size:10pt; color:#e0e0e0; background:#1e1e1e;">
-<h1>Guide d'utilisation TSCRT</h1>
-<p>TSCRT est un emulateur de terminal SSH2 et console serie. Navigation rapide :</p>
+<h1>Guide d'utilisation de TSCRT</h1>
+<p>TSCRT est un émulateur de terminal pour SSH2 et consoles série. Ce guide parcourt toutes les fonctionnalités majeures. Accédez à une section :</p>
 <ul>
-  <li><a href="#sessions">Sessions</a> | <a href="#tabs">Onglets</a> | <a href="#panes">Panneaux</a> | <a href="#buttons">Boutons</a> | <a href="#snapshots">Instantanes</a></li>
-  <li><a href="#rules">Regles</a> | <a href="#triggers">Declencheurs</a> | <a href="#smtp">SMTP</a> | <a href="#logs">Journaux</a> | <a href="#security">Securite</a> | <a href="#shortcuts">Raccourcis</a></li>
+  <li><a href="#sessions">Sessions</a></li>
+  <li><a href="#tabs">Onglets et multi-fenêtres</a></li>
+  <li><a href="#panes">Panneaux divisés / Diffusion d'entrée / Reconnexion automatique</a></li>
+  <li><a href="#buttons">Boutons (avec exemples)</a></li>
+  <li><a href="#snapshots">Instantanés (avec exemples)</a></li>
+  <li><a href="#rules">Règles d'automatisation</a></li>
+  <li><a href="#triggers">Déclencheurs, périodiques, actions de démarrage</a></li>
+  <li><a href="#smtp">SMTP (envoi d'e-mails)</a></li>
+  <li><a href="#logs">Journaux</a></li>
+  <li><a href="#security">Sécurité</a></li>
+  <li><a href="#profile">Importation / exportation de profil</a></li>
+  <li><a href="#shortcuts">Raccourcis clavier</a></li>
 </ul>
+
 <h2 id="sessions">Sessions</h2>
-<p>Editeur a trois onglets : <b>Connection</b>, <b>General</b> (type de terminal par session), <b>Advanced</b>.</p>
-<h2 id="tabs">Onglets et multi-fenetre</h2>
-<p><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;/&rarr;</kbd> navigation. <kbd>F11</kbd> plein ecran. Clic droit : Renommer, Dupliquer, Epingler, <b>Detacher dans une nouvelle fenetre</b>. Glisser-deposer entre fenetres.</p>
-<h2 id="panes">Panneaux divises / Diffusion / Reconnexion</h2>
-<p><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H/V/W</kbd> diviser/fermer. <kbd>B</kbd> diffusion (bordure <span style="color:#e05a00"><b>orange</b></span>). Reconnexion : max 100, delai min 250 ms, plafond 30 s.</p>
+<p>Une <b>session</b> est une définition de connexion &mdash; SSH ou série.</p>
+<ul>
+  <li><b>Sessions &rarr; Gérer les sessions&hellip;</b> &mdash; ajouter, modifier, dupliquer ou supprimer des sessions. Les sessions sont regroupées dans une arborescence dans le panneau gauche.</li>
+  <li><b>SSH</b> nécessite un hôte, un port, un nom d'utilisateur et soit un mot de passe, soit un fichier de clé privée.</li>
+  <li><b>Série</b> nécessite un nom de périphérique (par exemple <code>COM3</code> sous Windows, <code>/dev/cu.usbserial-xxx</code> sous macOS), une vitesse en bauds, des bits de données/stop/parité, et un contrôle de flux.</li>
+  <li>Double-cliquez sur une session dans le panneau gauche pour l'ouvrir dans un nouvel onglet.</li>
+</ul>
+
+<h3>Éditeur de session (trois onglets)</h3>
+<p>L'éditeur de session est organisé en trois onglets :</p>
+<ul>
+  <li><b>Connexion</b> &mdash; hôte/port/utilisateur/mot de passe/clé (SSH) ou périphérique/baud/paramètres de ligne (série). Cet onglet s'ouvre en premier afin que les champs les plus fréquemment modifiés soient immédiatement visibles.</li>
+  <li><b>Général</b> &mdash; nom de session, type de connexion, <b>type de terminal</b> par session (par exemple <code>xterm-256color</code>, <code>vt100</code>), bascule de journalisation de session, et options d'affichage plein écran. Si le type de terminal est laissé vide, la valeur par défaut globale de <i>Paramètres &rarr; Préférences</i> est utilisée.</li>
+  <li><b>Avancé</b> &mdash; paramètres de reconnexion automatique (nombre maximal de tentatives, délai de base) et keepalive SSH (intervalle, keepalive TCP). Le groupe keepalive est masqué pour les sessions série.</li>
+</ul>
+
+<h2 id="tabs">Onglets et multi-fenêtres</h2>
+<ul>
+  <li>Chaque connexion ouverte vit dans son propre onglet. Le titre de l'onglet affiche le nom de la session ; une petite <b>&times;</b> à côté du nom ferme uniquement cet onglet.</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;</kbd> / <kbd>&rarr;</kbd> &mdash; passer à l'onglet précédent / suivant.</li>
+  <li><kbd>F11</kbd> &mdash; basculer en plein écran (masque le panneau et la barre de menu). Tous les raccourcis continuent à fonctionner en plein écran.</li>
+</ul>
+
+<h3>Menu contextuel d'onglet (clic droit)</h3>
+<p>Cliquez avec le bouton droit sur un titre d'onglet pour accéder à :</p>
+<ul>
+  <li><b>Renommer</b> &mdash; modifier le titre de l'onglet affiché.</li>
+  <li><b>Dupliquer</b> &mdash; ouvrir la même session dans un nouvel onglet.</li>
+  <li><b>Exécuter l'instantané &rarr;</b> &mdash; exécuter un instantané sur la session de cet onglet.</li>
+  <li><b>Épingler / Désépingler</b> &mdash; les onglets épinglés sont automatiquement restaurés au prochain lancement.</li>
+  <li><b>Détacher dans une nouvelle fenêtre</b> &mdash; déplacer l'onglet dans une toute nouvelle fenêtre TSCRT. La session SSH/série reste connectée &mdash; pas de déconnexion/reconnexion. Désactivé lorsqu'il n'y a qu'un seul onglet.</li>
+  <li><b>Fermer</b> &mdash; fermer l'onglet.</li>
+</ul>
+
+<h3>Glisser les onglets entre les fenêtres</h3>
+<p>Faites glisser un onglet depuis la barre d'onglets et déposez-le sur une autre fenêtre TSCRT pour transférer la session. Si vous le déposez en dehors de toute fenêtre TSCRT, une nouvelle fenêtre est automatiquement créée. La connexion active est préservée tout au long.</p>
+
+<h2 id="panes">Panneaux divisés / Diffusion d'entrée / Reconnexion automatique</h2>
+
+<h3>Panneaux divisés</h3>
+<p>Un onglet unique peut contenir plusieurs panneaux de terminal disposés en arborescence de séparateurs récursive. Le fractionnement réutilise le profil du panneau actif afin que le nouveau panneau atterrisse sur le même hôte.</p>
+<ul>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> &mdash; diviser horizontalement (côte à côte).</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> &mdash; diviser verticalement (haut / bas).</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> &mdash; fermer le panneau actif. Fermer le dernier panneau ferme l'onglet.</li>
+  <li>Les divisions sont récursives : une division horizontale suivie d'une division verticale produit une grille.</li>
+  <li>Le panneau actif est marqué d'une <span style="color:#3a80ff"><b>bordure bleue de 1 px</b></span>. Les clics de souris et le focus clavier le mettent à jour automatiquement.</li>
+  <li>Faites glisser la poignée du séparateur pour redimensionner.</li>
+  <li>La barre de recherche, Marque, Boucle et la ligne de commande agissent toujours sur le <b>panneau actif</b>.</li>
+</ul>
+
+<h3>Diffusion d'entrée</h3>
+<p>Réplique les frappes sur plusieurs panneaux &mdash; utile pour administrer une flotte de serveurs.</p>
+<ul>
+  <li>Basculer avec <b>Affichage &rarr; Diffuser l'entrée</b> ou <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd>.</li>
+  <li>Lorsque activé, chaque panneau reçoit une <span style="color:#e05a00"><b>bordure orange</b></span>.</li>
+  <li>Les frappes, le collage, les entrées IME et les rapports de souris d'un panneau sont transmis à tous les autres panneaux.</li>
+  <li>La bascule est <b>par onglet</b>.</li>
+</ul>
+
+<h3>Reconnexion automatique et keepalive SSH</h3>
+<p>Configuré dans l'onglet <b>Avancé</b> de l'éditeur de session.</p>
+<ul>
+  <li><b>Reconnexion automatique</b> &mdash; restaurer la session après une coupure. Les onglets fermés manuellement ne seront pas reconnectés.</li>
+  <li><b>Tentatives maximales</b> &mdash; limite d'abandon. <code>0</code> = illimité (plafond strict à 100).</li>
+  <li><b>Délai de base (ms)</b> &mdash; temporisation initiale (minimum 250 ms). Chaque nouvelle tentative double, plafond à 30 s, avec gigue de 0&ndash;250 ms.<br>Exemple avec base 500 : <code>500 ms &rarr; 1 s &rarr; 2 s &rarr; 4 s &rarr; 8 s &rarr; 16 s &rarr; 30 s &hellip;</code></li>
+  <li><b>Keepalive SSH (s)</b> (SSH uniquement) &mdash; intervalle keepalive libssh2. Recommandé 30 s.</li>
+  <li><b>Keepalive TCP</b> (SSH uniquement) &mdash; <code>SO_KEEPALIVE</code> sur le socket.</li>
+</ul>
+<p><b>Pendant la reconnexion :</b> la barre d'état affiche la progression ; le défilement arrière est préservé ; chaque panneau a son propre état de reconnexion indépendant.</p>
+
 <h2 id="buttons">Boutons</h2>
-<p>20 max. <code>\r</code>=Entree, <code>\e</code>=ESC, <code>\p</code>=pause 1s. Escapes inconnus ignores.</p>
-<h2 id="snapshots">Instantanes</h2>
-<p><b>Snapshots &rarr; Manage&hellip;</b> expect_prompt sur fenetre glissante 64 Ko.</p>
-<h2 id="rules">Regles d'automatisation</h2>
-<p><b>on_connect</b> / <b>cron</b> / <b>pattern</b> (+ refroidissement).</p>
-<h2 id="triggers">Declencheurs / Periodiques / Demarrage</h2>
-<p>Limite : 2 s par motif, max 20 en 10 s par session.</p>
-<h2 id="smtp">SMTP</h2>
-<p>STARTTLS/SMTPS obligatoire. Validation TLS forcee. Mots de passe chiffres (DPAPI/Keychain).</p>
-<h2 id="logs">Journaux</h2>
-<p><b>Logs &rarr; Open log folder</b>.</p>
-<h2 id="security">Securite</h2>
-<p>Verification cle SSH (TOFU). Credentials : DPAPI/Keychain. Dumps : owner-only, purge auto 7 jours.</p>
-<h2 id="shortcuts">Raccourcis</h2>
+<p>Jusqu'à 20 boutons d'action définis par l'utilisateur dans la barre inférieure. Clic pour envoyer, clic droit pour modifier.</p>
+
+<h3>Syntaxe de la chaîne d'action</h3>
 <table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
-<tr><td><kbd>Ctrl+T</kbd></td><td>Nouvel onglet</td></tr>
-<tr><td><kbd>Ctrl+W</kbd></td><td>Fermer onglet</td></tr>
-<tr><td><kbd>F11</kbd></td><td>Plein ecran</td></tr>
-<tr><td><kbd>Ctrl+Shift+H/V</kbd></td><td>Diviser</td></tr>
-<tr><td><kbd>Ctrl+Shift+B</kbd></td><td>Diffusion</td></tr>
+<tr><th>Échappement</th><th>Signification</th></tr>
+<tr><td><code>\r</code></td><td>Retour chariot (Entrée)</td></tr>
+<tr><td><code>\n</code></td><td>Saut de ligne</td></tr>
+<tr><td><code>\t</code></td><td>Tabulation</td></tr>
+<tr><td><code>\b</code></td><td>Retour arrière</td></tr>
+<tr><td><code>\e</code></td><td>Échap (0x1B)</td></tr>
+<tr><td><code>\p</code></td><td>Pause d'1 seconde</td></tr>
+<tr><td><code>\\</code></td><td>Barre oblique inverse littérale</td></tr>
 </table>
+<p><b>Remarque :</b> Les séquences d'échappement inconnues (par exemple <code>\q</code>) sont silencieusement ignorées et consignées comme avertissement. Seuls les échappements listés ci-dessus sont traités.</p>
+
+<h3>Exemples</h3>
+<p><b>1.</b> Envoyer une commande : <code>uptime\r</code></p>
+<p><b>2.</b> Connexion série : <code>\r\padmin\rs3cret\r</code> (Entrée &rarr; 1 s &rarr; admin+Entrée &rarr; mot de passe+Entrée)</p>
+<p><b>3.</b> Envoyer Ctrl-C : <code>\x03</code></p>
+<p><b>4.</b> ESC puis diagnostiquer : <code>\e\pshow interfaces\r</code></p>
+
+<h3>Boutons Boucle et Marque</h3>
+<ul>
+  <li><b>Boucle</b> &mdash; clic droit sur un bouton utilisateur &rarr; <i>Boucler ce bouton</i> pour répéter à un intervalle.</li>
+  <li><b>Marque</b> &mdash; insérer un marqueur horodaté dans le journal de session. Clic gauche = marquer, clic droit = modifier l'étiquette.</li>
+</ul>
+
+<h2 id="snapshots">Instantanés</h2>
+<p>Un <b>instantané</b> est une séquence nommée de commandes qui s'exécute sur une session, capture la sortie et écrit un fichier horodaté. Il peut éventuellement envoyer le résultat par e-mail.</p>
+
+<h3>Configuration</h3>
+<p><b>Instantanés &rarr; Gérer les instantanés&hellip;</b></p>
+<ul>
+  <li><b>Nom / description</b></li>
+  <li><b>Commandes</b> &mdash; chaque ligne : chaîne de commande, délai (ms), invite attendue optionnelle (regex), attente maximale (ms).</li>
+  <li><b>Destinataires</b>, <b>modèle d'objet</b> (<code>{session}</code>, <code>{snapshot}</code>, <code>{timestamp}</code>).</li>
+  <li><b>Envoyer un e-mail</b> / <b>Joindre le fichier</b>.</li>
+</ul>
+<p>La regex de l'invite attendue est comparée à une fenêtre glissante de 64 Ko de la sortie de l'étape, ce qui empêche les motifs pathologiques de bloquer l'interface graphique.</p>
+
+<h3>Exécution</h3>
+<ul>
+  <li>Menu : <b>Instantanés &rarr; &lt;nom&gt;</b>, ou clic droit sur un onglet &rarr; <b>Exécuter l'instantané</b>.</li>
+  <li>Fichiers : <i>répertoire de journaux</i><code>/snapshots/</code>. Parcourir via <b>Instantanés &rarr; Parcourir les instantanés&hellip;</b>.</li>
+</ul>
+
+<h2 id="rules">Règles d'automatisation</h2>
+<p><b>Instantanés &rarr; Règles d'automatisation&hellip;</b></p>
+<ul>
+  <li><b>on_connect</b> &mdash; exécuter une fois à la connexion de la session.</li>
+  <li><b>cron</b> &mdash; planification cron à 5 champs.</li>
+  <li><b>pattern</b> &mdash; correspondance regex sur la sortie de session, avec temps de refroidissement (secondes).</li>
+</ul>
+
+<h2 id="triggers">Déclencheurs, périodiques, actions de démarrage</h2>
+<p>Configurés dans <b>Paramètres &rarr; Préférences</b> :</p>
+<ul>
+  <li><b>Déclencheurs</b> &mdash; détectent des motifs dans la sortie de la session et envoient une action. Limités en débit : chaque déclencheur a un temps de refroidissement de 2 s par motif, et un plafond global de 20 déclenchements par 10 s pour tous les déclencheurs d'une session.</li>
+  <li><b>Périodiques</b> &mdash; envoient une action toutes les N secondes.</li>
+  <li><b>Actions de démarrage</b> &mdash; envoient une action une fois à la connexion.</li>
+</ul>
+
+<h2 id="smtp">SMTP</h2>
+<p><b>Paramètres &rarr; SMTP&hellip;</b></p>
+<ul>
+  <li><b>Hôte / port</b></li>
+  <li><b>Sécurité</b> &mdash; Aucune, STARTTLS ou SMTPS. <b>Si un nom d'utilisateur est configuré, STARTTLS ou SMTPS est requis</b> &mdash; l'authentification en texte clair est refusée pour éviter la fuite d'identifiants.</li>
+  <li><b>Nom d'utilisateur / mot de passe</b> &mdash; le mot de passe est chiffré au repos (DPAPI sous Windows, Keychain sous macOS).</li>
+  <li><b>Adresse / nom de l'expéditeur</b> &mdash; également utilisé comme adresse destinataire pour <i>Envoyer à l'administrateur</i>.</li>
+  <li><b>Délai d'expiration (s)</b></li>
+</ul>
+<p>La validation du certificat TLS est appliquée : les certificats auto-signés, expirés ou avec un nom d'hôte non concordant sont rejetés avec un message d'erreur clair.</p>
+
+<h2 id="logs">Journaux</h2>
+<ul>
+  <li><b>Journaux &rarr; Ouvrir le dossier des journaux</b> &mdash; un fichier horodaté par session.</li>
+  <li>Captures d'instantanés : sous-dossier <code>snapshots/</code>.</li>
+  <li>Bascule de journalisation par session dans l'onglet Général de l'éditeur de session.</li>
+</ul>
+
+<h2 id="security">Sécurité</h2>
+
+<h3>Vérification de la clé d'hôte SSH</h3>
+<p>TSCRT utilise un modèle <b>Trust On First Use (TOFU)</b>. Lors de la première connexion à un serveur, la clé d'hôte est épinglée dans <code>~/tscrt/known_hosts</code> (format OpenSSH) et son empreinte SHA-256 est journalisée.</p>
+<ul>
+  <li><b>Correspondance</b> &mdash; la connexion se poursuit silencieusement.</li>
+  <li><b>Nouvel hôte</b> &mdash; la clé est automatiquement épinglée et persistée.</li>
+  <li><b>Non-correspondance</b> &mdash; la connexion est <b>refusée</b> avec une erreur indiquant l'empreinte du serveur et le chemin du known_hosts. Cela protège contre les attaques de type homme du milieu. Si la clé du serveur a légitimement changé, supprimez l'entrée périmée du fichier known_hosts et reconnectez-vous.</li>
+</ul>
+
+<h3>Stockage des identifiants</h3>
+<ul>
+  <li><b>Windows</b> &mdash; les mots de passe SSH et SMTP sont chiffrés avec DPAPI, liés au compte utilisateur actuel. Le fichier de profil est en outre protégé par une ACL réservée au propriétaire.</li>
+  <li><b>macOS</b> &mdash; les mots de passe sont stockés dans le Keychain système (via Security.framework). Le profil ne contient qu'une référence <code>keychain:&lt;uuid&gt;</code>.</li>
+  <li><b>Linux</b> &mdash; les mots de passe sont actuellement stockés en texte clair dans le profil (permissions 0600). Une version future pourra intégrer libsecret.</li>
+  <li>Les profils migrés de Windows vers macOS perdront les mots de passe chiffrés. Réintroduisez-les après la migration.</li>
+</ul>
+
+<h3>Vidages de plantage</h3>
+<p>Si TSCRT plante, un vidage est écrit dans <code>~/tscrt/dumps/</code> avec des permissions réservées au propriétaire (0600 sur POSIX, ACL réservée au propriétaire sous Windows). Les vidages de plus de 7 jours sont automatiquement supprimés au démarrage.</p>
+
+<h2 id="profile">Importation / exportation de profil</h2>
+<ul>
+  <li><b>Fichier &rarr; Exporter le profil&hellip;</b> &mdash; complet ou partiel.</li>
+  <li><b>Fichier &rarr; Importer le profil&hellip;</b> &mdash; fusionné dans le profil actuel ; les conflits sont signalés.</li>
+</ul>
+
+<h2 id="shortcuts">Raccourcis clavier</h2>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><th>Raccourci</th><th>Action</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>T</kbd></td><td>Nouvel onglet depuis la session actuelle</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>W</kbd></td><td>Fermer l'onglet actuel</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;</kbd> / <kbd>&rarr;</kbd></td><td>Onglet précédent / suivant</td></tr>
+<tr><td><kbd>F11</kbd></td><td>Basculer en plein écran</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>L</kbd></td><td>Focaliser la ligne de commande</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>F</kbd></td><td>Ouvrir la barre Rechercher / Marquer</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd></td><td>Diviser le panneau horizontalement</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd></td><td>Diviser le panneau verticalement</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd></td><td>Fermer le panneau actif</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd></td><td>Basculer la diffusion d'entrée</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></td><td>Gérer les instantanés</td></tr>
+</table>
+<p>Tous les raccourcis fonctionnent en mode plein écran.</p>
+
 </body>
 </html>

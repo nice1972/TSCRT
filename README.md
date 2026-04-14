@@ -1,5 +1,7 @@
 # TSCRT
 
+**Runs on Windows, Linux, and macOS.**
+
 **TSCRT** is a cross-platform SSH and serial console terminal emulator built with Qt 6, libssh2, and libvterm. It targets engineers who need a reliable, scriptable, multi-session console for working with embedded devices, network gear, and remote servers.
 
 [한국어](README.ko.md) | [日本語](README.ja.md) | [中文](README.zh.md) | [Español](README.es.md) | [Français](README.fr.md) | [Deutsch](README.de.md) | [Português](README.pt.md) | [Русский](README.ru.md) | [Italiano](README.it.md)
@@ -49,7 +51,7 @@
 - Auto-reconnect with exponential backoff and jitter
 
 ### Internationalization
-- Built-in UI translations: **English**, **한국어**, **日本語**, **中文**
+- Built-in UI translations: **English**, **한국어**, **日本語**, **中文**, **Deutsch**, **Español**, **Français**, **Italiano**, **Português**, **Русский**
 - In-app HTML help guides per language
 
 ---
@@ -112,7 +114,7 @@ core/         portable C — profile I/O, platform abstraction
 gui/          Qt/C++ — main window, sessions, dialogs, automation, snapshots
 include/      public headers shared between core and gui
 resources/    icon, qrc, NSIS .rc, HTML help
-translations/ Qt .ts files (en/ko/ja/zh)
+translations/ Qt .ts files (en/ko/ja/zh/de/es/fr/it/pt/ru)
 tests/        Qt Test unit tests
 ```
 

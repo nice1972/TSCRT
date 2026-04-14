@@ -1,79 +1,219 @@
 <html>
-<head><meta charset="utf-8"><title>Guia de uso de TSCRT</title></head>
+<head><meta charset="utf-8"><title>Guía de uso de TSCRT</title></head>
 <body style="font-family:Segoe UI,Arial,sans-serif; font-size:10pt; color:#e0e0e0; background:#1e1e1e;">
-<h1>Guia de uso de TSCRT</h1>
-<p>TSCRT es un emulador de terminal para SSH2 y consolas serie. Navegacion rapida:</p>
+<h1>Guía de uso de TSCRT</h1>
+<p>TSCRT es un emulador de terminal para SSH2 y consolas serie. Esta guía recorre todas las funciones principales. Salte a una sección:</p>
 <ul>
   <li><a href="#sessions">Sesiones</a></li>
-  <li><a href="#tabs">Pestanas y multiventana</a></li>
-  <li><a href="#panes">Paneles divididos / Difusion de entrada / Reconexion automatica</a></li>
-  <li><a href="#buttons">Botones</a></li>
-  <li><a href="#snapshots">Instantaneas (Snapshots)</a></li>
-  <li><a href="#rules">Reglas de automatizacion</a></li>
-  <li><a href="#triggers">Disparadores / Ejecucion periodica / Acciones de inicio</a></li>
-  <li><a href="#smtp">SMTP</a></li>
+  <li><a href="#tabs">Pestañas y multiventana</a></li>
+  <li><a href="#panes">Paneles divididos / Difusión de entrada / Reconexión automática</a></li>
+  <li><a href="#buttons">Botones (con ejemplos)</a></li>
+  <li><a href="#snapshots">Instantáneas (con ejemplos)</a></li>
+  <li><a href="#rules">Reglas de automatización</a></li>
+  <li><a href="#triggers">Activadores, periódicos, acciones de inicio</a></li>
+  <li><a href="#smtp">SMTP (envío de correo)</a></li>
   <li><a href="#logs">Registros</a></li>
   <li><a href="#security">Seguridad</a></li>
-  <li><a href="#profile">Importar / Exportar perfil</a></li>
+  <li><a href="#profile">Importar / exportar perfil</a></li>
   <li><a href="#shortcuts">Atajos de teclado</a></li>
 </ul>
 
 <h2 id="sessions">Sesiones</h2>
-<p>Una <b>sesion</b> es una definicion de conexion SSH o serie.</p>
+<p>Una <b>sesión</b> es una definición de conexión &mdash; ya sea SSH o serie.</p>
 <ul>
-  <li><b>Sessions &rarr; Manage sessions&hellip;</b> &mdash; agregar, editar, duplicar o eliminar.</li>
-  <li>Editor de sesion con tres pestanas: <b>Connection</b>, <b>General</b> (tipo de terminal por sesion), <b>Advanced</b>.</li>
+  <li><b>Sesiones &rarr; Gestionar sesiones&hellip;</b> &mdash; añadir, editar, duplicar o eliminar sesiones. Las sesiones se agrupan en un árbol en el panel izquierdo.</li>
+  <li><b>SSH</b> requiere host, puerto, nombre de usuario y una contraseña o un archivo de clave privada.</li>
+  <li><b>Serie</b> requiere un nombre de dispositivo (p. ej. <code>COM3</code> en Windows, <code>/dev/cu.usbserial-xxx</code> en macOS), velocidad en baudios, bits de datos/parada/paridad y control de flujo.</li>
+  <li>Haga doble clic en una sesión del panel izquierdo para abrirla en una nueva pestaña.</li>
 </ul>
 
-<h2 id="tabs">Pestanas y multiventana</h2>
+<h3>Editor de sesiones (tres pestañas)</h3>
+<p>El editor de sesiones está organizado en tres pestañas:</p>
 <ul>
-  <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;/&rarr;</kbd> &mdash; pestana anterior/siguiente.</li>
-  <li><kbd>F11</kbd> &mdash; pantalla completa. Todos los atajos funcionan en pantalla completa.</li>
-  <li>Clic derecho en pestana: Renombrar, Duplicar, Fijar, Ejecutar Snapshot, <b>Separar en nueva ventana</b>, Cerrar.</li>
-  <li>Arrastre pestanas entre ventanas TSCRT. Soltar fuera crea una nueva ventana.</li>
+  <li><b>Conexión</b> &mdash; host/puerto/usuario/contraseña/clave (SSH) o dispositivo/baudios/configuración de línea (serie). Esta pestaña se abre primero para que los campos que más se modifican sean visibles de inmediato.</li>
+  <li><b>General</b> &mdash; nombre de la sesión, tipo de conexión, <b>tipo de terminal</b> por sesión (p. ej. <code>xterm-256color</code>, <code>vt100</code>), conmutador de registro de sesión y opciones de visualización a pantalla completa. Si el tipo de terminal se deja vacío, se utiliza el valor predeterminado global de <i>Configuración &rarr; Preferencias</i>.</li>
+  <li><b>Avanzado</b> &mdash; ajustes de reconexión automática (número máximo de intentos, retardo base) y keepalive de SSH (intervalo, keepalive TCP). El grupo de keepalive está oculto para sesiones serie.</li>
 </ul>
 
-<h2 id="panes">Paneles divididos / Difusion / Reconexion</h2>
+<h2 id="tabs">Pestañas y multiventana</h2>
 <ul>
-  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> &mdash; dividir horizontal. <kbd>V</kbd> &mdash; vertical. <kbd>W</kbd> &mdash; cerrar panel.</li>
-  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> &mdash; difusion de entrada (borde <span style="color:#e05a00"><b>naranja</b></span>).</li>
-  <li>Reconexion: maximo 100 intentos, retardo base minimo 250 ms, retroceso exponencial hasta 30 s.</li>
+  <li>Cada conexión abierta vive en su propia pestaña. El título de la pestaña muestra el nombre de la sesión; una pequeña <b>&times;</b> junto al nombre cierra solo esa pestaña.</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;</kbd> / <kbd>&rarr;</kbd> &mdash; ir a la pestaña anterior / siguiente.</li>
+  <li><kbd>F11</kbd> &mdash; alternar pantalla completa (oculta el panel y la barra de menú). Todos los atajos siguen funcionando en pantalla completa.</li>
 </ul>
+
+<h3>Menú contextual de la pestaña (clic derecho)</h3>
+<p>Haga clic derecho en el título de una pestaña para acceder a:</p>
+<ul>
+  <li><b>Renombrar</b> &mdash; cambiar el título de la pestaña mostrado.</li>
+  <li><b>Duplicar</b> &mdash; abrir la misma sesión en una nueva pestaña.</li>
+  <li><b>Ejecutar instantánea &rarr;</b> &mdash; ejecutar una instantánea en la sesión de esta pestaña.</li>
+  <li><b>Fijar / Desfijar</b> &mdash; las pestañas fijadas se restauran automáticamente en el siguiente inicio.</li>
+  <li><b>Desacoplar en nueva ventana</b> &mdash; mover la pestaña a una ventana TSCRT totalmente nueva. La sesión SSH/serie permanece conectada &mdash; sin desconexión/reconexión. Deshabilitado cuando solo hay una pestaña.</li>
+  <li><b>Cerrar</b> &mdash; cerrar la pestaña.</li>
+</ul>
+
+<h3>Arrastrar pestañas entre ventanas</h3>
+<p>Arrastre una pestaña desde la barra de pestañas y suéltela sobre otra ventana de TSCRT para transferir la sesión. Si la suelta fuera de cualquier ventana de TSCRT, se crea automáticamente una nueva ventana. La conexión activa se conserva durante todo el proceso.</p>
+
+<h2 id="panes">Paneles divididos / Difusión de entrada / Reconexión automática</h2>
+
+<h3>Paneles divididos</h3>
+<p>Una misma pestaña puede contener varios paneles de terminal dispuestos en un árbol divisor recursivo. La división reutiliza el perfil del panel activo, de modo que el nuevo panel aterriza en el mismo host.</p>
+<ul>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> &mdash; dividir horizontalmente (uno al lado del otro).</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> &mdash; dividir verticalmente (arriba / abajo).</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> &mdash; cerrar el panel activo. Cerrar el último panel cierra la pestaña.</li>
+  <li>Las divisiones son recursivas: una división horizontal seguida de una vertical produce una cuadrícula.</li>
+  <li>El panel activo está marcado con un <span style="color:#3a80ff"><b>borde azul de 1 px</b></span>. Los clics del ratón y el foco del teclado lo actualizan automáticamente.</li>
+  <li>Arrastre el tirador del divisor para redimensionar.</li>
+  <li>La barra de búsqueda, Marcar, Bucle y la línea de comandos actúan siempre sobre el <b>panel activo</b>.</li>
+</ul>
+
+<h3>Difusión de entrada</h3>
+<p>Replique las pulsaciones de teclas en varios paneles &mdash; útil para administrar una flota de servidores.</p>
+<ul>
+  <li>Alternar con <b>Ver &rarr; Difundir entrada</b> o <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd>.</li>
+  <li>Mientras está activada, cada panel muestra un <span style="color:#e05a00"><b>borde naranja</b></span>.</li>
+  <li>Las pulsaciones, pegado, entrada de IME y los informes de ratón de un panel se reenvían a todos los demás paneles.</li>
+  <li>El interruptor es <b>por pestaña</b>.</li>
+</ul>
+
+<h3>Reconexión automática y keepalive de SSH</h3>
+<p>Se configura en la pestaña <b>Avanzado</b> del editor de sesiones.</p>
+<ul>
+  <li><b>Reconexión automática</b> &mdash; restaurar la sesión tras una caída. Las pestañas cerradas manualmente no se reconectarán.</li>
+  <li><b>Intentos máximos</b> &mdash; límite de rendición. <code>0</code> = ilimitado (tope duro de 100).</li>
+  <li><b>Retardo base (ms)</b> &mdash; retroceso inicial (mínimo 250 ms). Cada reintento se duplica, con techo de 30 s, con jitter de 0&ndash;250 ms.<br>Ejemplo con base 500: <code>500 ms &rarr; 1 s &rarr; 2 s &rarr; 4 s &rarr; 8 s &rarr; 16 s &rarr; 30 s &hellip;</code></li>
+  <li><b>Keepalive SSH (s)</b> (solo SSH) &mdash; intervalo de keepalive de libssh2. Recomendado 30 s.</li>
+  <li><b>Keepalive TCP</b> (solo SSH) &mdash; <code>SO_KEEPALIVE</code> en el socket.</li>
+</ul>
+<p><b>Durante la reconexión:</b> la barra de estado muestra el progreso; se conserva el desplazamiento hacia atrás; cada panel tiene su propio estado de reconexión independiente.</p>
 
 <h2 id="buttons">Botones</h2>
-<p>Hasta 20 botones. Sintaxis: <code>\r</code>=Enter, <code>\n</code>=LF, <code>\t</code>=Tab, <code>\b</code>=BS, <code>\e</code>=ESC, <code>\p</code>=pausa 1s, <code>\\</code>=\. Escapes desconocidos se ignoran.</p>
+<p>Hasta 20 botones de acción definidos por el usuario en la barra inferior. Haga clic para enviar, clic derecho para editar.</p>
 
-<h2 id="snapshots">Instantaneas</h2>
-<p><b>Snapshots &rarr; Manage snapshots&hellip;</b>. expect_prompt se aplica en ventana rodante de 64 KB.</p>
+<h3>Sintaxis de la cadena de acción</h3>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><th>Escape</th><th>Significado</th></tr>
+<tr><td><code>\r</code></td><td>Retorno de carro (Enter)</td></tr>
+<tr><td><code>\n</code></td><td>Salto de línea</td></tr>
+<tr><td><code>\t</code></td><td>Tabulador</td></tr>
+<tr><td><code>\b</code></td><td>Retroceso</td></tr>
+<tr><td><code>\e</code></td><td>Escape (0x1B)</td></tr>
+<tr><td><code>\p</code></td><td>Pausa de 1 segundo</td></tr>
+<tr><td><code>\\</code></td><td>Barra invertida literal</td></tr>
+</table>
+<p><b>Nota:</b> Las secuencias de escape desconocidas (p. ej. <code>\q</code>) se descartan silenciosamente y se registran como advertencia. Solo se procesan los escapes listados arriba.</p>
 
-<h2 id="rules">Reglas de automatizacion</h2>
-<p><b>on_connect</b> / <b>cron</b> (5 campos) / <b>pattern</b> (regex + enfriamiento).</p>
+<h3>Ejemplos</h3>
+<p><b>1.</b> Enviar un comando: <code>uptime\r</code></p>
+<p><b>2.</b> Inicio de sesión serie: <code>\r\padmin\rs3cret\r</code> (Enter &rarr; 1 s &rarr; admin+Enter &rarr; contraseña+Enter)</p>
+<p><b>3.</b> Enviar Ctrl-C: <code>\x03</code></p>
+<p><b>4.</b> ESC y luego diagnosticar: <code>\e\pshow interfaces\r</code></p>
 
-<h2 id="triggers">Disparadores / Periodicos / Inicio</h2>
-<p><b>Settings &rarr; Preferences</b>. Disparadores con limite: 2 s por patron, max 20 en 10 s.</p>
+<h3>Botones Bucle y Marca</h3>
+<ul>
+  <li><b>Bucle</b> &mdash; clic derecho en un botón de usuario &rarr; <i>Repetir este botón</i> para repetir en un intervalo.</li>
+  <li><b>Marca</b> &mdash; insertar un marcador con marca de tiempo en el registro de la sesión. Clic izquierdo = marcar, clic derecho = editar etiqueta.</li>
+</ul>
+
+<h2 id="snapshots">Instantáneas</h2>
+<p>Una <b>instantánea</b> es una secuencia de comandos con nombre que se ejecuta en una sesión, captura la salida y escribe un archivo con marca de tiempo. Opcionalmente envía el resultado por correo.</p>
+
+<h3>Configuración</h3>
+<p><b>Instantáneas &rarr; Gestionar instantáneas&hellip;</b></p>
+<ul>
+  <li><b>Nombre / descripción</b></li>
+  <li><b>Comandos</b> &mdash; cada fila: cadena del comando, retardo (ms), prompt esperado opcional (regex), espera máxima (ms).</li>
+  <li><b>Destinatarios</b>, <b>plantilla de asunto</b> (<code>{session}</code>, <code>{snapshot}</code>, <code>{timestamp}</code>).</li>
+  <li><b>Enviar correo</b> / <b>Adjuntar archivo</b>.</li>
+</ul>
+<p>La regex del prompt esperado se compara con una ventana móvil de 64 KB de la salida del paso, lo que evita que patrones patológicos bloqueen la interfaz.</p>
+
+<h3>Ejecución</h3>
+<ul>
+  <li>Menú: <b>Instantáneas &rarr; &lt;nombre&gt;</b>, o clic derecho en una pestaña &rarr; <b>Ejecutar instantánea</b>.</li>
+  <li>Archivos: <i>directorio de registros</i><code>/snapshots/</code>. Explore con <b>Instantáneas &rarr; Examinar instantáneas&hellip;</b>.</li>
+</ul>
+
+<h2 id="rules">Reglas de automatización</h2>
+<p><b>Instantáneas &rarr; Reglas de automatización&hellip;</b></p>
+<ul>
+  <li><b>on_connect</b> &mdash; ejecutar una vez al conectar la sesión.</li>
+  <li><b>cron</b> &mdash; programación cron de 5 campos.</li>
+  <li><b>pattern</b> &mdash; coincidencia regex en la salida de la sesión, con enfriamiento (segundos).</li>
+</ul>
+
+<h2 id="triggers">Activadores, periódicos, acciones de inicio</h2>
+<p>Se configuran en <b>Configuración &rarr; Preferencias</b>:</p>
+<ul>
+  <li><b>Activadores</b> &mdash; detectan patrones en la salida de la sesión y envían una acción. Con límite de tasa: cada activador tiene un enfriamiento de 2 s por patrón y un límite global de 20 disparos por cada 10 s en todos los activadores de una sesión.</li>
+  <li><b>Periódicos</b> &mdash; envían una acción cada N segundos.</li>
+  <li><b>Acciones de inicio</b> &mdash; envían una acción una vez al conectar.</li>
+</ul>
 
 <h2 id="smtp">SMTP</h2>
-<p>STARTTLS/SMTPS obligatorio con autenticacion. Verificacion TLS forzada. Contrasenas cifradas (DPAPI/Keychain).</p>
+<p><b>Configuración &rarr; SMTP&hellip;</b></p>
+<ul>
+  <li><b>Host / puerto</b></li>
+  <li><b>Seguridad</b> &mdash; Ninguna, STARTTLS o SMTPS. <b>Si se configura un nombre de usuario, se requiere STARTTLS o SMTPS</b> &mdash; la autenticación en texto plano se rechaza para evitar la filtración de credenciales.</li>
+  <li><b>Nombre de usuario / contraseña</b> &mdash; la contraseña se cifra en reposo (DPAPI en Windows, Keychain en macOS).</li>
+  <li><b>Dirección / nombre del remitente</b> &mdash; también se usa como dirección destino de <i>Enviar al administrador</i>.</li>
+  <li><b>Tiempo de espera (s)</b></li>
+</ul>
+<p>Se aplica la validación de certificados TLS: los certificados autofirmados, caducados o con nombre de host no coincidente se rechazan con un mensaje de error claro.</p>
 
 <h2 id="logs">Registros</h2>
-<p><b>Logs &rarr; Open log folder</b>. Snapshots en <code>snapshots/</code>.</p>
+<ul>
+  <li><b>Registros &rarr; Abrir carpeta de registros</b> &mdash; un archivo con marca de tiempo por sesión.</li>
+  <li>Capturas de instantáneas: subcarpeta <code>snapshots/</code>.</li>
+  <li>Interruptor de registro por sesión en la pestaña General del editor de sesiones.</li>
+</ul>
 
 <h2 id="security">Seguridad</h2>
-<p>Verificacion de clave SSH (TOFU). Credenciales: DPAPI (Windows), Keychain (macOS). Volcados de memoria: permisos owner-only, eliminacion automatica a los 7 dias.</p>
 
-<h2 id="profile">Perfil</h2>
-<p><b>File &rarr; Export/Import profile&hellip;</b></p>
+<h3>Verificación de clave de host SSH</h3>
+<p>TSCRT utiliza un modelo <b>Trust On First Use (TOFU)</b>. En la primera conexión a un servidor, la clave del host se fija en <code>~/tscrt/known_hosts</code> (formato OpenSSH) y se registra su huella SHA-256.</p>
+<ul>
+  <li><b>Coincidencia</b> &mdash; la conexión continúa silenciosamente.</li>
+  <li><b>Host nuevo</b> &mdash; la clave se fija y persiste automáticamente.</li>
+  <li><b>Discrepancia</b> &mdash; la conexión se <b>rechaza</b> con un error que muestra la huella del servidor y la ruta de known_hosts. Esto protege contra ataques man-in-the-middle. Si la clave del servidor cambió legítimamente, elimine la entrada obsoleta del archivo known_hosts y reconecte.</li>
+</ul>
+
+<h3>Almacenamiento de credenciales</h3>
+<ul>
+  <li><b>Windows</b> &mdash; las contraseñas de SSH y SMTP se cifran con DPAPI, vinculadas a la cuenta de usuario actual. El archivo de perfil está protegido adicionalmente por una ACL exclusiva del propietario.</li>
+  <li><b>macOS</b> &mdash; las contraseñas se almacenan en el Keychain del sistema (a través de Security.framework). El perfil contiene solo una referencia <code>keychain:&lt;uuid&gt;</code>.</li>
+  <li><b>Linux</b> &mdash; las contraseñas se almacenan actualmente en texto plano en el perfil (permisos 0600). Una versión futura podría integrar libsecret.</li>
+  <li>Los perfiles migrados de Windows a macOS perderán las contraseñas cifradas. Vuelva a introducirlas tras la migración.</li>
+</ul>
+
+<h3>Volcados de fallo</h3>
+<p>Si TSCRT se bloquea, se escribe un volcado en <code>~/tscrt/dumps/</code> con permisos solo para el propietario (0600 en POSIX, ACL exclusiva del propietario en Windows). Los volcados de más de 7 días se eliminan automáticamente al inicio.</p>
+
+<h2 id="profile">Importar / exportar perfil</h2>
+<ul>
+  <li><b>Archivo &rarr; Exportar perfil&hellip;</b> &mdash; completo o parcial.</li>
+  <li><b>Archivo &rarr; Importar perfil&hellip;</b> &mdash; se fusiona con el perfil actual; se informan los conflictos.</li>
+</ul>
 
 <h2 id="shortcuts">Atajos de teclado</h2>
 <table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
-<tr><th>Atajo</th><th>Accion</th></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>T</kbd></td><td>Nueva pestana</td></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>W</kbd></td><td>Cerrar pestana</td></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;/&rarr;</kbd></td><td>Pestana anterior/siguiente</td></tr>
-<tr><td><kbd>F11</kbd></td><td>Pantalla completa</td></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H/V</kbd></td><td>Dividir panel</td></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd></td><td>Cerrar panel</td></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd></td><td>Difusion</td></tr>
+<tr><th>Atajo</th><th>Acción</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>T</kbd></td><td>Nueva pestaña de la sesión actual</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>W</kbd></td><td>Cerrar pestaña actual</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>&larr;</kbd> / <kbd>&rarr;</kbd></td><td>Pestaña anterior / siguiente</td></tr>
+<tr><td><kbd>F11</kbd></td><td>Alternar pantalla completa</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>L</kbd></td><td>Enfocar línea de comandos</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>F</kbd></td><td>Abrir barra Buscar / Marcar</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd></td><td>Dividir panel horizontalmente</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd></td><td>Dividir panel verticalmente</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd></td><td>Cerrar panel activo</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd></td><td>Alternar difusión de entrada</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></td><td>Gestionar instantáneas</td></tr>
 </table>
+<p>Todos los atajos funcionan en modo pantalla completa.</p>
+
 </body>
 </html>
