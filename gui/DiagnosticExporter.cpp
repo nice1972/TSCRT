@@ -23,8 +23,6 @@ namespace tscrt {
 
 namespace {
 
-constexpr int kTruncTailBytes = 64 * 1024;  // keep last 64 KB when truncating
-
 QString humanSize(qint64 bytes)
 {
     if (bytes < 1024) return QStringLiteral("%1 B").arg(bytes);

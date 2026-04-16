@@ -3,6 +3,7 @@ build/
 build-*/
 out/
 cmake-build-*/
+universal-deps/
 
 # Object files
 *.o
