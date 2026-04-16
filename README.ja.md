@@ -16,9 +16,9 @@
 
 | プラットフォーム | ファイル | 備考 |
 |------------------|----------|------|
-| **Windows x64** | [tscrt_win-1.0.8-win64.exe](https://github.com/nice1972/TSCRT/releases/download/v1.0.8/tscrt_win-1.0.8-win64.exe) | NSIS インストーラー |
-| **Ubuntu / Debian (amd64)** | [tscrt_1.0.8_amd64.deb](https://github.com/nice1972/TSCRT/releases/download/v1.0.8/tscrt_1.0.8_amd64.deb) | `sudo apt install ./tscrt_1.0.8_amd64.deb` |
-| **macOS (Universal)** | [tscrt_mac-1.0.8-universal.dmg](https://github.com/nice1972/TSCRT/releases/download/v1.0.8/tscrt_mac-1.0.8-universal.dmg) | `tscrt_mac.app` を `/Applications` にドラッグ |
+| **Windows x64** | [tscrt_win-1.0.10-win64.exe](https://github.com/nice1972/TSCRT/releases/download/v1.0.10/tscrt_win-1.0.10-win64.exe) | NSIS インストーラー |
+| **Ubuntu / Debian (amd64)** | [tscrt_1.0.10_amd64.deb](https://github.com/nice1972/TSCRT/releases/download/v1.0.10/tscrt_1.0.10_amd64.deb) | `sudo apt install ./tscrt_1.0.10_amd64.deb` |
+| **macOS (Universal)** | [tscrt_mac-1.0.10-universal.dmg](https://github.com/nice1972/TSCRT/releases/download/v1.0.10/tscrt_mac-1.0.10-universal.dmg) | `tscrt_mac.app` を `/Applications` にドラッグ |
 
 ---
 

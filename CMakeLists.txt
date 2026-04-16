@@ -159,8 +159,8 @@ if(APPLE)
         OUTPUT_NAME                       tscrt_mac
         MACOSX_BUNDLE_GUI_IDENTIFIER      "com.tepseg.tscrt"
         MACOSX_BUNDLE_BUNDLE_NAME         "TSCRT"
-        MACOSX_BUNDLE_BUNDLE_VERSION      "1.0.8"
-        MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0.8"
+        MACOSX_BUNDLE_BUNDLE_VERSION      "1.0.10"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0.10"
         MACOSX_BUNDLE_ICON_FILE           "tscrt_mac.icns"
         MACOSX_BUNDLE_COPYRIGHT           "© 2026 TePSEG Co., Ltd."
     )
@@ -299,7 +299,7 @@ endforeach()
 # Pack with CPack / NSIS.
 set(CPACK_PACKAGE_NAME              "tscrt_win")
 set(CPACK_PACKAGE_VENDOR            "TePSEG Co., Ltd.")
-set(CPACK_PACKAGE_VERSION           "1.0.8")
+set(CPACK_PACKAGE_VERSION           "1.0.10")
 set(CPACK_PACKAGE_FILE_NAME         "tscrt_win-${CPACK_PACKAGE_VERSION}-win64")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
     "TSCRT - SSH and serial console terminal emulator")
@@ -373,7 +373,7 @@ elseif(APPLE)
     # Pack with CPack / DragNDrop (.dmg).
     set(CPACK_PACKAGE_NAME              "tscrt_mac")
     set(CPACK_PACKAGE_VENDOR            "TePSEG Co., Ltd.")
-    set(CPACK_PACKAGE_VERSION           "1.0.8")
+    set(CPACK_PACKAGE_VERSION           "1.0.10")
     set(CPACK_PACKAGE_FILE_NAME         "tscrt_mac-${CPACK_PACKAGE_VERSION}-macos")
     set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
         "TSCRT - SSH and serial console terminal emulator")
@@ -403,7 +403,7 @@ else()
     # Pack with CPack / DEB.
     set(CPACK_PACKAGE_NAME              "tscrt")
     set(CPACK_PACKAGE_VENDOR            "TePSEG Co., Ltd.")
-    set(CPACK_PACKAGE_VERSION           "1.0.8")
+    set(CPACK_PACKAGE_VERSION           "1.0.10")
     set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
         "TSCRT - SSH and serial console terminal emulator")
     set(CPACK_RESOURCE_FILE_LICENSE

@@ -16,9 +16,9 @@
 
 | 플랫폼 | 파일 | 비고 |
 |--------|------|------|
-| **Windows x64** | [tscrt_win-1.0.8-win64.exe](https://github.com/nice1972/TSCRT/releases/download/v1.0.8/tscrt_win-1.0.8-win64.exe) | NSIS 설치 관리자 |
-| **Ubuntu / Debian (amd64)** | [tscrt_1.0.8_amd64.deb](https://github.com/nice1972/TSCRT/releases/download/v1.0.8/tscrt_1.0.8_amd64.deb) | `sudo apt install ./tscrt_1.0.8_amd64.deb` |
-| **macOS (Universal: Apple Silicon + Intel)** | [tscrt_mac-1.0.8-universal.dmg](https://github.com/nice1972/TSCRT/releases/download/v1.0.8/tscrt_mac-1.0.8-universal.dmg) | `tscrt_mac.app` 을 `/Applications` 으로 끌어 놓기. 첫 실행: 우클릭 → 열기 (서명 없음). |
+| **Windows x64** | [tscrt_win-1.0.10-win64.exe](https://github.com/nice1972/TSCRT/releases/download/v1.0.10/tscrt_win-1.0.10-win64.exe) | NSIS 설치 관리자 |
+| **Ubuntu / Debian (amd64)** | [tscrt_1.0.10_amd64.deb](https://github.com/nice1972/TSCRT/releases/download/v1.0.10/tscrt_1.0.10_amd64.deb) | `sudo apt install ./tscrt_1.0.10_amd64.deb` |
+| **macOS (Universal: Apple Silicon + Intel)** | [tscrt_mac-1.0.10-universal.dmg](https://github.com/nice1972/TSCRT/releases/download/v1.0.10/tscrt_mac-1.0.10-universal.dmg) | `tscrt_mac.app` 을 `/Applications` 으로 끌어 놓기. 첫 실행: 우클릭 → 열기 (서명 없음). |
 
 ---
 
