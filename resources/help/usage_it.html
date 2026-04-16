@@ -8,6 +8,7 @@
   <li><a href="#tabs">Schede e multifinestra</a></li>
   <li><a href="#panes">Pannelli divisi / Trasmissione input / Riconnessione automatica</a></li>
   <li><a href="#buttons">Pulsanti (con esempi)</a></li>
+  <li><a href="#tablink">Collegamento schede</a></li>
   <li><a href="#snapshots">Snapshot (con esempi)</a></li>
   <li><a href="#rules">Regole di automazione</a></li>
   <li><a href="#triggers">Trigger, periodici, azioni di avvio</a></li>
@@ -58,8 +59,39 @@
 <h3>Trascinare schede tra finestre</h3>
 <p>Trascina una scheda dalla barra delle schede e rilasciala su un'altra finestra TSCRT per trasferire la sessione. Se la rilasci fuori da qualsiasi finestra TSCRT, viene creata automaticamente una nuova finestra. La connessione attiva viene mantenuta per tutto il processo.</p>
 
-<h3>Collegamenti di schede tra istanze</h3>
-<p>I collegamenti tra schede sono memorizzati nel profilo e si riconnettono automaticamente la prossima volta che entrambe le istanze TSCRT sono in esecuzione. I collegamenti sopravvivono ai riavvii. Il rilevamento dei peer avviene tramite un canale IPC solo locale; non viene generato traffico di rete.</p>
+<h2 id="tablink">Collegamento schede</h2>
+<p>Il <b>collegamento schede</b> sincronizza l'attivazione delle schede tra due finestre TSCRT in esecuzione sulla stessa macchina. Quando passi a una scheda collegata in una finestra, la scheda abbinata nell'altra finestra viene automaticamente portata in primo piano. Questa funzionalità è pensata per flussi di lavoro con doppio monitor &mdash; ad esempio, una console del dispositivo sullo schermo sinistro e un visualizzatore di log o un secondo dispositivo sullo schermo destro.</p>
+
+<h3>Creare un collegamento</h3>
+<ol>
+  <li>Apri due istanze di TSCRT (la prima diventa il <b>ruolo A</b>, la seconda diventa automaticamente il <b>ruolo B</b>).</li>
+  <li>Apri le schede di sessione desiderate in ciascuna finestra.</li>
+  <li>Fai clic destro su una scheda in una delle finestre &rarr; <b>Collega scheda a scheda peer&hellip;</b></li>
+  <li>Nella finestra di dialogo vengono elencate l'altra istanza TSCRT e le sue schede aperte. Le schede con lo stesso nome di sessione sono distinte da un numero di <b>slot</b> (0, 1, &hellip;). Seleziona la scheda peer esatta con cui vuoi abbinare e fai clic su <b>OK</b>.</li>
+  <li>Una piccola <b>icona a catena</b> appare su entrambe le schede collegate per confermare l'abbinamento.</li>
+</ol>
+<p>Puoi creare più collegamenti &mdash; ad esempio, collegare la scheda 1&harr;3 e la scheda 2&harr;4 per due coppie di sessioni correlate.</p>
+
+<h3>Come funziona la sincronizzazione dell'attivazione</h3>
+<ul>
+  <li>Ogni collegamento è identificato da un <b>ID coppia</b> univoco. Quando attivi una scheda collegata, TSCRT trasmette l'ID coppia tramite un canale IPC locale (socket Unix / named pipe di Windows) a ogni peer connesso.</li>
+  <li>Il peer ricevente cerca l'ID coppia nella sua tabella di binding, trova la scheda locale corrispondente e vi passa automaticamente. La finestra del peer viene inoltre portata in primo piano.</li>
+  <li>Un <b>meccanismo anti-loop</b> impedisce che l'attivazione rimbalzi: quando una scheda viene commutata da un messaggio in arrivo, le trasmissioni in uscita vengono temporaneamente soppresse.</li>
+  <li>I collegamenti sono <b>consapevoli del ruolo</b> &mdash; ogni endpoint registra a quale ruolo di processo (A o B) appartiene, in modo che nomi di sessione duplicati tra istanze non causino mai binding ambigui.</li>
+</ul>
+
+<h3>Salvataggio e ripristino</h3>
+<ul>
+  <li>I collegamenti sono <b>memorizzati nel profilo</b> e sopravvivono ai riavvii. Ogni collegamento registra il proprio ID coppia, i nomi di sessione di entrambi gli endpoint, l'indice dello slot e il ruolo del processo.</li>
+  <li>Ogni processo salva anche la propria lista di schede aperte in un <b>file di layout</b> (<code>layout_A.lst</code> / <code>layout_B.lst</code>) nella directory del profilo.</li>
+  <li>Al prossimo avvio, il ruolo A riapre automaticamente le schede salvate. Se esistono collegamenti e <code>layout_B.lst</code> non è vuoto, viene <b>avviato automaticamente</b> un secondo processo TSCRT (<code>--role=B</code>), che riapre le schede lato B e ristabilisce tutti i binding &mdash; l'intero ambiente a doppia finestra viene ripristinato con un solo clic.</li>
+</ul>
+
+<h3>Scollegamento</h3>
+<p>Fai clic destro su una scheda collegata &rarr; <b>Scollega scheda (attualmente: &hellip;)</b>. L'icona a catena scompare e l'abbinamento viene rimosso dal profilo. Se tutti i collegamenti vengono rimossi, il prossimo avvio non avvierà più automaticamente un secondo TSCRT.</p>
+
+<h3>Rilevamento dei peer</h3>
+<p>Ogni processo TSCRT si registra sotto <code>$XDG_RUNTIME_DIR/tscrt/peers/</code> (Linux) o la directory temporanea equivalente (Windows / macOS). Un timer di rilevamento leggero cerca nuovi peer ogni 3 secondi. Le voci obsolete di processi crashati vengono automaticamente ripulite quando il socket risulta irraggiungibile. Nessun traffico di rete lascia la macchina locale.</p>
 
 <h2 id="panes">Pannelli divisi / Trasmissione input / Riconnessione automatica</h2>
 
@@ -124,17 +156,22 @@
 </ul>
 
 <h2 id="snapshots">Snapshot</h2>
-<p>Uno <b>snapshot</b> è una sequenza di comandi denominata che viene eseguita su una sessione, cattura l'output e scrive un file con timestamp. Facoltativamente invia il risultato per e-mail.</p>
+<p>Uno <b>snapshot</b> è una sequenza di comandi denominata che viene eseguita su una sessione, cattura l'output e scrive un file con timestamp. Quando configurato, TSCRT <b>invia automaticamente il risultato catturato via e-mail</b> tramite il client SMTP integrato.</p>
 
 <h3>Configurazione</h3>
 <p><b>Snapshot &rarr; Gestisci snapshot&hellip;</b></p>
 <ul>
   <li><b>Nome / descrizione</b></li>
   <li><b>Comandi</b> &mdash; ogni riga: stringa del comando, ritardo (ms), prompt atteso opzionale (regex), attesa massima (ms).</li>
-  <li><b>Destinatari</b>, <b>modello oggetto</b> (<code>{session}</code>, <code>{snapshot}</code>, <code>{timestamp}</code>).</li>
-  <li><b>Invia e-mail</b> / <b>Allega file</b>.</li>
+  <li><b>Destinatari</b> &mdash; uno o più indirizzi e-mail che ricevono automaticamente il risultato dello snapshot.</li>
+  <li><b>Modello oggetto</b> &mdash; supporta segnaposto: <code>{session}</code>, <code>{snapshot}</code>, <code>{timestamp}</code>.</li>
+  <li><b>Invia e-mail</b> &mdash; attiva/disattiva l'invio automatico di e-mail per snapshot.</li>
+  <li><b>Allega file</b> &mdash; quando abilitato, il file di output catturato viene allegato all'e-mail.</li>
 </ul>
 <p>La regex del prompt atteso viene confrontata con una finestra mobile di 64 KB dell'output del passaggio, il che impedisce a modelli patologici di bloccare la GUI.</p>
+
+<h3>Invio automatico di e-mail</h3>
+<p>Quando <b>Invia e-mail</b> è abilitato per uno snapshot e SMTP è configurato (vedi <a href="#smtp">SMTP</a>), TSCRT invia automaticamente il risultato dello snapshot a tutti i destinatari elencati immediatamente dopo il completamento dell'esecuzione. Combinato con le <b>regole di automazione</b> (on_connect / cron / pattern), questo fornisce un monitoraggio completamente non presidiato: TSCRT esegue lo snapshot secondo una pianificazione o un trigger, cattura l'output e lo invia via e-mail al team &mdash; senza intervento manuale.</p>
 
 <h3>Esecuzione</h3>
 <ul>

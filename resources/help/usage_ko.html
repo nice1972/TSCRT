@@ -8,6 +8,7 @@
   <li><a href="#tabs">탭 &amp; 멀티 윈도우</a></li>
   <li><a href="#panes">분할 창 / 입력 브로드캐스트 / 자동 재접속</a></li>
   <li><a href="#buttons">버튼(Buttons) &mdash; 예제 포함</a></li>
+  <li><a href="#tablink">탭 링크(Tab Link)</a></li>
   <li><a href="#snapshots">스냅샷(Snapshots) &mdash; 예제 포함</a></li>
   <li><a href="#rules">자동화 규칙(Automation rules)</a></li>
   <li><a href="#triggers">트리거 / 주기 실행 / 시작 동작</a></li>
@@ -58,8 +59,39 @@
 <h3>윈도우 간 탭 드래그</h3>
 <p>탭을 드래그해서 다른 TSCRT 창의 탭 바에 드롭하면 세션이 그 창으로 이동합니다. TSCRT 창 밖으로 드롭하면 새 창이 자동 생성됩니다. 이동 중에도 연결은 끊기지 않습니다.</p>
 
-<h3>인스턴스 간 탭 링크</h3>
-<p>탭 링크는 프로필에 저장되며, 다음에 두 TSCRT 인스턴스가 모두 실행될 때 자동으로 다시 연결됩니다. 링크는 재시작 후에도 유지됩니다. 피어 탐색은 로컬 전용 IPC 채널을 통해 이루어지며 네트워크 트래픽은 발생하지 않습니다.</p>
+<h2 id="tablink">탭 링크 (Tab Link)</h2>
+<p><b>탭 링크</b>는 같은 머신에서 실행 중인 두 TSCRT 창 사이에서 탭 활성화를 동기화하는 기능입니다. 한쪽 창에서 링크된 탭을 클릭하면, 다른 쪽 창의 짝 탭이 자동으로 앞으로 전환됩니다. 듀얼 모니터 환경 &mdash; 예: 왼쪽에 장비 콘솔, 오른쪽에 로그 뷰어 또는 다른 장비 &mdash; 에 최적화된 기능입니다.</p>
+
+<h3>링크 만들기</h3>
+<ol>
+  <li>TSCRT 를 두 번 실행합니다 (첫 번째가 <b>역할 A</b>, 두 번째가 자동으로 <b>역할 B</b>).</li>
+  <li>각 창에서 원하는 세션 탭을 엽니다.</li>
+  <li>어느 쪽 창에서든 탭 우클릭 &rarr; <b>다른 TSCRT의 탭과 연결&hellip;</b></li>
+  <li>대화상자에 상대 TSCRT 인스턴스와 열려 있는 탭 목록이 표시됩니다. 같은 세션 이름의 중복 탭은 <b>슬롯</b> 번호(0, 1, &hellip;)로 구분됩니다. 짝지을 탭을 정확히 선택하고 <b>OK</b>.</li>
+  <li>링크된 양쪽 탭 제목에 작은 <b>체인 링크 아이콘</b>이 표시되어 연결 상태를 확인할 수 있습니다.</li>
+</ol>
+<p>여러 개의 링크를 만들 수 있습니다 &mdash; 예: 탭 1&harr;3, 탭 2&harr;4 처럼 두 세트의 세션 페어.</p>
+
+<h3>활성화 동기화 방식</h3>
+<ul>
+  <li>각 링크에는 고유한 <b>페어 ID</b>가 있습니다. 링크된 탭을 활성화하면 로컬 IPC 채널(Unix 소켓 / Windows 명명된 파이프)을 통해 페어 ID 가 연결된 모든 피어에 전송됩니다.</li>
+  <li>수신 측은 페어 ID 를 자기 바인딩 테이블에서 찾아 해당 로컬 탭을 활성화합니다. 수신 측 창이 전면으로 올라옵니다.</li>
+  <li><b>에코 방지 가드</b>가 있어, 수신에 의한 탭 전환은 다시 송신으로 되돌아가지 않습니다 (무한 루프 차단).</li>
+  <li>링크는 <b>역할(Role) 기반</b>입니다 &mdash; 각 끝점이 어느 프로세스(A 또는 B)에 속하는지 기록하므로, 양쪽 인스턴스에 같은 세션 이름이 있어도 혼동이 발생하지 않습니다.</li>
+</ul>
+
+<h3>저장 및 복원</h3>
+<ul>
+  <li>링크는 <b>프로파일에 저장</b>되어 재시작 후에도 유지됩니다. 페어 ID, 양쪽 세션 이름/슬롯/역할이 기록됩니다.</li>
+  <li>각 프로세스는 현재 열린 탭 목록을 프로파일 디렉터리의 <b>레이아웃 파일</b>(<code>layout_A.lst</code> / <code>layout_B.lst</code>)에 저장합니다.</li>
+  <li>다음 실행 시, 역할 A 가 저장된 탭을 자동으로 엽니다. 링크가 존재하고 <code>layout_B.lst</code>에 항목이 있으면 두 번째 TSCRT 프로세스(<code>--role=B</code>)가 <b>자동 실행</b>되어 B 측 탭을 열고 모든 링크 바인딩을 재설정합니다 &mdash; 클릭 한 번으로 전체 듀얼 윈도우 환경이 복원됩니다.</li>
+</ul>
+
+<h3>링크 해제</h3>
+<p>링크된 탭 우클릭 &rarr; <b>탭 연결 해제 (현재: &hellip;)</b>. 체인 링크 아이콘이 사라지고 프로파일에서 페어링이 제거됩니다. 모든 링크가 제거되면 다음 실행 시 두 번째 TSCRT 가 자동 생성되지 않습니다.</p>
+
+<h3>피어 탐색</h3>
+<p>각 TSCRT 프로세스는 <code>$XDG_RUNTIME_DIR/tscrt/peers/</code>(Linux) 또는 해당 플랫폼의 임시 디렉터리(Windows/macOS)에 자신을 등록합니다. 3 초마다 주변 피어를 확인합니다. 비정상 종료된 프로세스의 잔여 항목은 소켓 연결 불가 시 자동으로 정리됩니다. 네트워크 트래픽은 발생하지 않습니다.</p>
 
 <h2 id="panes">분할 창 / 입력 브로드캐스트 / 자동 재접속</h2>
 
@@ -124,17 +156,22 @@
 </ul>
 
 <h2 id="snapshots">스냅샷</h2>
-<p><b>스냅샷</b>은 명령 시퀀스에 이름을 붙인 것으로, 세션에서 순서대로 실행한 출력을 캡처하여 파일로 저장합니다.</p>
+<p><b>스냅샷</b>은 명령 시퀀스에 이름을 붙인 것으로, 세션에서 순서대로 실행한 출력을 캡처하여 파일로 저장합니다. 설정 시 내장 SMTP 클라이언트를 통해 캡처 결과를 <b>지정된 메일 주소로 자동 발송</b>할 수 있습니다.</p>
 
 <h3>스냅샷 설정</h3>
 <p><b>Snapshots &rarr; Manage snapshots&hellip;</b></p>
 <ul>
   <li><b>이름 / 설명</b></li>
   <li><b>Commands</b> &mdash; 각 행: 커맨드, 지연(ms), expect prompt(정규식), max wait(ms).</li>
-  <li><b>Recipients</b>, <b>Subject template</b> (<code>{session}</code>, <code>{snapshot}</code>, <code>{timestamp}</code>).</li>
-  <li><b>Send email</b> / <b>Attach file</b>.</li>
+  <li><b>Recipients</b> &mdash; 스냅샷 결과를 자동으로 받을 이메일 주소 (복수 가능).</li>
+  <li><b>Subject template</b> &mdash; 제목 템플릿: <code>{session}</code>, <code>{snapshot}</code>, <code>{timestamp}</code> 치환 가능.</li>
+  <li><b>Send email</b> &mdash; 스냅샷별 이메일 자동 발송 on/off.</li>
+  <li><b>Attach file</b> &mdash; 켜면 캡처 결과 파일을 이메일에 첨부합니다.</li>
 </ul>
 <p>expect_prompt 정규식은 해당 단계 출력의 최근 64 KB 롤링 윈도우에서 매칭됩니다.</p>
+
+<h3>이메일 자동 발송</h3>
+<p><b>Send email</b>이 켜져 있고 SMTP 가 설정되어 있으면 (<a href="#smtp">SMTP</a> 참조), TSCRT 가 스냅샷 실행 완료 즉시 등록된 모든 수신자에게 결과를 자동 발송합니다. <b>자동화 규칙</b>(on-connect / cron / pattern)과 결합하면 완전 무인 모니터링이 가능합니다 &mdash; TSCRT 가 스케줄 또는 트리거에 맞춰 스냅샷을 실행하고, 출력을 캡처한 뒤, 팀에게 메일로 전달합니다.</p>
 
 <h3>실행 방법</h3>
 <ul>

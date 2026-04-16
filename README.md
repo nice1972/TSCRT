@@ -35,14 +35,18 @@ Prebuilt binaries are published on [GitHub Releases](https://github.com/nice1972
 - Persistent terminal-wide highlight / **Mark** feature
 - Full-screen mode (`F11`) — all shortcuts remain active
 
-### Multi-window
+### Multi-window & Tab Link
 - **Detach tab to new window** — right-click a tab and choose "Detach to New Window" to move it into a separate TSCRT instance while keeping the connection alive
 - **Drag tabs between windows** — drag a tab from one window's tab bar and drop it on another
-- Tab context menu: Rename, Duplicate, Pin, Run Snapshot, Detach, Close
+- **Tab Link** — synchronise tab activation across two TSCRT instances on the same machine. Right-click a tab → *Link Tab to Peer Tab…* to pair it with a specific tab in another TSCRT window. When either linked tab is activated, the paired tab in the peer window automatically switches and raises to the front. Designed for dual-monitor workflows (e.g. console on the left, log viewer on the right)
+  - Links are **role-aware** (A / B) so duplicate session names across instances never cause ambiguous bindings
+  - Each linked tab shows a small **chain-link icon** in the tab bar
+  - Links are **saved to the profile** and survive restarts. On the next launch, TSCRT auto-opens both windows' tabs and **spawns the second process automatically** — the entire dual-window environment restores with a single click
+- Tab context menu: Rename, Duplicate, Pin, Run Snapshot, Detach, Link / Unlink, Close
 
 ### Automation
 - **Automation Engine** — startup actions, pattern-triggered actions (rate-limited), periodic tasks
-- **Snapshots** — run shell commands on-connect, on-pattern, or on a schedule, and capture the output
+- **Snapshots** — run shell commands on-connect, on-pattern, or on a schedule, capture the output, and **automatically email the result** to configured recipients via the built-in SMTP client
 - **Cron scheduler** — 5-field cron expressions for snapshot timing
 - **Button bar** — per-session customizable quick-action buttons
 - **Command-line widget** for inline action / script execution

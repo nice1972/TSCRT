@@ -8,6 +8,7 @@
   <li><a href="#tabs">Abas e multijanela</a></li>
   <li><a href="#panes">Painéis divididos / Difusão de entrada / Reconexão automática</a></li>
   <li><a href="#buttons">Botões (com exemplos)</a></li>
+  <li><a href="#tablink">Vínculo de abas</a></li>
   <li><a href="#snapshots">Snapshots (com exemplos)</a></li>
   <li><a href="#rules">Regras de automação</a></li>
   <li><a href="#triggers">Gatilhos, periódicos, ações de inicialização</a></li>
@@ -58,8 +59,39 @@
 <h3>Arrastar abas entre janelas</h3>
 <p>Arraste uma aba da barra de abas e solte-a em outra janela do TSCRT para transferir a sessão. Se você soltá-la fora de qualquer janela do TSCRT, uma nova janela é criada automaticamente. A conexão ativa é preservada durante todo o processo.</p>
 
-<h3>Vínculos de abas entre instâncias</h3>
-<p>Os vínculos de abas são armazenados no perfil e se reconectam automaticamente na próxima vez que ambas as instâncias do TSCRT estiverem em execução. Os vínculos sobrevivem a reinicializações. A descoberta de pares ocorre por um canal IPC estritamente local; nenhum tráfego de rede é gerado.</p>
+<h2 id="tablink">Vínculo de abas</h2>
+<p>O <b>vínculo de abas</b> sincroniza a ativação de abas entre duas janelas do TSCRT em execução na mesma máquina. Quando você muda para uma aba vinculada em uma janela, a aba emparelhada na outra janela é automaticamente trazida para o primeiro plano. Isso foi projetado para fluxos de trabalho com dois monitores &mdash; por exemplo, um console de dispositivo na tela esquerda e um visualizador de logs ou um segundo dispositivo na tela direita.</p>
+
+<h3>Criar um vínculo</h3>
+<ol>
+  <li>Abra duas instâncias do TSCRT (a primeira torna-se o <b>papel A</b>, a segunda automaticamente o <b>papel B</b>).</li>
+  <li>Abra as abas de sessão desejadas em cada janela.</li>
+  <li>Clique com o botão direito em uma aba em qualquer janela &rarr; <b>Vincular aba à aba par&hellip;</b></li>
+  <li>Na caixa de diálogo, a outra instância do TSCRT e suas abas abertas são listadas. Abas com o mesmo nome de sessão são distinguidas por um número de <b>slot</b> (0, 1, &hellip;). Selecione a aba par exata com a qual deseja emparelhar e clique em <b>OK</b>.</li>
+  <li>Um pequeno <b>ícone de corrente</b> aparece em ambas as abas vinculadas para confirmar o emparelhamento.</li>
+</ol>
+<p>Você pode criar vários vínculos &mdash; por exemplo, vincular aba 1&harr;3 e aba 2&harr;4 para dois pares de sessões relacionadas.</p>
+
+<h3>Como funciona a sincronização de ativação</h3>
+<ul>
+  <li>Cada vínculo é identificado por um <b>ID de par</b> único. Quando você ativa uma aba vinculada, o TSCRT transmite o ID de par por um canal IPC local (socket Unix / named pipe do Windows) para cada par conectado.</li>
+  <li>O par receptor procura o ID de par em sua tabela de vínculos, encontra a aba local correspondente e muda para ela automaticamente. A janela do par também é trazida para o primeiro plano.</li>
+  <li>Um <b>protetor contra loops</b> garante que a ativação não ricocheteie: quando uma aba é alternada por uma mensagem recebida, as transmissões de saída são temporariamente suprimidas.</li>
+  <li>Os vínculos são <b>cientes do papel</b> &mdash; cada ponto registra a qual papel de processo (A ou B) pertence, de modo que nomes de sessão duplicados entre instâncias nunca causem vínculos ambíguos.</li>
+</ul>
+
+<h3>Salvar e restaurar</h3>
+<ul>
+  <li>Os vínculos são <b>armazenados no perfil</b> e sobrevivem a reinicializações. Cada vínculo registra seu ID de par, os nomes de sessão de ambos os pontos, o índice do slot e o papel do processo.</li>
+  <li>Cada processo também salva sua lista de abas abertas em um <b>arquivo de layout</b> (<code>layout_A.lst</code> / <code>layout_B.lst</code>) no diretório do perfil.</li>
+  <li>Na próxima inicialização, o papel A reabre automaticamente suas abas salvas. Se existirem vínculos e <code>layout_B.lst</code> não estiver vazio, um segundo processo TSCRT (<code>--role=B</code>) é <b>gerado automaticamente</b>, reabrindo as abas do lado B e restabelecendo todos os vínculos &mdash; todo o ambiente de janela dupla é restaurado com um único clique.</li>
+</ul>
+
+<h3>Desvincular</h3>
+<p>Clique com o botão direito em uma aba vinculada &rarr; <b>Desvincular aba (atualmente: &hellip;)</b>. O ícone de corrente desaparece e o emparelhamento é removido do perfil. Se todos os vínculos forem removidos, a próxima inicialização não gerará mais automaticamente um segundo TSCRT.</p>
+
+<h3>Descoberta de pares</h3>
+<p>Cada processo TSCRT se registra em <code>$XDG_RUNTIME_DIR/tscrt/peers/</code> (Linux) ou o diretório temporário equivalente (Windows / macOS). Um temporizador de descoberta leve verifica novos pares a cada 3 segundos. Entradas obsoletas de processos que falharam são limpas automaticamente quando o socket é encontrado inacessível. Nenhum tráfego de rede sai da máquina local.</p>
 
 <h2 id="panes">Painéis divididos / Difusão de entrada / Reconexão automática</h2>
 
@@ -124,17 +156,22 @@
 </ul>
 
 <h2 id="snapshots">Snapshots</h2>
-<p>Um <b>snapshot</b> é uma sequência nomeada de comandos que é executada em uma sessão, captura a saída e grava um arquivo com timestamp. Opcionalmente envia o resultado por e-mail.</p>
+<p>Um <b>snapshot</b> é uma sequência nomeada de comandos que é executada em uma sessão, captura a saída e grava um arquivo com timestamp. Quando configurado, o TSCRT <b>envia automaticamente o resultado capturado por e-mail</b> através do cliente SMTP integrado.</p>
 
 <h3>Configuração</h3>
 <p><b>Snapshots &rarr; Gerenciar snapshots&hellip;</b></p>
 <ul>
   <li><b>Nome / descrição</b></li>
   <li><b>Comandos</b> &mdash; cada linha: string do comando, atraso (ms), prompt esperado opcional (regex), espera máxima (ms).</li>
-  <li><b>Destinatários</b>, <b>modelo de assunto</b> (<code>{session}</code>, <code>{snapshot}</code>, <code>{timestamp}</code>).</li>
-  <li><b>Enviar e-mail</b> / <b>Anexar arquivo</b>.</li>
+  <li><b>Destinatários</b> &mdash; um ou mais endereços de e-mail que recebem automaticamente o resultado do snapshot.</li>
+  <li><b>Modelo de assunto</b> &mdash; suporta marcadores de posição: <code>{session}</code>, <code>{snapshot}</code>, <code>{timestamp}</code>.</li>
+  <li><b>Enviar e-mail</b> &mdash; ativar/desativar o envio automático de e-mail por snapshot.</li>
+  <li><b>Anexar arquivo</b> &mdash; quando habilitado, o arquivo de saída capturado é anexado ao e-mail.</li>
 </ul>
 <p>O regex do prompt esperado é comparado com uma janela rolante de 64 KB da saída da etapa, o que impede que padrões patológicos travem a GUI.</p>
+
+<h3>Envio automático de e-mail</h3>
+<p>Quando <b>Enviar e-mail</b> está habilitado para um snapshot e o SMTP está configurado (consulte <a href="#smtp">SMTP</a>), o TSCRT envia automaticamente o resultado do snapshot para todos os destinatários listados imediatamente após a conclusão da execução. Combinado com <b>regras de automação</b> (on_connect / cron / padrão), isso fornece monitoramento totalmente autônomo: o TSCRT executa o snapshot em um agendamento ou gatilho, captura a saída e a envia por e-mail para a equipe &mdash; sem intervenção manual.</p>
 
 <h3>Execução</h3>
 <ul>

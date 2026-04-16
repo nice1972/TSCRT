@@ -8,6 +8,7 @@
   <li><a href="#tabs">Tabs &amp; multi-window</a></li>
   <li><a href="#panes">Split panes / Input broadcast / Auto-reconnect</a></li>
   <li><a href="#buttons">Buttons (with examples)</a></li>
+  <li><a href="#tablink">Tab Link</a></li>
   <li><a href="#snapshots">Snapshots (with examples)</a></li>
   <li><a href="#rules">Automation rules</a></li>
   <li><a href="#triggers">Triggers, periodics, startup actions</a></li>
@@ -58,8 +59,39 @@
 <h3>Drag tabs between windows</h3>
 <p>Drag a tab from the tab bar and drop it onto another TSCRT window to transfer the session. If you drop outside any TSCRT window, a new window is automatically created. The active connection is preserved throughout.</p>
 
-<h3>Cross-instance tab links</h3>
-<p>Tab links are stored in the profile and reconnect automatically the next time both TSCRT instances are running. Links survive restarts. Peer discovery happens over a local-only IPC channel; no network traffic is generated.</p>
+<h2 id="tablink">Tab Link</h2>
+<p><b>Tab Link</b> synchronises tab activation across two TSCRT windows running on the same machine. When you switch to a linked tab in one window, the paired tab in the other window is automatically brought to the front. This is designed for dual-monitor workflows &mdash; for example, a device console on the left screen and a log viewer or a second device on the right screen.</p>
+
+<h3>Creating a link</h3>
+<ol>
+  <li>Open two TSCRT instances (the first becomes <b>role A</b>, the second automatically becomes <b>role B</b>).</li>
+  <li>Open the desired session tabs in each window.</li>
+  <li>Right-click a tab in either window &rarr; <b>Link Tab to Peer Tab&hellip;</b></li>
+  <li>In the dialog, the other TSCRT instance and its open tabs are listed. Tabs of the same session name are distinguished by a <b>slot</b> number (0, 1, &hellip;). Select the exact peer tab you want to pair with and click <b>OK</b>.</li>
+  <li>A small <b>chain-link icon</b> appears on both linked tabs to confirm the pairing.</li>
+</ol>
+<p>You can create multiple links &mdash; for example, link tab 1&harr;3 and tab 2&harr;4 for two pairs of related sessions.</p>
+
+<h3>How activation sync works</h3>
+<ul>
+  <li>Each link is identified by a unique <b>pair ID</b>. When you activate a linked tab, TSCRT broadcasts the pair ID over a local IPC channel (Unix socket / Windows named pipe) to every connected peer.</li>
+  <li>The receiving peer looks up the pair ID in its binding table, finds the matching local tab, and switches to it automatically. The peer window is also raised to the foreground.</li>
+  <li>A <b>loop-prevention guard</b> ensures the activation does not bounce back: when a tab is switched by an inbound message, outbound broadcasts are temporarily suppressed.</li>
+  <li>Links are <b>role-aware</b> &mdash; each endpoint records which process role (A or B) it belongs to, so duplicate session names across instances never cause ambiguous bindings.</li>
+</ul>
+
+<h3>Save &amp; restore</h3>
+<ul>
+  <li>Links are <b>stored in the profile</b> and survive restarts. Each link records its pair ID, both endpoints' session name, slot index, and process role.</li>
+  <li>Each process also saves its open-tab list to a <b>layout file</b> (<code>layout_A.lst</code> / <code>layout_B.lst</code>) under the profile directory.</li>
+  <li>On the next launch, role A automatically reopens its saved tabs. If links exist and <code>layout_B.lst</code> is non-empty, a second TSCRT process (<code>--role=B</code>) is <b>spawned automatically</b>, reopening the B-side tabs and re-establishing all link bindings &mdash; the entire dual-window environment is restored with a single click.</li>
+</ul>
+
+<h3>Unlinking</h3>
+<p>Right-click a linked tab &rarr; <b>Unlink Tab (currently: &hellip;)</b>. The chain-link icon disappears and the pairing is removed from the profile. If all links are removed, the next launch will no longer auto-spawn a second TSCRT.</p>
+
+<h3>Peer discovery</h3>
+<p>Each TSCRT process registers itself under <code>$XDG_RUNTIME_DIR/tscrt/peers/</code> (Linux) or the equivalent temp directory (Windows / macOS). A lightweight discovery timer checks for new peers every 3 seconds. Stale entries from crashed processes are automatically cleaned up when the socket is found unreachable. No network traffic leaves the local machine.</p>
 
 <h2 id="panes">Split panes / Input broadcast / Auto-reconnect</h2>
 
@@ -124,17 +156,22 @@
 </ul>
 
 <h2 id="snapshots">Snapshots</h2>
-<p>A <b>snapshot</b> is a named sequence of commands that runs on a session, captures output, and writes a timestamped file. Optionally emails the result.</p>
+<p>A <b>snapshot</b> is a named sequence of commands that runs on a session, captures output, and writes a timestamped file. When configured, TSCRT <b>automatically sends the captured result by email</b> via the built-in SMTP client.</p>
 
 <h3>Configuring</h3>
 <p><b>Snapshots &rarr; Manage snapshots&hellip;</b></p>
 <ul>
   <li><b>Name / description</b></li>
   <li><b>Commands</b> &mdash; each row: command string, delay (ms), optional expect prompt (regex), max wait (ms).</li>
-  <li><b>Recipients</b>, <b>Subject template</b> (<code>{session}</code>, <code>{snapshot}</code>, <code>{timestamp}</code>).</li>
-  <li><b>Send email</b> / <b>Attach file</b>.</li>
+  <li><b>Recipients</b> &mdash; one or more email addresses that receive the snapshot result automatically.</li>
+  <li><b>Subject template</b> &mdash; supports placeholders: <code>{session}</code>, <code>{snapshot}</code>, <code>{timestamp}</code>.</li>
+  <li><b>Send email</b> &mdash; toggle automatic email delivery on/off per snapshot.</li>
+  <li><b>Attach file</b> &mdash; when enabled, the captured output file is attached to the email.</li>
 </ul>
 <p>The expect-prompt regex is matched against a rolling 64 KB window of the step's output, which prevents pathological patterns from stalling the GUI.</p>
+
+<h3>Automatic email delivery</h3>
+<p>When <b>Send email</b> is enabled for a snapshot and SMTP is configured (see <a href="#smtp">SMTP</a>), TSCRT automatically delivers the snapshot result to all listed recipients immediately after execution completes. Combined with <b>automation rules</b> (on-connect / cron / pattern), this provides fully unattended monitoring: TSCRT runs the snapshot on a schedule or on a trigger, captures the output, and emails it to the team &mdash; no manual intervention required.</p>
 
 <h3>Running</h3>
 <ul>

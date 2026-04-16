@@ -8,6 +8,7 @@
   <li><a href="#tabs">Pestañas y multiventana</a></li>
   <li><a href="#panes">Paneles divididos / Difusión de entrada / Reconexión automática</a></li>
   <li><a href="#buttons">Botones (con ejemplos)</a></li>
+  <li><a href="#tablink">Vínculo de pestañas</a></li>
   <li><a href="#snapshots">Instantáneas (con ejemplos)</a></li>
   <li><a href="#rules">Reglas de automatización</a></li>
   <li><a href="#triggers">Activadores, periódicos, acciones de inicio</a></li>
@@ -58,8 +59,39 @@
 <h3>Arrastrar pestañas entre ventanas</h3>
 <p>Arrastre una pestaña desde la barra de pestañas y suéltela sobre otra ventana de TSCRT para transferir la sesión. Si la suelta fuera de cualquier ventana de TSCRT, se crea automáticamente una nueva ventana. La conexión activa se conserva durante todo el proceso.</p>
 
-<h3>Vínculos de pestañas entre instancias</h3>
-<p>Los vínculos de pestañas se guardan en el perfil y se reconectan automáticamente la próxima vez que ambas instancias de TSCRT estén en ejecución. Los vínculos sobreviven a los reinicios. El descubrimiento de pares se realiza a través de un canal IPC exclusivamente local; no se genera tráfico de red.</p>
+<h2 id="tablink">Vínculo de pestañas</h2>
+<p><b>Vínculo de pestañas</b> sincroniza la activación de pestañas entre dos ventanas de TSCRT que se ejecutan en la misma máquina. Cuando cambia a una pestaña vinculada en una ventana, la pestaña emparejada en la otra ventana se trae automáticamente al frente. Está diseñado para flujos de trabajo con doble monitor &mdash; por ejemplo, una consola de dispositivo en la pantalla izquierda y un visor de registros o un segundo dispositivo en la pantalla derecha.</p>
+
+<h3>Crear un vínculo</h3>
+<ol>
+  <li>Abra dos instancias de TSCRT (la primera se convierte en <b>rol A</b>, la segunda automáticamente en <b>rol B</b>).</li>
+  <li>Abra las pestañas de sesión deseadas en cada ventana.</li>
+  <li>Haga clic derecho en una pestaña de cualquier ventana &rarr; <b>Vincular pestaña con pestaña par&hellip;</b></li>
+  <li>En el diálogo se listan la otra instancia de TSCRT y sus pestañas abiertas. Las pestañas con el mismo nombre de sesión se distinguen por un número de <b>slot</b> (0, 1, &hellip;). Seleccione la pestaña par exacta con la que desea emparejar y haga clic en <b>Aceptar</b>.</li>
+  <li>Un pequeño <b>icono de cadena</b> aparece en ambas pestañas vinculadas para confirmar el emparejamiento.</li>
+</ol>
+<p>Puede crear múltiples vínculos &mdash; por ejemplo, vincular pestaña 1&harr;3 y pestaña 2&harr;4 para dos pares de sesiones relacionadas.</p>
+
+<h3>Cómo funciona la sincronización de activación</h3>
+<ul>
+  <li>Cada vínculo se identifica por un <b>ID de par</b> único. Cuando activa una pestaña vinculada, TSCRT transmite el ID de par a través de un canal IPC local (socket Unix / named pipe de Windows) a cada par conectado.</li>
+  <li>El par receptor busca el ID de par en su tabla de enlaces, encuentra la pestaña local correspondiente y cambia a ella automáticamente. La ventana del par también se trae al frente.</li>
+  <li>Un <b>protector contra bucles</b> garantiza que la activación no rebote: cuando una pestaña se cambia por un mensaje entrante, las transmisiones salientes se suprimen temporalmente.</li>
+  <li>Los vínculos son <b>conscientes del rol</b> &mdash; cada extremo registra a qué rol de proceso (A o B) pertenece, por lo que los nombres de sesión duplicados entre instancias nunca causan enlaces ambiguos.</li>
+</ul>
+
+<h3>Guardar y restaurar</h3>
+<ul>
+  <li>Los vínculos se <b>almacenan en el perfil</b> y sobreviven a los reinicios. Cada vínculo registra su ID de par, los nombres de sesión de ambos extremos, el índice de slot y el rol del proceso.</li>
+  <li>Cada proceso también guarda su lista de pestañas abiertas en un <b>archivo de diseño</b> (<code>layout_A.lst</code> / <code>layout_B.lst</code>) en el directorio del perfil.</li>
+  <li>En el siguiente inicio, el rol A reabre automáticamente sus pestañas guardadas. Si existen vínculos y <code>layout_B.lst</code> no está vacío, se <b>genera automáticamente</b> un segundo proceso TSCRT (<code>--role=B</code>), que reabre las pestañas del lado B y restablece todos los enlaces &mdash; todo el entorno de doble ventana se restaura con un solo clic.</li>
+</ul>
+
+<h3>Desvincular</h3>
+<p>Haga clic derecho en una pestaña vinculada &rarr; <b>Desvincular pestaña (actualmente: &hellip;)</b>. El icono de cadena desaparece y el emparejamiento se elimina del perfil. Si se eliminan todos los vínculos, el siguiente inicio ya no generará automáticamente un segundo TSCRT.</p>
+
+<h3>Descubrimiento de pares</h3>
+<p>Cada proceso TSCRT se registra en <code>$XDG_RUNTIME_DIR/tscrt/peers/</code> (Linux) o el directorio temporal equivalente (Windows / macOS). Un temporizador de descubrimiento ligero busca nuevos pares cada 3 segundos. Las entradas obsoletas de procesos fallidos se limpian automáticamente cuando el socket resulta inalcanzable. Ningún tráfico de red sale de la máquina local.</p>
 
 <h2 id="panes">Paneles divididos / Difusión de entrada / Reconexión automática</h2>
 
@@ -124,17 +156,22 @@
 </ul>
 
 <h2 id="snapshots">Instantáneas</h2>
-<p>Una <b>instantánea</b> es una secuencia de comandos con nombre que se ejecuta en una sesión, captura la salida y escribe un archivo con marca de tiempo. Opcionalmente envía el resultado por correo.</p>
+<p>Una <b>instantánea</b> es una secuencia de comandos con nombre que se ejecuta en una sesión, captura la salida y escribe un archivo con marca de tiempo. Cuando está configurado, TSCRT <b>envía automáticamente el resultado capturado por correo electrónico</b> a través del cliente SMTP integrado.</p>
 
 <h3>Configuración</h3>
 <p><b>Instantáneas &rarr; Gestionar instantáneas&hellip;</b></p>
 <ul>
   <li><b>Nombre / descripción</b></li>
   <li><b>Comandos</b> &mdash; cada fila: cadena del comando, retardo (ms), prompt esperado opcional (regex), espera máxima (ms).</li>
-  <li><b>Destinatarios</b>, <b>plantilla de asunto</b> (<code>{session}</code>, <code>{snapshot}</code>, <code>{timestamp}</code>).</li>
-  <li><b>Enviar correo</b> / <b>Adjuntar archivo</b>.</li>
+  <li><b>Destinatarios</b> &mdash; una o más direcciones de correo que reciben automáticamente el resultado de la instantánea.</li>
+  <li><b>Plantilla de asunto</b> &mdash; admite marcadores de posición: <code>{session}</code>, <code>{snapshot}</code>, <code>{timestamp}</code>.</li>
+  <li><b>Enviar correo</b> &mdash; activar/desactivar el envío automático de correo por instantánea.</li>
+  <li><b>Adjuntar archivo</b> &mdash; cuando está habilitado, el archivo de salida capturado se adjunta al correo.</li>
 </ul>
 <p>La regex del prompt esperado se compara con una ventana móvil de 64 KB de la salida del paso, lo que evita que patrones patológicos bloqueen la interfaz.</p>
+
+<h3>Envío automático de correo electrónico</h3>
+<p>Cuando <b>Enviar correo</b> está habilitado para una instantánea y SMTP está configurado (consulte <a href="#smtp">SMTP</a>), TSCRT envía automáticamente el resultado de la instantánea a todos los destinatarios listados inmediatamente después de que se completa la ejecución. Combinado con <b>reglas de automatización</b> (on_connect / cron / patrón), esto proporciona una supervisión totalmente desatendida: TSCRT ejecuta la instantánea según un horario o un disparador, captura la salida y la envía por correo al equipo &mdash; sin intervención manual.</p>
 
 <h3>Ejecución</h3>
 <ul>

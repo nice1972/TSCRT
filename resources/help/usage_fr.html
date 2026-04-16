@@ -8,6 +8,7 @@
   <li><a href="#tabs">Onglets et multi-fenêtres</a></li>
   <li><a href="#panes">Panneaux divisés / Diffusion d'entrée / Reconnexion automatique</a></li>
   <li><a href="#buttons">Boutons (avec exemples)</a></li>
+  <li><a href="#tablink">Liaison d'onglets</a></li>
   <li><a href="#snapshots">Instantanés (avec exemples)</a></li>
   <li><a href="#rules">Règles d'automatisation</a></li>
   <li><a href="#triggers">Déclencheurs, périodiques, actions de démarrage</a></li>
@@ -58,8 +59,39 @@
 <h3>Glisser les onglets entre les fenêtres</h3>
 <p>Faites glisser un onglet depuis la barre d'onglets et déposez-le sur une autre fenêtre TSCRT pour transférer la session. Si vous le déposez en dehors de toute fenêtre TSCRT, une nouvelle fenêtre est automatiquement créée. La connexion active est préservée tout au long.</p>
 
-<h3>Liens d'onglets entre instances</h3>
-<p>Les liens d'onglets sont stockés dans le profil et se reconnectent automatiquement la prochaine fois que les deux instances de TSCRT sont en cours d'exécution. Les liens survivent aux redémarrages. La découverte des pairs s'effectue via un canal IPC strictement local ; aucun trafic réseau n'est généré.</p>
+<h2 id="tablink">Liaison d'onglets</h2>
+<p>La <b>liaison d'onglets</b> synchronise l'activation des onglets entre deux fenêtres TSCRT exécutées sur la même machine. Lorsque vous basculez vers un onglet lié dans une fenêtre, l'onglet apparié dans l'autre fenêtre est automatiquement mis au premier plan. Ceci est conçu pour les workflows à double écran &mdash; par exemple, une console d'appareil sur l'écran gauche et un visualiseur de journaux ou un second appareil sur l'écran droit.</p>
+
+<h3>Créer un lien</h3>
+<ol>
+  <li>Ouvrez deux instances de TSCRT (la première devient le <b>rôle A</b>, la seconde devient automatiquement le <b>rôle B</b>).</li>
+  <li>Ouvrez les onglets de session souhaités dans chaque fenêtre.</li>
+  <li>Cliquez avec le bouton droit sur un onglet dans l'une des fenêtres &rarr; <b>Lier l'onglet à un onglet pair&hellip;</b></li>
+  <li>Dans la boîte de dialogue, l'autre instance TSCRT et ses onglets ouverts sont listés. Les onglets portant le même nom de session sont distingués par un numéro de <b>slot</b> (0, 1, &hellip;). Sélectionnez l'onglet pair exact avec lequel vous souhaitez apparier et cliquez sur <b>OK</b>.</li>
+  <li>Une petite <b>icône de chaîne</b> apparaît sur les deux onglets liés pour confirmer l'appariement.</li>
+</ol>
+<p>Vous pouvez créer plusieurs liens &mdash; par exemple, lier l'onglet 1&harr;3 et l'onglet 2&harr;4 pour deux paires de sessions associées.</p>
+
+<h3>Fonctionnement de la synchronisation d'activation</h3>
+<ul>
+  <li>Chaque lien est identifié par un <b>identifiant de paire</b> unique. Lorsque vous activez un onglet lié, TSCRT diffuse l'identifiant de paire via un canal IPC local (socket Unix / named pipe Windows) à chaque pair connecté.</li>
+  <li>Le pair récepteur recherche l'identifiant de paire dans sa table de liaisons, trouve l'onglet local correspondant et y bascule automatiquement. La fenêtre du pair est également mise au premier plan.</li>
+  <li>Un <b>garde anti-boucle</b> empêche l'activation de rebondir : lorsqu'un onglet est basculé par un message entrant, les diffusions sortantes sont temporairement supprimées.</li>
+  <li>Les liens sont <b>sensibles au rôle</b> &mdash; chaque extrémité enregistre à quel rôle de processus (A ou B) elle appartient, de sorte que les noms de session dupliqués entre instances ne causent jamais de liaisons ambiguës.</li>
+</ul>
+
+<h3>Sauvegarde &amp; restauration</h3>
+<ul>
+  <li>Les liens sont <b>stockés dans le profil</b> et survivent aux redémarrages. Chaque lien enregistre son identifiant de paire, les noms de session des deux extrémités, l'index de slot et le rôle du processus.</li>
+  <li>Chaque processus sauvegarde également sa liste d'onglets ouverts dans un <b>fichier de disposition</b> (<code>layout_A.lst</code> / <code>layout_B.lst</code>) dans le répertoire du profil.</li>
+  <li>Au prochain lancement, le rôle A rouvre automatiquement ses onglets sauvegardés. Si des liens existent et que <code>layout_B.lst</code> n'est pas vide, un second processus TSCRT (<code>--role=B</code>) est <b>lancé automatiquement</b>, rouvrant les onglets côté B et rétablissant toutes les liaisons &mdash; l'ensemble de l'environnement à double fenêtre est restauré en un seul clic.</li>
+</ul>
+
+<h3>Délier</h3>
+<p>Cliquez avec le bouton droit sur un onglet lié &rarr; <b>Délier l'onglet (actuellement : &hellip;)</b>. L'icône de chaîne disparaît et l'appariement est supprimé du profil. Si tous les liens sont supprimés, le prochain lancement ne lancera plus automatiquement un second TSCRT.</p>
+
+<h3>Découverte des pairs</h3>
+<p>Chaque processus TSCRT s'enregistre sous <code>$XDG_RUNTIME_DIR/tscrt/peers/</code> (Linux) ou le répertoire temporaire équivalent (Windows / macOS). Un minuteur de découverte léger vérifie les nouveaux pairs toutes les 3 secondes. Les entrées périmées de processus plantés sont automatiquement nettoyées lorsque le socket est trouvé inaccessible. Aucun trafic réseau ne quitte la machine locale.</p>
 
 <h2 id="panes">Panneaux divisés / Diffusion d'entrée / Reconnexion automatique</h2>
 
@@ -124,17 +156,22 @@
 </ul>
 
 <h2 id="snapshots">Instantanés</h2>
-<p>Un <b>instantané</b> est une séquence nommée de commandes qui s'exécute sur une session, capture la sortie et écrit un fichier horodaté. Il peut éventuellement envoyer le résultat par e-mail.</p>
+<p>Un <b>instantané</b> est une séquence nommée de commandes qui s'exécute sur une session, capture la sortie et écrit un fichier horodaté. Lorsqu'il est configuré, TSCRT <b>envoie automatiquement le résultat capturé par e-mail</b> via le client SMTP intégré.</p>
 
 <h3>Configuration</h3>
 <p><b>Instantanés &rarr; Gérer les instantanés&hellip;</b></p>
 <ul>
   <li><b>Nom / description</b></li>
   <li><b>Commandes</b> &mdash; chaque ligne : chaîne de commande, délai (ms), invite attendue optionnelle (regex), attente maximale (ms).</li>
-  <li><b>Destinataires</b>, <b>modèle d'objet</b> (<code>{session}</code>, <code>{snapshot}</code>, <code>{timestamp}</code>).</li>
-  <li><b>Envoyer un e-mail</b> / <b>Joindre le fichier</b>.</li>
+  <li><b>Destinataires</b> &mdash; une ou plusieurs adresses e-mail qui reçoivent automatiquement le résultat de l'instantané.</li>
+  <li><b>Modèle d'objet</b> &mdash; prend en charge les espaces réservés : <code>{session}</code>, <code>{snapshot}</code>, <code>{timestamp}</code>.</li>
+  <li><b>Envoyer un e-mail</b> &mdash; activer/désactiver l'envoi automatique d'e-mail par instantané.</li>
+  <li><b>Joindre le fichier</b> &mdash; lorsqu'il est activé, le fichier de sortie capturé est joint à l'e-mail.</li>
 </ul>
 <p>La regex de l'invite attendue est comparée à une fenêtre glissante de 64 Ko de la sortie de l'étape, ce qui empêche les motifs pathologiques de bloquer l'interface graphique.</p>
+
+<h3>Envoi automatique d'e-mails</h3>
+<p>Lorsque <b>Envoyer un e-mail</b> est activé pour un instantané et que SMTP est configuré (voir <a href="#smtp">SMTP</a>), TSCRT envoie automatiquement le résultat de l'instantané à tous les destinataires listés immédiatement après la fin de l'exécution. Combiné avec les <b>règles d'automatisation</b> (on_connect / cron / motif), cela fournit une surveillance entièrement automatisée : TSCRT exécute l'instantané selon un planning ou un déclencheur, capture la sortie et l'envoie par e-mail à l'équipe &mdash; sans intervention manuelle.</p>
 
 <h3>Exécution</h3>
 <ul>

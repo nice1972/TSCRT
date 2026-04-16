@@ -8,6 +8,7 @@
   <li><a href="#tabs">Tabs &amp; Mehrfenster</a></li>
   <li><a href="#panes">Geteilte Bereiche / Eingabe-Broadcast / Auto-Wiederverbindung</a></li>
   <li><a href="#buttons">Schaltflächen (mit Beispielen)</a></li>
+  <li><a href="#tablink">Tab-Verknüpfung</a></li>
   <li><a href="#snapshots">Snapshots (mit Beispielen)</a></li>
   <li><a href="#rules">Automatisierungsregeln</a></li>
   <li><a href="#triggers">Trigger, periodische Aktionen, Startaktionen</a></li>
@@ -58,8 +59,39 @@
 <h3>Tabs zwischen Fenstern ziehen</h3>
 <p>Ziehen Sie einen Tab aus der Tab-Leiste und legen Sie ihn auf einem anderen TSCRT-Fenster ab, um die Sitzung zu übertragen. Wenn Sie außerhalb eines TSCRT-Fensters ablegen, wird automatisch ein neues Fenster erstellt. Die aktive Verbindung bleibt dabei erhalten.</p>
 
-<h3>Tab-Verknüpfungen zwischen Instanzen</h3>
-<p>Tab-Verknüpfungen werden im Profil gespeichert und automatisch wieder hergestellt, wenn beide TSCRT-Instanzen das nächste Mal gleichzeitig laufen. Verknüpfungen überstehen Neustarts. Die Peer-Erkennung erfolgt über einen rein lokalen IPC-Kanal; es entsteht kein Netzwerkverkehr.</p>
+<h2 id="tablink">Tab-Verknüpfung</h2>
+<p><b>Tab-Verknüpfung</b> synchronisiert die Tab-Aktivierung zwischen zwei TSCRT-Fenstern auf demselben Rechner. Wenn Sie in einem Fenster zu einem verknüpften Tab wechseln, wird der gepaarte Tab im anderen Fenster automatisch in den Vordergrund gebracht. Dies ist für Dual-Monitor-Workflows gedacht &mdash; zum Beispiel eine Gerätekonsole auf dem linken Bildschirm und ein Log-Viewer oder ein zweites Gerät auf dem rechten Bildschirm.</p>
+
+<h3>Verknüpfung erstellen</h3>
+<ol>
+  <li>Öffnen Sie zwei TSCRT-Instanzen (die erste wird <b>Rolle A</b>, die zweite automatisch <b>Rolle B</b>).</li>
+  <li>Öffnen Sie die gewünschten Sitzungs-Tabs in jedem Fenster.</li>
+  <li>Rechtsklick auf einen Tab in einem der Fenster &rarr; <b>Tab mit Peer-Tab verknüpfen&hellip;</b></li>
+  <li>Im Dialog werden die andere TSCRT-Instanz und ihre geöffneten Tabs aufgelistet. Tabs mit demselben Sitzungsnamen werden durch eine <b>Slot</b>-Nummer (0, 1, &hellip;) unterschieden. Wählen Sie den gewünschten Peer-Tab und klicken Sie <b>OK</b>.</li>
+  <li>Ein kleines <b>Ketten-Symbol</b> erscheint auf beiden verknüpften Tabs zur Bestätigung der Kopplung.</li>
+</ol>
+<p>Sie können mehrere Verknüpfungen erstellen &mdash; zum Beispiel Tab 1&harr;3 und Tab 2&harr;4 für zwei Paare zusammengehöriger Sitzungen.</p>
+
+<h3>Wie die Aktivierungssynchronisation funktioniert</h3>
+<ul>
+  <li>Jede Verknüpfung wird durch eine eindeutige <b>Paar-ID</b> identifiziert. Wenn Sie einen verknüpften Tab aktivieren, sendet TSCRT die Paar-ID über einen lokalen IPC-Kanal (Unix-Socket / Windows Named Pipe) an jeden verbundenen Peer.</li>
+  <li>Der empfangende Peer sucht die Paar-ID in seiner Bindungstabelle, findet den passenden lokalen Tab und wechselt automatisch dorthin. Das Peer-Fenster wird ebenfalls in den Vordergrund gebracht.</li>
+  <li>Ein <b>Schleifen-Schutz</b> verhindert das Zurückprallen der Aktivierung: Wenn ein Tab durch eine eingehende Nachricht umgeschaltet wird, werden ausgehende Benachrichtigungen vorübergehend unterdrückt.</li>
+  <li>Verknüpfungen sind <b>rollenbasiert</b> &mdash; jeder Endpunkt speichert, zu welcher Prozessrolle (A oder B) er gehört, sodass doppelte Sitzungsnamen über Instanzen hinweg niemals mehrdeutige Bindungen verursachen.</li>
+</ul>
+
+<h3>Speichern &amp; Wiederherstellen</h3>
+<ul>
+  <li>Verknüpfungen werden <b>im Profil gespeichert</b> und überstehen Neustarts. Jede Verknüpfung speichert ihre Paar-ID, die Sitzungsnamen beider Endpunkte, den Slot-Index und die Prozessrolle.</li>
+  <li>Jeder Prozess speichert seine geöffneten Tabs auch in einer <b>Layout-Datei</b> (<code>layout_A.lst</code> / <code>layout_B.lst</code>) im Profilverzeichnis.</li>
+  <li>Beim nächsten Start öffnet Rolle A automatisch ihre gespeicherten Tabs. Wenn Verknüpfungen bestehen und <code>layout_B.lst</code> nicht leer ist, wird ein zweiter TSCRT-Prozess (<code>--role=B</code>) <b>automatisch gestartet</b>, der die B-Seiten-Tabs öffnet und alle Verknüpfungsbindungen wiederherstellt &mdash; die gesamte Dual-Fenster-Umgebung wird mit einem einzigen Klick wiederhergestellt.</li>
+</ul>
+
+<h3>Verknüpfung aufheben</h3>
+<p>Rechtsklick auf einen verknüpften Tab &rarr; <b>Tab-Verknüpfung aufheben (aktuell: &hellip;)</b>. Das Ketten-Symbol verschwindet und die Kopplung wird aus dem Profil entfernt. Wenn alle Verknüpfungen entfernt werden, startet der nächste Start keinen zweiten TSCRT-Prozess mehr automatisch.</p>
+
+<h3>Peer-Erkennung</h3>
+<p>Jeder TSCRT-Prozess registriert sich unter <code>$XDG_RUNTIME_DIR/tscrt/peers/</code> (Linux) oder dem entsprechenden temporären Verzeichnis (Windows / macOS). Ein leichtgewichtiger Erkennungs-Timer prüft alle 3 Sekunden auf neue Peers. Veraltete Einträge von abgestürzten Prozessen werden automatisch bereinigt, wenn der Socket nicht erreichbar ist. Es verlässt kein Netzwerkverkehr die lokale Maschine.</p>
 
 <h2 id="panes">Geteilte Bereiche / Eingabe-Broadcast / Auto-Wiederverbindung</h2>
 
@@ -124,17 +156,22 @@
 </ul>
 
 <h2 id="snapshots">Snapshots</h2>
-<p>Ein <b>Snapshot</b> ist eine benannte Befehlsfolge, die auf einer Sitzung ausgeführt wird, Ausgaben erfasst und eine Datei mit Zeitstempel schreibt. Optional wird das Ergebnis per E-Mail versendet.</p>
+<p>Ein <b>Snapshot</b> ist eine benannte Befehlsfolge, die auf einer Sitzung ausgeführt wird, Ausgaben erfasst und eine Datei mit Zeitstempel schreibt. Wenn konfiguriert, <b>sendet TSCRT das erfasste Ergebnis automatisch per E-Mail</b> über den integrierten SMTP-Client.</p>
 
 <h3>Konfigurieren</h3>
 <p><b>Snapshots &rarr; Snapshots verwalten&hellip;</b></p>
 <ul>
   <li><b>Name / Beschreibung</b></li>
   <li><b>Befehle</b> &mdash; jede Zeile: Befehlszeichenfolge, Verzögerung (ms), optionaler Erwartungsprompt (Regex), maximale Wartezeit (ms).</li>
-  <li><b>Empfänger</b>, <b>Betreffvorlage</b> (<code>{session}</code>, <code>{snapshot}</code>, <code>{timestamp}</code>).</li>
-  <li><b>E-Mail senden</b> / <b>Datei anhängen</b>.</li>
+  <li><b>Empfänger</b> &mdash; eine oder mehrere E-Mail-Adressen, die das Snapshot-Ergebnis automatisch erhalten.</li>
+  <li><b>Betreffvorlage</b> &mdash; unterstützt Platzhalter: <code>{session}</code>, <code>{snapshot}</code>, <code>{timestamp}</code>.</li>
+  <li><b>E-Mail senden</b> &mdash; automatischen E-Mail-Versand pro Snapshot ein-/ausschalten.</li>
+  <li><b>Datei anhängen</b> &mdash; wenn aktiviert, wird die erfasste Ausgabedatei an die E-Mail angehängt.</li>
 </ul>
 <p>Die Erwartungsprompt-Regex wird gegen ein rollendes 64-KB-Fenster der Schrittausgabe abgeglichen, was verhindert, dass pathologische Muster die GUI blockieren.</p>
+
+<h3>Automatischer E-Mail-Versand</h3>
+<p>Wenn <b>E-Mail senden</b> für einen Snapshot aktiviert ist und SMTP konfiguriert wurde (siehe <a href="#smtp">SMTP</a>), liefert TSCRT das Snapshot-Ergebnis automatisch an alle aufgelisteten Empfänger, sobald die Ausführung abgeschlossen ist. In Kombination mit <b>Automatisierungsregeln</b> (on_connect / cron / pattern) ermöglicht dies eine vollständig unbeaufsichtigte Überwachung: TSCRT führt den Snapshot nach Zeitplan oder bei einem Trigger aus, erfasst die Ausgabe und sendet sie per E-Mail an das Team &mdash; ohne manuellen Eingriff.</p>
 
 <h3>Ausführen</h3>
 <ul>
