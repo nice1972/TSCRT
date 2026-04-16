@@ -18,7 +18,7 @@
 |--------|------|------|
 | **Windows x64** | [tscrt_win-1.0.6-win64.exe](https://github.com/nice1972/TSCRT/releases/download/v1.0.6/tscrt_win-1.0.6-win64.exe) | NSIS 설치 관리자 |
 | **Ubuntu / Debian (amd64)** | [tscrt_1.0.6_amd64.deb](https://github.com/nice1972/TSCRT/releases/download/v1.0.6/tscrt_1.0.6_amd64.deb) | `sudo apt install ./tscrt_1.0.6_amd64.deb` |
-| **macOS** | — | `mac_build.txt` 참조하여 소스 빌드 |
+| **macOS (Universal: Apple Silicon + Intel)** | [tscrt_mac-1.0.6-universal.dmg](https://github.com/nice1972/TSCRT/releases/download/v1.0.6/tscrt_mac-1.0.6-universal.dmg) | `tscrt_mac.app` 을 `/Applications` 으로 끌어 놓기. 첫 실행: 우클릭 → 열기 (서명 없음). |
 
 ---
 
