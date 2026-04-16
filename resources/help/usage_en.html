@@ -16,6 +16,7 @@
   <li><a href="#logs">Logs</a></li>
   <li><a href="#security">Security</a></li>
   <li><a href="#profile">Profile import / export</a></li>
+  <li><a href="#update">Update check</a></li>
   <li><a href="#shortcuts">Keyboard shortcuts</a></li>
 </ul>
 
@@ -245,6 +246,33 @@
   <li><b>File &rarr; Export profile&hellip;</b> &mdash; full or partial.</li>
   <li><b>File &rarr; Import profile&hellip;</b> &mdash; merges into the current profile; conflicts reported.</li>
 </ul>
+
+<h2 id="update">Update check</h2>
+<p>TSCRT automatically checks for new versions at startup by querying the <b>GitHub Releases API</b>. No personal data is sent &mdash; only a single HTTP GET to the public releases endpoint.</p>
+
+<h3>How it works</h3>
+<ol>
+  <li>On launch, TSCRT sends one background request to <code>api.github.com/repos/nice1972/TSCRT/releases/latest</code>.</li>
+  <li>The response contains the latest release tag (e.g. <code>v1.0.10</code>).</li>
+  <li>TSCRT compares it against its compiled-in version (<code>TSCRT_VERSION</code>).</li>
+  <li>If the remote version is <b>newer</b>, a dialog appears:
+    <blockquote><b>A new version of TSCRT is available: 1.0.10</b><br>(current: 1.0.8)<br><br>Would you like to open the download page?</blockquote>
+  </li>
+  <li>Clicking <b>Yes</b> opens the GitHub Releases page in the default browser, where you can download the installer for your platform.</li>
+  <li>Clicking <b>No</b> dismisses the dialog; TSCRT continues normally.</li>
+</ol>
+
+<h3>Upgrading</h3>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><th>Platform</th><th>Upgrade procedure</th></tr>
+<tr><td><b>Ubuntu / Debian</b></td><td><code>sudo apt install ./tscrt_&lt;version&gt;_amd64.deb</code> &mdash; overwrites the previous version.</td></tr>
+<tr><td><b>Windows</b></td><td>Run the new <code>.exe</code> installer; it replaces the existing installation automatically.</td></tr>
+<tr><td><b>macOS</b></td><td>Open the new <code>.dmg</code> and drag <code>tscrt_mac.app</code> to <code>/Applications</code>, replacing the old version.</td></tr>
+</table>
+<p>Your profile, session logs, tab links, and all user data stored under <code>~/.config/tscrt/</code> (Linux), <code>%APPDATA%\tscrt\</code> (Windows), or <code>~/Library/Application Support/tscrt/</code> (macOS) are <b>preserved</b> across upgrades &mdash; only the binary is replaced.</p>
+
+<h3>Offline / restricted environments</h3>
+<p>If the network request fails (offline, DNS block, proxy, firewall), the check is silently skipped. TSCRT never blocks startup waiting for a response.</p>
 
 <h2 id="shortcuts">Keyboard shortcuts</h2>
 <table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">

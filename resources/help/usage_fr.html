@@ -16,6 +16,7 @@
   <li><a href="#logs">Journaux</a></li>
   <li><a href="#security">Sécurité</a></li>
   <li><a href="#profile">Importation / exportation de profil</a></li>
+  <li><a href="#update">Vérification de mise à jour</a></li>
   <li><a href="#shortcuts">Raccourcis clavier</a></li>
 </ul>
 
@@ -245,6 +246,33 @@
   <li><b>Fichier &rarr; Exporter le profil&hellip;</b> &mdash; complet ou partiel.</li>
   <li><b>Fichier &rarr; Importer le profil&hellip;</b> &mdash; fusionné dans le profil actuel ; les conflits sont signalés.</li>
 </ul>
+
+<h2 id="update">Vérification de mise à jour</h2>
+<p>TSCRT vérifie automatiquement les nouvelles versions au démarrage en interrogeant l'<b>API GitHub Releases</b>. Aucune donnée personnelle n'est envoyée &mdash; seulement une requête HTTP GET vers le point de terminaison public des releases.</p>
+
+<h3>Fonctionnement</h3>
+<ol>
+  <li>Au lancement, TSCRT envoie une requête en arrière-plan à <code>api.github.com/repos/nice1972/TSCRT/releases/latest</code>.</li>
+  <li>La réponse contient le tag de la dernière version (par exemple <code>v1.0.10</code>).</li>
+  <li>TSCRT le compare à sa version compilée (<code>TSCRT_VERSION</code>).</li>
+  <li>Si la version distante est <b>plus récente</b>, une boîte de dialogue apparaît :
+    <blockquote><b>Une nouvelle version de TSCRT est disponible : 1.0.10</b><br>(actuelle : 1.0.8)<br><br>Voulez-vous ouvrir la page de téléchargement ?</blockquote>
+  </li>
+  <li>Cliquer sur <b>Oui</b> ouvre la page GitHub Releases dans le navigateur par défaut, où vous pouvez télécharger l'installateur pour votre plateforme.</li>
+  <li>Cliquer sur <b>Non</b> ferme la boîte de dialogue ; TSCRT continue normalement.</li>
+</ol>
+
+<h3>Mise à niveau</h3>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><th>Plateforme</th><th>Procédure de mise à niveau</th></tr>
+<tr><td><b>Ubuntu / Debian</b></td><td><code>sudo apt install ./tscrt_&lt;version&gt;_amd64.deb</code> &mdash; écrase la version précédente.</td></tr>
+<tr><td><b>Windows</b></td><td>Exécutez le nouvel installateur <code>.exe</code> ; il remplace l'installation existante automatiquement.</td></tr>
+<tr><td><b>macOS</b></td><td>Ouvrez le nouveau <code>.dmg</code> et faites glisser <code>tscrt_mac.app</code> vers <code>/Applications</code>, en remplaçant l'ancienne version.</td></tr>
+</table>
+<p>Votre profil, les journaux de session, les liaisons d'onglets et toutes les données utilisateur stockées sous <code>~/.config/tscrt/</code> (Linux), <code>%APPDATA%\tscrt\</code> (Windows) ou <code>~/Library/Application Support/tscrt/</code> (macOS) sont <b>préservés</b> lors des mises à niveau &mdash; seul le binaire est remplacé.</p>
+
+<h3>Environnements hors ligne / restreints</h3>
+<p>Si la requête réseau échoue (hors ligne, blocage DNS, proxy, pare-feu), la vérification est silencieusement ignorée. TSCRT ne bloque jamais le démarrage en attendant une réponse.</p>
 
 <h2 id="shortcuts">Raccourcis clavier</h2>
 <table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">

@@ -10,6 +10,7 @@
 #include "LinkDialog.h"
 #include "SerialSession.h"
 #include "TabLayout.h"
+#include "UpdateChecker.h"
 
 #include <QProcess>
 #include "SessionEditDialog.h"
@@ -48,6 +49,7 @@
 #include <QKeySequence>
 #include <QPainter>
 #include <QPixmap>
+#include <QPushButton>
 #include <QPolygonF>
 #include <QSettings>
 #include <QLabel>
@@ -247,6 +249,24 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     // parent and must not re-open anything.
     if (allWindows().size() == 1)
         autoRestoreLayout();
+
+    // Background version check — single async HTTP call to GitHub API.
+    // If a newer release exists, shows a one-time non-blocking dialog.
+    auto *uc = new tscrt::UpdateChecker(this);
+    connect(uc, &tscrt::UpdateChecker::updateAvailable,
+            this, [this](const QString &ver, const QString &url) {
+        const auto choice = QMessageBox::information(this,
+            tr("Update available"),
+            tr("A new version of TSCRT is available: <b>%1</b><br>"
+               "(current: %2)<br><br>"
+               "Would you like to open the download page?")
+                .arg(ver, QString::fromLatin1(TSCRT_VERSION)),
+            QMessageBox::Yes | QMessageBox::No,
+            QMessageBox::Yes);
+        if (choice == QMessageBox::Yes)
+            QDesktopServices::openUrl(QUrl(url));
+    });
+    uc->start();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -867,10 +887,34 @@ void MainWindow::autoRestoreLayout()
     // actually a linked environment to restore. Otherwise a plain,
     // never-linked profile would keep multiplying itself on every launch.
     if (role == 'A' && m_profile.tab_link_count > 0) {
-        const QStringList bList = tscrt::TabLayout::load('B');
+        QStringList bList = tscrt::TabLayout::load('B');
+        // If layout_B is empty but links have B-side endpoints, derive
+        // the tab list from the link definitions so B auto-opens them.
+        if (bList.isEmpty()) {
+            QSet<QString> seen;
+            for (int i = 0; i < m_profile.tab_link_count; ++i) {
+                const tab_link_t &lk = m_profile.tab_links[i];
+                const char lr = lk.left_role  ? lk.left_role  : 'A';
+                const char rr = lk.right_role ? lk.right_role : 'B';
+                if (lr == 'B') {
+                    const QString s = QString::fromLocal8Bit(lk.left_session);
+                    if (!seen.contains(s + QString::number(lk.left_slot))) {
+                        seen.insert(s + QString::number(lk.left_slot));
+                        bList.append(s);
+                    }
+                }
+                if (rr == 'B') {
+                    const QString s = QString::fromLocal8Bit(lk.right_session);
+                    if (!seen.contains(s + QString::number(lk.right_slot))) {
+                        seen.insert(s + QString::number(lk.right_slot));
+                        bList.append(s);
+                    }
+                }
+            }
+            if (!bList.isEmpty())
+                tscrt::TabLayout::save('B', bList);
+        }
         if (!bList.isEmpty()) {
-            // Small delay so our LinkBroker has fully advertised itself
-            // before the child tries to discover peers.
             QTimer::singleShot(500, this, [] {
                 QProcess::startDetached(
                     QCoreApplication::applicationFilePath(),
@@ -2311,12 +2355,21 @@ void MainWindow::showAboutDialog()
 {
     const QString buildStamp = QStringLiteral(__DATE__ " " __TIME__);
 
-    QMessageBox box(this);
-    box.setWindowTitle(tr("About TSCRT"));
-    box.setIconPixmap(QIcon(QStringLiteral(":/icons/app.png"))
-                          .pixmap(96, 96));
-    box.setTextFormat(Qt::RichText);
-    box.setText(tr(
+    QDialog dlg(this);
+    dlg.setWindowTitle(tr("About TSCRT"));
+    dlg.setMinimumWidth(420);
+    auto *root = new QVBoxLayout(&dlg);
+
+    // Icon + version info
+    auto *topRow = new QHBoxLayout;
+    auto *iconLabel = new QLabel(&dlg);
+    iconLabel->setPixmap(QIcon(QStringLiteral(":/icons/app.png"))
+                             .pixmap(80, 80));
+    topRow->addWidget(iconLabel);
+
+    auto *infoLabel = new QLabel(&dlg);
+    infoLabel->setTextFormat(Qt::RichText);
+    infoLabel->setText(tr(
         "<h2>TSCRT</h2>"
         "<p><b>Version %1</b><br/>"
         "Built %2</p>"
@@ -2331,12 +2384,79 @@ void MainWindow::showAboutDialog()
              QString::fromLatin1(LIBSSH2_VERSION))
         .arg(VTERM_VERSION_MAJOR)
         .arg(VTERM_VERSION_MINOR));
-    box.setInformativeText(tr(
+    infoLabel->setWordWrap(true);
+    topRow->addWidget(infoLabel, 1);
+    root->addLayout(topRow);
+
+    // Copyright
+    auto *copyLabel = new QLabel(&dlg);
+    copyLabel->setTextFormat(Qt::RichText);
+    copyLabel->setOpenExternalLinks(true);
+    copyLabel->setText(tr(
         "Copyright &copy; 2026 TePSEG Co., Ltd. (Republic of Korea)<br/>"
         "Developer: <a href=\"mailto:ygjeon@tepseg.com\">ygjeon@tepseg.com</a><br/>"
         "Released under the GNU General Public License (GPL)."));
-    box.setStandardButtons(QMessageBox::Ok);
-    box.exec();
+    copyLabel->setWordWrap(true);
+    root->addWidget(copyLabel);
+
+    root->addSpacing(8);
+
+    // Update check result label (hidden until check completes)
+    auto *updateLabel = new QLabel(&dlg);
+    updateLabel->setTextFormat(Qt::RichText);
+    updateLabel->setWordWrap(true);
+    updateLabel->hide();
+    root->addWidget(updateLabel);
+
+    // Buttons: Check for updates + Close
+    auto *btnRow = new QHBoxLayout;
+    auto *btnUpdate = new QPushButton(tr("Check for updates"), &dlg);
+    auto *btnClose  = new QPushButton(tr("Close"), &dlg);
+    btnRow->addWidget(btnUpdate);
+    btnRow->addStretch();
+    btnRow->addWidget(btnClose);
+    root->addLayout(btnRow);
+
+    connect(btnClose, &QPushButton::clicked, &dlg, &QDialog::accept);
+
+    // Wire update check
+    connect(btnUpdate, &QPushButton::clicked, &dlg, [&dlg, updateLabel, btnUpdate] {
+        btnUpdate->setEnabled(false);
+        btnUpdate->setText(tr("Checking..."));
+        updateLabel->setText(tr("Connecting to GitHub..."));
+        updateLabel->show();
+
+        auto *uc = new tscrt::UpdateChecker(&dlg);
+        connect(uc, &tscrt::UpdateChecker::updateAvailable,
+                &dlg, [updateLabel, btnUpdate](const QString &ver, const QString &url) {
+            updateLabel->setText(
+                tr("<b>New version available: %1</b><br>"
+                   "<a href=\"%2\">Open download page</a>")
+                    .arg(ver.toHtmlEscaped(), url));
+            updateLabel->setOpenExternalLinks(true);
+            btnUpdate->setText(tr("Check for updates"));
+            btnUpdate->setEnabled(true);
+        });
+        connect(uc, &tscrt::UpdateChecker::upToDate,
+                &dlg, [updateLabel, btnUpdate] {
+            updateLabel->setText(
+                tr("<span style=\"color:green;\">&#10003; You are running the latest version.</span>"));
+            btnUpdate->setText(tr("Check for updates"));
+            btnUpdate->setEnabled(true);
+        });
+        connect(uc, &tscrt::UpdateChecker::checkFailed,
+                &dlg, [updateLabel, btnUpdate](const QString &reason) {
+            updateLabel->setText(
+                tr("<span style=\"color:orange;\">Update check failed: %1</span>")
+                    .arg(reason.toHtmlEscaped()));
+            btnUpdate->setText(tr("Check for updates"));
+            btnUpdate->setEnabled(true);
+        });
+
+        uc->start();
+    });
+
+    dlg.exec();
 }
 
 void MainWindow::exportDiagnostics()

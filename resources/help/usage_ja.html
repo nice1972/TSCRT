@@ -16,6 +16,7 @@
   <li><a href="#logs">ログ</a></li>
   <li><a href="#security">セキュリティ</a></li>
   <li><a href="#profile">プロファイルのインポート / エクスポート</a></li>
+  <li><a href="#update">アップデート確認</a></li>
   <li><a href="#shortcuts">キーボードショートカット</a></li>
 </ul>
 
@@ -245,6 +246,33 @@
   <li><b>ファイル &rarr; プロファイルをエクスポート&hellip;</b> &mdash; 完全または部分。</li>
   <li><b>ファイル &rarr; プロファイルをインポート&hellip;</b> &mdash; 現在のプロファイルにマージされ、競合が報告されます。</li>
 </ul>
+
+<h2 id="update">アップデート確認</h2>
+<p>TSCRT は起動時に <b>GitHub Releases API</b> を照会して、新しいバージョンを自動的にチェックします。個人データは送信されません &mdash; 公開リリースエンドポイントへの単一の HTTP GET リクエストのみです。</p>
+
+<h3>動作の仕組み</h3>
+<ol>
+  <li>起動時、TSCRT は <code>api.github.com/repos/nice1972/TSCRT/releases/latest</code> にバックグラウンドリクエストを送信します。</li>
+  <li>レスポンスには最新のリリースタグ(例: <code>v1.0.10</code>)が含まれます。</li>
+  <li>TSCRT はこれをコンパイル時に組み込まれたバージョン(<code>TSCRT_VERSION</code>)と比較します。</li>
+  <li>リモートバージョンが<b>より新しい</b>場合、ダイアログが表示されます:
+    <blockquote><b>TSCRT の新しいバージョンが利用可能です: 1.0.10</b><br>(現在: 1.0.8)<br><br>ダウンロードページを開きますか?</blockquote>
+  </li>
+  <li><b>はい</b>をクリックすると、デフォルトブラウザで GitHub Releases ページが開き、お使いのプラットフォーム用のインストーラーをダウンロードできます。</li>
+  <li><b>いいえ</b>をクリックするとダイアログが閉じ、TSCRT は通常どおり続行します。</li>
+</ol>
+
+<h3>アップグレード方法</h3>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><th>プラットフォーム</th><th>アップグレード手順</th></tr>
+<tr><td><b>Ubuntu / Debian</b></td><td><code>sudo apt install ./tscrt_&lt;version&gt;_amd64.deb</code> &mdash; 以前のバージョンを上書きします。</td></tr>
+<tr><td><b>Windows</b></td><td>新しい <code>.exe</code> インストーラーを実行します。既存のインストールが自動的に置き換えられます。</td></tr>
+<tr><td><b>macOS</b></td><td>新しい <code>.dmg</code> を開き、<code>tscrt_mac.app</code> を <code>/Applications</code> にドラッグして、古いバージョンを置き換えます。</td></tr>
+</table>
+<p>プロファイル、セッションログ、タブリンク、および <code>~/.config/tscrt/</code>(Linux)、<code>%APPDATA%\tscrt\</code>(Windows)、または <code>~/Library/Application Support/tscrt/</code>(macOS)に保存されたすべてのユーザーデータは、アップグレード後も<b>保持</b>されます &mdash; バイナリのみが置き換えられます。</p>
+
+<h3>オフライン / 制限された環境</h3>
+<p>ネットワークリクエストが失敗した場合(オフライン、DNS ブロック、プロキシ、ファイアウォール)、チェックは静かにスキップされます。TSCRT はレスポンスを待って起動をブロックすることはありません。</p>
 
 <h2 id="shortcuts">キーボードショートカット</h2>
 <table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">

@@ -16,6 +16,7 @@
   <li><a href="#logs">로그(Logs)</a></li>
   <li><a href="#security">보안</a></li>
   <li><a href="#profile">프로필 가져오기 / 내보내기</a></li>
+  <li><a href="#update">업데이트 확인</a></li>
   <li><a href="#shortcuts">단축키</a></li>
 </ul>
 
@@ -245,6 +246,33 @@
   <li><b>File &rarr; Export profile&hellip;</b> &mdash; 전체 또는 부분.</li>
   <li><b>File &rarr; Import profile&hellip;</b> &mdash; 현재 프로필과 병합, 충돌 보고.</li>
 </ul>
+
+<h2 id="update">업데이트 확인</h2>
+<p>TSCRT 는 시작 시 <b>GitHub Releases API</b> 를 자동으로 조회하여 새 버전이 있는지 확인합니다. 개인 정보는 전송되지 않으며, 공개 릴리스 엔드포인트에 대한 HTTP GET 요청 한 번만 발생합니다.</p>
+
+<h3>동작 방식</h3>
+<ol>
+  <li>시작 시 <code>api.github.com/repos/nice1972/TSCRT/releases/latest</code> 에 백그라운드 요청 1회.</li>
+  <li>응답에서 최신 릴리스 태그(예: <code>v1.0.10</code>) 추출.</li>
+  <li>앱에 내장된 현재 버전(<code>TSCRT_VERSION</code>)과 비교.</li>
+  <li>원격 버전이 <b>더 높으면</b> 대화상자 표시:
+    <blockquote><b>새 버전 1.0.10 이 있습니다.</b><br>(현재: 1.0.8)<br><br>다운로드 페이지를 여시겠습니까?</blockquote>
+  </li>
+  <li><b>Yes</b> 클릭 → 기본 브라우저에서 GitHub Releases 페이지가 열리며 해당 플랫폼의 설치 파일을 받을 수 있습니다.</li>
+  <li><b>No</b> 클릭 → 대화상자 닫힘, TSCRT 정상 실행.</li>
+</ol>
+
+<h3>업그레이드 방법</h3>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><th>플랫폼</th><th>업그레이드 방법</th></tr>
+<tr><td><b>Ubuntu / Debian</b></td><td><code>sudo apt install ./tscrt_&lt;버전&gt;_amd64.deb</code> &mdash; 이전 버전을 자동으로 덮어씁니다.</td></tr>
+<tr><td><b>Windows</b></td><td>새 <code>.exe</code> 설치 관리자를 실행하면 기존 설치가 자동 교체됩니다.</td></tr>
+<tr><td><b>macOS</b></td><td>새 <code>.dmg</code> 를 열어 <code>tscrt_mac.app</code> 을 <code>/Applications</code> 에 드래그하여 이전 버전을 교체합니다.</td></tr>
+</table>
+<p>프로파일, 세션 로그, 탭 링크 등 <code>~/.config/tscrt/</code> (Linux), <code>%APPDATA%\tscrt\</code> (Windows), <code>~/Library/Application Support/tscrt/</code> (macOS) 에 저장된 모든 사용자 데이터는 업그레이드 시 <b>보존</b>됩니다 &mdash; 바이너리만 교체됩니다.</p>
+
+<h3>오프라인 / 제한 환경</h3>
+<p>네트워크 요청이 실패하면 (오프라인, DNS 차단, 프록시, 방화벽 등) 업데이트 확인이 자동으로 건너뜁니다. TSCRT 는 응답을 기다리며 시작을 지연시키지 않습니다.</p>
 
 <h2 id="shortcuts">단축키</h2>
 <table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">

@@ -10,6 +10,18 @@
 
 ---
 
+## Download
+
+I binari precompilati sono pubblicati su [GitHub Releases](https://github.com/nice1972/TSCRT/releases/latest).
+
+| Piattaforma | File | Note |
+|-------------|------|------|
+| **Windows x64** | [tscrt_win-1.0.8-win64.exe](https://github.com/nice1972/TSCRT/releases/download/v1.0.8/tscrt_win-1.0.8-win64.exe) | Programma di installazione NSIS |
+| **Ubuntu / Debian (amd64)** | [tscrt_1.0.8_amd64.deb](https://github.com/nice1972/TSCRT/releases/download/v1.0.8/tscrt_1.0.8_amd64.deb) | `sudo apt install ./tscrt_1.0.8_amd64.deb` |
+| **macOS (Universal)** | [tscrt_mac-1.0.8-universal.dmg](https://github.com/nice1972/TSCRT/releases/download/v1.0.8/tscrt_mac-1.0.8-universal.dmg) | Trascinare `tscrt_mac.app` in `/Applications` |
+
+---
+
 ## Funzionalità
 
 ### Sessioni e terminale

@@ -16,6 +16,7 @@
   <li><a href="#logs">日志</a></li>
   <li><a href="#security">安全</a></li>
   <li><a href="#profile">配置文件导入 / 导出</a></li>
+  <li><a href="#update">更新检查</a></li>
   <li><a href="#shortcuts">键盘快捷键</a></li>
 </ul>
 
@@ -245,6 +246,33 @@
   <li><b>文件 &rarr; 导出配置文件&hellip;</b> &mdash; 完整或部分。</li>
   <li><b>文件 &rarr; 导入配置文件&hellip;</b> &mdash; 合并到当前配置文件;报告冲突。</li>
 </ul>
+
+<h2 id="update">更新检查</h2>
+<p>TSCRT 在启动时通过查询 <b>GitHub Releases API</b> 自动检查新版本。不会发送任何个人数据 &mdash; 仅向公共发布端点发出一次 HTTP GET 请求。</p>
+
+<h3>工作原理</h3>
+<ol>
+  <li>启动时,TSCRT 向 <code>api.github.com/repos/nice1972/TSCRT/releases/latest</code> 发送一次后台请求。</li>
+  <li>响应中包含最新发布标签(例如 <code>v1.0.10</code>)。</li>
+  <li>TSCRT 将其与编译时内置的版本(<code>TSCRT_VERSION</code>)进行比较。</li>
+  <li>如果远程版本<b>更新</b>,将出现对话框:
+    <blockquote><b>TSCRT 有新版本可用:1.0.10</b><br>(当前:1.0.8)<br><br>是否打开下载页面?</blockquote>
+  </li>
+  <li>点击<b>是</b>会在默认浏览器中打开 GitHub Releases 页面,您可以在其中下载适用于您平台的安装程序。</li>
+  <li>点击<b>否</b>关闭对话框;TSCRT 正常继续运行。</li>
+</ol>
+
+<h3>升级方法</h3>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><th>平台</th><th>升级步骤</th></tr>
+<tr><td><b>Ubuntu / Debian</b></td><td><code>sudo apt install ./tscrt_&lt;version&gt;_amd64.deb</code> &mdash; 覆盖之前的版本。</td></tr>
+<tr><td><b>Windows</b></td><td>运行新的 <code>.exe</code> 安装程序;它会自动替换现有安装。</td></tr>
+<tr><td><b>macOS</b></td><td>打开新的 <code>.dmg</code>,将 <code>tscrt_mac.app</code> 拖到 <code>/Applications</code>,替换旧版本。</td></tr>
+</table>
+<p>您的配置文件、会话日志、标签页链接以及存储在 <code>~/.config/tscrt/</code>(Linux)、<code>%APPDATA%\tscrt\</code>(Windows)或 <code>~/Library/Application Support/tscrt/</code>(macOS)下的所有用户数据在升级时都会<b>保留</b> &mdash; 仅替换二进制文件。</p>
+
+<h3>离线 / 受限环境</h3>
+<p>如果网络请求失败(离线、DNS 阻止、代理、防火墙),检查将被静默跳过。TSCRT 绝不会在等待响应时阻塞启动。</p>
 
 <h2 id="shortcuts">键盘快捷键</h2>
 <table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">

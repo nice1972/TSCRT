@@ -16,6 +16,7 @@
   <li><a href="#logs">Журналы</a></li>
   <li><a href="#security">Безопасность</a></li>
   <li><a href="#profile">Импорт / экспорт профиля</a></li>
+  <li><a href="#update">Проверка обновлений</a></li>
   <li><a href="#shortcuts">Сочетания клавиш</a></li>
 </ul>
 
@@ -245,6 +246,33 @@
   <li><b>Файл &rarr; Экспорт профиля&hellip;</b> &mdash; полный или частичный.</li>
   <li><b>Файл &rarr; Импорт профиля&hellip;</b> &mdash; сливается с текущим профилем; о конфликтах сообщается.</li>
 </ul>
+
+<h2 id="update">Проверка обновлений</h2>
+<p>TSCRT автоматически проверяет наличие новых версий при запуске, обращаясь к <b>API GitHub Releases</b>. Никакие личные данные не отправляются &mdash; выполняется только один HTTP GET-запрос к публичному эндпоинту релизов.</p>
+
+<h3>Как это работает</h3>
+<ol>
+  <li>При запуске TSCRT отправляет фоновый запрос к <code>api.github.com/repos/nice1972/TSCRT/releases/latest</code>.</li>
+  <li>В ответе содержится тег последнего релиза (например, <code>v1.0.10</code>).</li>
+  <li>TSCRT сравнивает его со своей скомпилированной версией (<code>TSCRT_VERSION</code>).</li>
+  <li>Если удалённая версия <b>новее</b>, появляется диалоговое окно:
+    <blockquote><b>Доступна новая версия TSCRT: 1.0.10</b><br>(текущая: 1.0.8)<br><br>Хотите открыть страницу загрузки?</blockquote>
+  </li>
+  <li>Нажатие <b>Да</b> открывает страницу GitHub Releases в браузере по умолчанию, где вы можете скачать установщик для вашей платформы.</li>
+  <li>Нажатие <b>Нет</b> закрывает диалоговое окно; TSCRT продолжает работу в обычном режиме.</li>
+</ol>
+
+<h3>Обновление</h3>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><th>Платформа</th><th>Процедура обновления</th></tr>
+<tr><td><b>Ubuntu / Debian</b></td><td><code>sudo apt install ./tscrt_&lt;version&gt;_amd64.deb</code> &mdash; перезаписывает предыдущую версию.</td></tr>
+<tr><td><b>Windows</b></td><td>Запустите новый установщик <code>.exe</code>; он автоматически заменяет существующую установку.</td></tr>
+<tr><td><b>macOS</b></td><td>Откройте новый <code>.dmg</code> и перетащите <code>tscrt_mac.app</code> в <code>/Applications</code>, заменив старую версию.</td></tr>
+</table>
+<p>Ваш профиль, журналы сеансов, связи вкладок и все пользовательские данные, хранящиеся в <code>~/.config/tscrt/</code> (Linux), <code>%APPDATA%\tscrt\</code> (Windows) или <code>~/Library/Application Support/tscrt/</code> (macOS), <b>сохраняются</b> при обновлении &mdash; заменяется только исполняемый файл.</p>
+
+<h3>Офлайн / ограниченные среды</h3>
+<p>Если сетевой запрос не удаётся (офлайн, блокировка DNS, прокси, межсетевой экран), проверка молча пропускается. TSCRT никогда не блокирует запуск в ожидании ответа.</p>
 
 <h2 id="shortcuts">Сочетания клавиш</h2>
 <table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">

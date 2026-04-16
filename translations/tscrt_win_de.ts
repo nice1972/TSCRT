@@ -53,473 +53,483 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="312"/>
-        <location filename="../gui/MainWindow.cpp" line="317"/>
+        <location filename="../gui/MainWindow.cpp" line="259"/>
+        <source>Update available</source>
+        <translation>Update verfügbar</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="260"/>
+        <source>A new version of TSCRT is available: &lt;b&gt;%1&lt;/b&gt;&lt;br&gt;(current: %2)&lt;br&gt;&lt;br&gt;Would you like to open the download page?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="332"/>
+        <location filename="../gui/MainWindow.cpp" line="337"/>
         <source>Profile error</source>
         <translation>Profilfehler</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="313"/>
+        <location filename="../gui/MainWindow.cpp" line="333"/>
         <source>Cannot initialize profile directory.</source>
         <translation>Profilverzeichnis kann nicht initialisiert werden.</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="318"/>
+        <location filename="../gui/MainWindow.cpp" line="338"/>
         <source>Failed to load profile; defaults will be used.</source>
         <translation>Profil konnte nicht geladen werden; Standardwerte werden verwendet.</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="324"/>
+        <location filename="../gui/MainWindow.cpp" line="344"/>
         <source>&amp;File</source>
         <translation>&amp;Datei</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="326"/>
+        <location filename="../gui/MainWindow.cpp" line="346"/>
         <source>&amp;Close tab</source>
         <translation>Tab &amp;schließen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="330"/>
+        <location filename="../gui/MainWindow.cpp" line="350"/>
         <source>Ctrl+F4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="337"/>
+        <location filename="../gui/MainWindow.cpp" line="357"/>
         <source>&amp;Export</source>
         <translation>&amp;Exportieren</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="338"/>
-        <location filename="../gui/MainWindow.cpp" line="349"/>
+        <location filename="../gui/MainWindow.cpp" line="358"/>
+        <location filename="../gui/MainWindow.cpp" line="369"/>
         <source>&amp;Full profile...</source>
         <translation>&amp;Vollständiges Profil...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="340"/>
-        <location filename="../gui/MainWindow.cpp" line="351"/>
+        <location filename="../gui/MainWindow.cpp" line="360"/>
+        <location filename="../gui/MainWindow.cpp" line="371"/>
         <source>&amp;Sessions only...</source>
         <translation>Nur &amp;Sitzungen...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="343"/>
-        <location filename="../gui/MainWindow.cpp" line="354"/>
+        <location filename="../gui/MainWindow.cpp" line="363"/>
+        <location filename="../gui/MainWindow.cpp" line="374"/>
         <source>S&amp;napshots only...</source>
         <translation>Nur S&amp;chnappschüsse...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="348"/>
+        <location filename="../gui/MainWindow.cpp" line="368"/>
         <source>&amp;Import</source>
         <translation>&amp;Importieren</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="361"/>
+        <location filename="../gui/MainWindow.cpp" line="381"/>
         <source>&amp;Logs</source>
         <translation>&amp;Protokolle</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="363"/>
+        <location filename="../gui/MainWindow.cpp" line="383"/>
         <source>&amp;Open log folder</source>
         <translation>Protokoll&amp;ordner öffnen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="370"/>
+        <location filename="../gui/MainWindow.cpp" line="390"/>
         <source>&amp;Log settings...</source>
         <translation>Protoko&amp;lleinstellungen...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="378"/>
+        <location filename="../gui/MainWindow.cpp" line="398"/>
         <source>E&amp;xit</source>
         <translation>&amp;Beenden</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="383"/>
+        <location filename="../gui/MainWindow.cpp" line="403"/>
         <source>&amp;Edit</source>
         <translation>&amp;Bearbeiten</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="384"/>
+        <location filename="../gui/MainWindow.cpp" line="404"/>
         <source>&amp;Find...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="393"/>
+        <location filename="../gui/MainWindow.cpp" line="413"/>
         <source>&amp;Sessions</source>
         <translation>&amp;Sitzungen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="395"/>
+        <location filename="../gui/MainWindow.cpp" line="415"/>
         <source>S&amp;napshots</source>
         <translation>Sch&amp;nappschüsse</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="397"/>
+        <location filename="../gui/MainWindow.cpp" line="417"/>
         <source>&amp;View</source>
         <translation>&amp;Ansicht</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="400"/>
+        <location filename="../gui/MainWindow.cpp" line="420"/>
         <source>Show &amp;Command Line</source>
         <translation>&amp;Befehlszeile anzeigen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="402"/>
+        <location filename="../gui/MainWindow.cpp" line="422"/>
         <source>Show Action &amp;Buttons</source>
         <translation>Aktions-&amp;Schaltflächen anzeigen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="404"/>
+        <location filename="../gui/MainWindow.cpp" line="424"/>
         <source>Show &amp;Status Bar</source>
         <translation>&amp;Statusleiste anzeigen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="432"/>
+        <location filename="../gui/MainWindow.cpp" line="452"/>
         <source>Split Pane &amp;Horizontally</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="440"/>
+        <location filename="../gui/MainWindow.cpp" line="460"/>
         <source>Split Pane &amp;Vertically</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="448"/>
+        <location filename="../gui/MainWindow.cpp" line="468"/>
         <source>Close &amp;Pane</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="456"/>
+        <location filename="../gui/MainWindow.cpp" line="476"/>
         <source>&amp;Broadcast Input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="484"/>
+        <location filename="../gui/MainWindow.cpp" line="504"/>
         <source>&amp;Full Screen	F11</source>
         <translation>&amp;Vollbild	F11</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="490"/>
+        <location filename="../gui/MainWindow.cpp" line="510"/>
         <source>Se&amp;ttings</source>
         <translation>Eins&amp;tellungen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="491"/>
+        <location filename="../gui/MainWindow.cpp" line="511"/>
         <source>&amp;Preferences...</source>
         <translation>&amp;Einstellungen...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="492"/>
+        <location filename="../gui/MainWindow.cpp" line="512"/>
         <source>Ctrl+,</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="496"/>
+        <location filename="../gui/MainWindow.cpp" line="516"/>
         <source>&amp;Language</source>
         <translation>&amp;Sprache</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="522"/>
+        <location filename="../gui/MainWindow.cpp" line="542"/>
         <source>&amp;Reload profile</source>
         <translation>Profil neu &amp;laden</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="523"/>
+        <location filename="../gui/MainWindow.cpp" line="543"/>
         <source>F5</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="530"/>
+        <location filename="../gui/MainWindow.cpp" line="550"/>
         <source>Profile reloaded.</source>
         <translation>Profil neu geladen.</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="534"/>
+        <location filename="../gui/MainWindow.cpp" line="554"/>
         <source>&amp;Help</source>
         <translation>&amp;Hilfe</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="535"/>
+        <location filename="../gui/MainWindow.cpp" line="555"/>
         <source>&amp;Usage guide...</source>
         <translation>&amp;Benutzerhandbuch...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="542"/>
+        <location filename="../gui/MainWindow.cpp" line="562"/>
         <source>&amp;Export diagnostics...</source>
         <translation>Diagnose &amp;exportieren...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="547"/>
+        <location filename="../gui/MainWindow.cpp" line="567"/>
         <source>&amp;About TSCRT...</source>
         <translation>&amp;Über TSCRT...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="554"/>
+        <location filename="../gui/MainWindow.cpp" line="574"/>
         <source>Session Manager</source>
         <translation>Sitzungsmanager</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="610"/>
+        <location filename="../gui/MainWindow.cpp" line="630"/>
         <source>Ready · libssh2 %1 · libvterm %2.%3</source>
         <translation>Bereit · libssh2 %1 · libvterm %2.%3</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="916"/>
+        <location filename="../gui/MainWindow.cpp" line="960"/>
         <source>Open</source>
         <translation>Öffnen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="918"/>
+        <location filename="../gui/MainWindow.cpp" line="962"/>
         <source>Rename...</source>
         <translation>Umbenennen...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="919"/>
+        <location filename="../gui/MainWindow.cpp" line="963"/>
         <source>Edit...</source>
         <translation>Bearbeiten...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="920"/>
+        <location filename="../gui/MainWindow.cpp" line="964"/>
         <source>Delete</source>
         <translation>Löschen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="922"/>
+        <location filename="../gui/MainWindow.cpp" line="966"/>
         <source>Copy</source>
         <translation>Kopieren</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="923"/>
-        <location filename="../gui/MainWindow.cpp" line="1061"/>
+        <location filename="../gui/MainWindow.cpp" line="967"/>
+        <location filename="../gui/MainWindow.cpp" line="1105"/>
         <source>Paste</source>
         <translation>Einfügen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="952"/>
+        <location filename="../gui/MainWindow.cpp" line="996"/>
         <source>Rename session</source>
         <translation>Sitzung umbenennen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="953"/>
+        <location filename="../gui/MainWindow.cpp" line="997"/>
         <source>New name:</source>
         <translation>Neuer Name:</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="957"/>
-        <location filename="../gui/MainWindow.cpp" line="1922"/>
+        <location filename="../gui/MainWindow.cpp" line="1001"/>
+        <location filename="../gui/MainWindow.cpp" line="1966"/>
         <source>Rename</source>
         <translation>Umbenennen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="957"/>
-        <location filename="../gui/MainWindow.cpp" line="997"/>
+        <location filename="../gui/MainWindow.cpp" line="1001"/>
+        <location filename="../gui/MainWindow.cpp" line="1041"/>
         <source>Name cannot be empty.</source>
         <translation>Name darf nicht leer sein.</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="967"/>
         <location filename="../gui/MainWindow.cpp" line="1011"/>
-        <location filename="../gui/MainWindow.cpp" line="1036"/>
-        <location filename="../gui/MainWindow.cpp" line="1090"/>
-        <location filename="../gui/MainWindow.cpp" line="1281"/>
-        <location filename="../gui/MainWindow.cpp" line="1299"/>
-        <location filename="../gui/MainWindow.cpp" line="1375"/>
-        <location filename="../gui/MainWindow.cpp" line="1674"/>
-        <location filename="../gui/MainWindow.cpp" line="2162"/>
-        <location filename="../gui/MainWindow.cpp" line="2180"/>
-        <location filename="../gui/MainWindow.cpp" line="2232"/>
+        <location filename="../gui/MainWindow.cpp" line="1055"/>
+        <location filename="../gui/MainWindow.cpp" line="1080"/>
+        <location filename="../gui/MainWindow.cpp" line="1134"/>
+        <location filename="../gui/MainWindow.cpp" line="1325"/>
+        <location filename="../gui/MainWindow.cpp" line="1343"/>
+        <location filename="../gui/MainWindow.cpp" line="1419"/>
+        <location filename="../gui/MainWindow.cpp" line="1718"/>
+        <location filename="../gui/MainWindow.cpp" line="2206"/>
+        <location filename="../gui/MainWindow.cpp" line="2224"/>
+        <location filename="../gui/MainWindow.cpp" line="2276"/>
         <source>Save failed</source>
         <translation>Speichern fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="968"/>
         <location filename="../gui/MainWindow.cpp" line="1012"/>
-        <location filename="../gui/MainWindow.cpp" line="1037"/>
-        <location filename="../gui/MainWindow.cpp" line="1091"/>
-        <location filename="../gui/MainWindow.cpp" line="2233"/>
+        <location filename="../gui/MainWindow.cpp" line="1056"/>
+        <location filename="../gui/MainWindow.cpp" line="1081"/>
+        <location filename="../gui/MainWindow.cpp" line="1135"/>
+        <location filename="../gui/MainWindow.cpp" line="2277"/>
         <source>Could not write profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="997"/>
+        <location filename="../gui/MainWindow.cpp" line="1041"/>
         <source>Edit</source>
         <translation>Bearbeiten</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1024"/>
+        <location filename="../gui/MainWindow.cpp" line="1068"/>
         <source>Delete session</source>
         <translation>Sitzung löschen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1025"/>
+        <location filename="../gui/MainWindow.cpp" line="1069"/>
         <source>Delete session &quot;%1&quot;?</source>
         <translation>Sitzung &quot;%1&quot; löschen?</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1052"/>
+        <location filename="../gui/MainWindow.cpp" line="1096"/>
         <source>Copied session &quot;%1&quot;.</source>
         <translation>Sitzung &quot;%1&quot; kopiert.</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1062"/>
+        <location filename="../gui/MainWindow.cpp" line="1106"/>
         <source>Profile already holds the maximum number of sessions (%1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1140"/>
+        <location filename="../gui/MainWindow.cpp" line="1184"/>
         <source>SSH Sessions</source>
         <translation>SSH-Sitzungen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1145"/>
+        <location filename="../gui/MainWindow.cpp" line="1189"/>
         <source>Serial Sessions</source>
         <translation>Serielle Sitzungen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1180"/>
+        <location filename="../gui/MainWindow.cpp" line="1224"/>
         <source>&amp;New</source>
         <translation>&amp;Neu</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1181"/>
+        <location filename="../gui/MainWindow.cpp" line="1225"/>
         <source>Ctrl+Shift+N</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1185"/>
+        <location filename="../gui/MainWindow.cpp" line="1229"/>
         <source>&amp;Sessions...</source>
         <translation>&amp;Sitzungen...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1186"/>
+        <location filename="../gui/MainWindow.cpp" line="1230"/>
         <source>Ctrl+Shift+M</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1193"/>
+        <location filename="../gui/MainWindow.cpp" line="1237"/>
         <source>(no sessions defined)</source>
         <translation>(keine Sitzungen definiert)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1203"/>
+        <location filename="../gui/MainWindow.cpp" line="1247"/>
         <source>SSH · %1 (%2@%3:%4)</source>
         <translation>SSH · %1 (%2@%3:%4)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1209"/>
+        <location filename="../gui/MainWindow.cpp" line="1253"/>
         <source>Serial · %1 (%2 %3 baud)</source>
         <translation>Seriell · %1 (%2 %3 baud)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1228"/>
+        <location filename="../gui/MainWindow.cpp" line="1272"/>
         <source>&amp;Run on current session</source>
         <translation>In aktueller Sitzung &amp;ausführen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1230"/>
-        <location filename="../gui/MainWindow.cpp" line="1930"/>
+        <location filename="../gui/MainWindow.cpp" line="1274"/>
+        <location filename="../gui/MainWindow.cpp" line="1974"/>
         <source>(no snapshots defined)</source>
         <translation>(keine Schnappschüsse definiert)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1238"/>
+        <location filename="../gui/MainWindow.cpp" line="1282"/>
         <source>Ctrl+Shift+S</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1250"/>
+        <location filename="../gui/MainWindow.cpp" line="1294"/>
         <source>&amp;Manage snapshots...</source>
         <translation>Schnappschüsse &amp;verwalten...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1255"/>
+        <location filename="../gui/MainWindow.cpp" line="1299"/>
         <source>&amp;Automation rules...</source>
         <translation>&amp;Automatisierungsregeln...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1262"/>
+        <location filename="../gui/MainWindow.cpp" line="1306"/>
         <source>&amp;Browse snapshots...</source>
         <translation>Schnappschüsse &amp;durchsuchen...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1269"/>
+        <location filename="../gui/MainWindow.cpp" line="1313"/>
         <source>Open snapshot &amp;folder</source>
         <translation>Schnappschuss-&amp;Ordner öffnen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1282"/>
-        <location filename="../gui/MainWindow.cpp" line="1300"/>
-        <location filename="../gui/MainWindow.cpp" line="1376"/>
-        <location filename="../gui/MainWindow.cpp" line="1675"/>
-        <location filename="../gui/MainWindow.cpp" line="2163"/>
-        <location filename="../gui/MainWindow.cpp" line="2181"/>
+        <location filename="../gui/MainWindow.cpp" line="1326"/>
+        <location filename="../gui/MainWindow.cpp" line="1344"/>
+        <location filename="../gui/MainWindow.cpp" line="1420"/>
+        <location filename="../gui/MainWindow.cpp" line="1719"/>
+        <location filename="../gui/MainWindow.cpp" line="2207"/>
+        <location filename="../gui/MainWindow.cpp" line="2225"/>
         <source>Could not write profile to:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1288"/>
-        <location filename="../gui/MainWindow.cpp" line="1306"/>
+        <location filename="../gui/MainWindow.cpp" line="1332"/>
+        <location filename="../gui/MainWindow.cpp" line="1350"/>
         <source>Snapshots saved.</source>
         <translation>Schnappschüsse gespeichert.</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1355"/>
+        <location filename="../gui/MainWindow.cpp" line="1399"/>
         <source>Logs</source>
         <translation>Protokolle</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1356"/>
+        <location filename="../gui/MainWindow.cpp" line="1400"/>
         <source>Log directory is not configured yet.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1364"/>
+        <location filename="../gui/MainWindow.cpp" line="1408"/>
         <source>Configured log directory is not writable — opened fallback: %1</source>
         <translation>Konfiguriertes Log-Verzeichnis nicht beschreibbar — Fallback geöffnet: %1</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1381"/>
+        <location filename="../gui/MainWindow.cpp" line="1425"/>
         <source>Log settings saved.</source>
         <translation>Protokolleinstellungen gespeichert.</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1389"/>
-        <location filename="../gui/MainWindow.cpp" line="1406"/>
-        <location filename="../gui/MainWindow.cpp" line="1411"/>
-        <location filename="../gui/MainWindow.cpp" line="1490"/>
-        <location filename="../gui/MainWindow.cpp" line="1495"/>
-        <location filename="../gui/MainWindow.cpp" line="1574"/>
-        <location filename="../gui/MainWindow.cpp" line="1579"/>
+        <location filename="../gui/MainWindow.cpp" line="1433"/>
+        <location filename="../gui/MainWindow.cpp" line="1450"/>
+        <location filename="../gui/MainWindow.cpp" line="1455"/>
+        <location filename="../gui/MainWindow.cpp" line="1534"/>
+        <location filename="../gui/MainWindow.cpp" line="1539"/>
+        <location filename="../gui/MainWindow.cpp" line="1618"/>
+        <location filename="../gui/MainWindow.cpp" line="1623"/>
         <source>Export</source>
         <translation>Exportieren</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1390"/>
+        <location filename="../gui/MainWindow.cpp" line="1434"/>
         <source>Failed to flush the current profile before exporting.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1400"/>
+        <location filename="../gui/MainWindow.cpp" line="1444"/>
         <source>Export profile</source>
         <translation>Profil exportieren</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1401"/>
-        <location filename="../gui/MainWindow.cpp" line="1425"/>
-        <location filename="../gui/MainWindow.cpp" line="1477"/>
-        <location filename="../gui/MainWindow.cpp" line="1508"/>
-        <location filename="../gui/MainWindow.cpp" line="1557"/>
-        <location filename="../gui/MainWindow.cpp" line="1594"/>
+        <location filename="../gui/MainWindow.cpp" line="1445"/>
+        <location filename="../gui/MainWindow.cpp" line="1469"/>
+        <location filename="../gui/MainWindow.cpp" line="1521"/>
+        <location filename="../gui/MainWindow.cpp" line="1552"/>
+        <location filename="../gui/MainWindow.cpp" line="1601"/>
+        <location filename="../gui/MainWindow.cpp" line="1638"/>
         <source>TSCRT profile (*.profile);;All files (*)</source>
         <translation>TSCRT-Profil (*.profile);;Alle Dateien (*)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1407"/>
+        <location filename="../gui/MainWindow.cpp" line="1451"/>
         <source>Could not copy profile to:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1412"/>
+        <location filename="../gui/MainWindow.cpp" line="1456"/>
         <source>Profile exported to:
 %1
 
@@ -527,20 +537,20 @@ Note: SSH and SMTP passwords are DPAPI-encrypted for the current Windows user an
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1418"/>
-        <location filename="../gui/MainWindow.cpp" line="1501"/>
-        <location filename="../gui/MainWindow.cpp" line="1587"/>
+        <location filename="../gui/MainWindow.cpp" line="1462"/>
+        <location filename="../gui/MainWindow.cpp" line="1545"/>
+        <location filename="../gui/MainWindow.cpp" line="1631"/>
         <source>Exported: %1</source>
         <translation>Exportiert: %1</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1424"/>
-        <location filename="../gui/MainWindow.cpp" line="1428"/>
+        <location filename="../gui/MainWindow.cpp" line="1468"/>
+        <location filename="../gui/MainWindow.cpp" line="1472"/>
         <source>Import profile</source>
         <translation>Profil importieren</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1429"/>
+        <location filename="../gui/MainWindow.cpp" line="1473"/>
         <source>This will replace your current profile with:
 %1
 
@@ -548,48 +558,48 @@ Open session tabs will keep running on the old profile; new tabs use the importe
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1442"/>
-        <location filename="../gui/MainWindow.cpp" line="1450"/>
-        <location filename="../gui/MainWindow.cpp" line="1513"/>
-        <location filename="../gui/MainWindow.cpp" line="1536"/>
-        <location filename="../gui/MainWindow.cpp" line="1544"/>
-        <location filename="../gui/MainWindow.cpp" line="1599"/>
-        <location filename="../gui/MainWindow.cpp" line="1639"/>
-        <location filename="../gui/MainWindow.cpp" line="1646"/>
+        <location filename="../gui/MainWindow.cpp" line="1486"/>
+        <location filename="../gui/MainWindow.cpp" line="1494"/>
+        <location filename="../gui/MainWindow.cpp" line="1557"/>
+        <location filename="../gui/MainWindow.cpp" line="1580"/>
+        <location filename="../gui/MainWindow.cpp" line="1588"/>
+        <location filename="../gui/MainWindow.cpp" line="1643"/>
+        <location filename="../gui/MainWindow.cpp" line="1683"/>
+        <location filename="../gui/MainWindow.cpp" line="1690"/>
         <source>Import</source>
         <translation>Importieren</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1443"/>
+        <location filename="../gui/MainWindow.cpp" line="1487"/>
         <source>Could not create backup at:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1451"/>
+        <location filename="../gui/MainWindow.cpp" line="1495"/>
         <source>Could not copy new profile to:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1463"/>
+        <location filename="../gui/MainWindow.cpp" line="1507"/>
         <source>Profile imported from: %1 (backup at %2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1476"/>
+        <location filename="../gui/MainWindow.cpp" line="1520"/>
         <source>Export sessions</source>
         <translation>Sitzungen exportieren</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1491"/>
-        <location filename="../gui/MainWindow.cpp" line="1575"/>
+        <location filename="../gui/MainWindow.cpp" line="1535"/>
+        <location filename="../gui/MainWindow.cpp" line="1619"/>
         <source>Could not write subset profile to:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1496"/>
+        <location filename="../gui/MainWindow.cpp" line="1540"/>
         <source>Exported %1 session(s) to:
 %2
 
@@ -597,35 +607,35 @@ SSH passwords stored as DPAPI ciphertext will not decrypt on another Windows acc
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1507"/>
+        <location filename="../gui/MainWindow.cpp" line="1551"/>
         <source>Import sessions</source>
         <translation>Sitzungen importieren</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1514"/>
-        <location filename="../gui/MainWindow.cpp" line="1600"/>
+        <location filename="../gui/MainWindow.cpp" line="1558"/>
+        <location filename="../gui/MainWindow.cpp" line="1644"/>
         <source>Could not parse profile file:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1537"/>
-        <location filename="../gui/MainWindow.cpp" line="1640"/>
+        <location filename="../gui/MainWindow.cpp" line="1581"/>
+        <location filename="../gui/MainWindow.cpp" line="1684"/>
         <source>Could not write merged profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1545"/>
+        <location filename="../gui/MainWindow.cpp" line="1589"/>
         <source>Imported %1 new session(s); skipped %2 duplicate name(s).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1556"/>
+        <location filename="../gui/MainWindow.cpp" line="1600"/>
         <source>Export snapshots</source>
         <translation>Schnappschüsse exportieren</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1580"/>
+        <location filename="../gui/MainWindow.cpp" line="1624"/>
         <source>Exported %1 snapshot(s) and %2 rule(s) to:
 %3
 
@@ -633,209 +643,243 @@ The SMTP password is DPAPI-encrypted and will not decrypt on another Windows acc
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1593"/>
+        <location filename="../gui/MainWindow.cpp" line="1637"/>
         <source>Import snapshots</source>
         <translation>Schnappschüsse importieren</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1647"/>
+        <location filename="../gui/MainWindow.cpp" line="1691"/>
         <source>Imported %1 snapshot(s) (%2 duplicates skipped) and %3 rule(s).%4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1649"/>
+        <location filename="../gui/MainWindow.cpp" line="1693"/>
         <source>
 SMTP settings were also imported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1656"/>
+        <location filename="../gui/MainWindow.cpp" line="1700"/>
         <source>Save session</source>
         <translation>Sitzung speichern</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1657"/>
+        <location filename="../gui/MainWindow.cpp" line="1701"/>
         <source>Cannot save: profile already holds %1 sessions (max).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1709"/>
+        <location filename="../gui/MainWindow.cpp" line="1753"/>
         <source>Session &quot;%1&quot; saved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1748"/>
+        <location filename="../gui/MainWindow.cpp" line="1792"/>
         <source>SSH Password</source>
         <translation>SSH-Passwort</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1749"/>
+        <location filename="../gui/MainWindow.cpp" line="1793"/>
         <source>Password for %1@%2:</source>
         <translation>Passwort für %1@%2:</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1788"/>
+        <location filename="../gui/MainWindow.cpp" line="1832"/>
         <source>Connecting to %1...</source>
         <translation>Verbinden mit %1...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1791"/>
+        <location filename="../gui/MainWindow.cpp" line="1835"/>
         <source>Connected: %1</source>
         <translation>Verbunden: %1</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1794"/>
+        <location filename="../gui/MainWindow.cpp" line="1838"/>
         <source>Session error</source>
         <translation>Sitzungsfehler</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1795"/>
+        <location filename="../gui/MainWindow.cpp" line="1839"/>
         <source>Error: %1</source>
         <translation>Fehler: %1</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1800"/>
+        <location filename="../gui/MainWindow.cpp" line="1844"/>
         <source>Disconnected: %1 (%2)</source>
         <translation>Getrennt: %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1848"/>
-        <location filename="../gui/MainWindow.cpp" line="2512"/>
+        <location filename="../gui/MainWindow.cpp" line="1892"/>
+        <location filename="../gui/MainWindow.cpp" line="2632"/>
         <source>Close tab</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1923"/>
+        <location filename="../gui/MainWindow.cpp" line="1967"/>
         <source>Duplicate</source>
         <translation>Duplizieren</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1927"/>
+        <location filename="../gui/MainWindow.cpp" line="1971"/>
         <source>Run Snapshot</source>
         <translation>Schnappschuss ausführen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1944"/>
+        <location filename="../gui/MainWindow.cpp" line="1988"/>
         <source>Unpin</source>
         <translation>Lösen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1944"/>
+        <location filename="../gui/MainWindow.cpp" line="1988"/>
         <source>Pin</source>
         <translation>Anheften</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1946"/>
+        <location filename="../gui/MainWindow.cpp" line="1990"/>
         <source>Detach to New Window</source>
         <translation>In neues Fenster lösen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1989"/>
-        <location filename="../gui/MainWindow.cpp" line="1995"/>
+        <location filename="../gui/MainWindow.cpp" line="2033"/>
+        <location filename="../gui/MainWindow.cpp" line="2039"/>
         <source>%1 (slot %2)</source>
         <translation>%1 (Slot %2)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2005"/>
+        <location filename="../gui/MainWindow.cpp" line="2049"/>
         <source>Unlink Tab (currently: %1)</source>
         <translation>Tab-Verknüpfung lösen (aktuell: %1)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2007"/>
+        <location filename="../gui/MainWindow.cpp" line="2051"/>
         <source>Link Tab to Peer Tab...</source>
         <translation>Tab mit Peer-Tab verknüpfen...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2012"/>
+        <location filename="../gui/MainWindow.cpp" line="2056"/>
+        <location filename="../gui/MainWindow.cpp" line="2414"/>
         <source>Close</source>
         <translation>Schließen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2088"/>
+        <location filename="../gui/MainWindow.cpp" line="2132"/>
         <source>Rename Tab</source>
         <translation>Tab umbenennen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2088"/>
+        <location filename="../gui/MainWindow.cpp" line="2132"/>
         <source>Tab name:</source>
         <translation>Tab-Name:</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2170"/>
+        <location filename="../gui/MainWindow.cpp" line="2214"/>
         <source>Preferences saved.</source>
         <translation>Einstellungen gespeichert.</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2188"/>
+        <location filename="../gui/MainWindow.cpp" line="2232"/>
         <source>Sessions saved.</source>
         <translation>Sitzungen gespeichert.</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2208"/>
-        <location filename="../gui/MainWindow.cpp" line="2212"/>
+        <location filename="../gui/MainWindow.cpp" line="2252"/>
+        <location filename="../gui/MainWindow.cpp" line="2256"/>
         <source>Edit button</source>
         <translation>Schaltfläche bearbeiten</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2209"/>
+        <location filename="../gui/MainWindow.cpp" line="2253"/>
         <source>Label:</source>
         <translation>Beschriftung:</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2213"/>
+        <location filename="../gui/MainWindow.cpp" line="2257"/>
         <source>Action (escape: \r \n \t \b \e \p \\):</source>
         <translation>Aktion (Escape: \r \n \t \b \e \p \\):</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2315"/>
+        <location filename="../gui/MainWindow.cpp" line="2359"/>
         <source>About TSCRT</source>
         <translation>Über TSCRT</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2319"/>
+        <location filename="../gui/MainWindow.cpp" line="2372"/>
         <source>&lt;h2&gt;TSCRT&lt;/h2&gt;&lt;p&gt;&lt;b&gt;Version %1&lt;/b&gt;&lt;br/&gt;Built %2&lt;/p&gt;&lt;p&gt;A terminal emulator for SSH2 and serial consoles.&lt;/p&gt;&lt;p style=&quot;color:#888;&quot;&gt;Qt %3 &amp;middot; libssh2 %4 &amp;middot; libvterm %5.%6&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2334"/>
+        <location filename="../gui/MainWindow.cpp" line="2395"/>
         <source>Copyright &amp;copy; 2026 TePSEG Co., Ltd. (Republic of Korea)&lt;br/&gt;Developer: &lt;a href=&quot;mailto:ygjeon@tepseg.com&quot;&gt;ygjeon@tepseg.com&lt;/a&gt;&lt;br/&gt;Released under the GNU General Public License (GPL).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2347"/>
-        <location filename="../gui/MainWindow.cpp" line="2380"/>
+        <location filename="../gui/MainWindow.cpp" line="2413"/>
+        <location filename="../gui/MainWindow.cpp" line="2437"/>
+        <location filename="../gui/MainWindow.cpp" line="2444"/>
+        <location filename="../gui/MainWindow.cpp" line="2452"/>
+        <source>Check for updates</source>
+        <translation>Nach Updates suchen</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="2425"/>
+        <source>Checking...</source>
+        <translation>Wird geprüft...</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="2426"/>
+        <source>Connecting to GitHub...</source>
+        <translation>Verbindung zu GitHub...</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="2433"/>
+        <source>&lt;b&gt;New version available: %1&lt;/b&gt;&lt;br&gt;&lt;a href=&quot;%2&quot;&gt;Open download page&lt;/a&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="2443"/>
+        <source>&lt;span style=&quot;color:green;&quot;&gt;&amp;#10003; You are running the latest version.&lt;/span&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="2450"/>
+        <source>&lt;span style=&quot;color:orange;&quot;&gt;Update check failed: %1&lt;/span&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="2467"/>
+        <location filename="../gui/MainWindow.cpp" line="2500"/>
         <source>Export diagnostics</source>
         <translation>Diagnose exportieren</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2350"/>
+        <location filename="../gui/MainWindow.cpp" line="2470"/>
         <source>&lt;b&gt;The diagnostic bundle will include:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;App log (&lt;code&gt;tscrt_win.log&lt;/code&gt;): connection events, error messages&lt;/li&gt;&lt;li&gt;System info: OS, Qt / libssh2 versions, locale&lt;/li&gt;&lt;li&gt;Paths and selected environment variables (may contain your Windows username)&lt;/li&gt;&lt;li&gt;Crash dump file names (contents are NOT included)&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;The bundle will NOT include:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Passwords or SSH private keys&lt;/li&gt;&lt;li&gt;Your session profile (hosts, snapshots, automation rules)&lt;/li&gt;&lt;li&gt;Snapshot files or per-session terminal capture logs&lt;/li&gt;&lt;li&gt;Commands you typed or terminal output&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Review the generated &lt;code&gt;.txt.gz&lt;/code&gt; before sharing.&lt;/p&gt;</source>
         <translation>&lt;b&gt;Das Diagnose-Paket enthält:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;App-Log (&lt;code&gt;tscrt_win.log&lt;/code&gt;): Verbindungsereignisse, Fehlermeldungen&lt;/li&gt;&lt;li&gt;Systeminfo: OS, Qt / libssh2-Versionen, Sprache&lt;/li&gt;&lt;li&gt;Pfade und ausgewählte Umgebungsvariablen (können Ihren Windows-Benutzernamen enthalten)&lt;/li&gt;&lt;li&gt;Namen von Crash-Dump-Dateien (Inhalte werden NICHT übermittelt)&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Das Paket enthält NICHT:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Passwörter oder private SSH-Schlüssel&lt;/li&gt;&lt;li&gt;Ihr Sitzungsprofil (Hosts, Snapshots, Automatisierungsregeln)&lt;/li&gt;&lt;li&gt;Snapshot-Dateien oder sitzungsbezogene Terminal-Aufzeichnungen&lt;/li&gt;&lt;li&gt;Eingegebene Befehle oder Terminal-Ausgaben&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Prüfen Sie die erzeugte &lt;code&gt;.txt.gz&lt;/code&gt;-Datei vor der Weitergabe.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2367"/>
+        <location filename="../gui/MainWindow.cpp" line="2487"/>
         <source>Continue</source>
         <translation>Weiter</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2382"/>
+        <location filename="../gui/MainWindow.cpp" line="2502"/>
         <source>Diagnostic bundle (*.txt.gz);;All files (*)</source>
         <translation>Diagnose-Paket (*.txt.gz);;Alle Dateien (*)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2394"/>
+        <location filename="../gui/MainWindow.cpp" line="2514"/>
         <source>Export failed</source>
         <translation>Export fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2395"/>
+        <location filename="../gui/MainWindow.cpp" line="2515"/>
         <source>Could not write diagnostic bundle:
 %1</source>
         <translation>Diagnose-Paket konnte nicht geschrieben werden:
 %1</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2406"/>
+        <location filename="../gui/MainWindow.cpp" line="2526"/>
         <source>File: %1
 Uncompressed: %2
 Compressed: %3</source>
@@ -844,12 +888,12 @@ Unkomprimiert: %2
 Komprimiert: %3</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2411"/>
+        <location filename="../gui/MainWindow.cpp" line="2531"/>
         <source>Note: log content was truncated to fit the size cap.</source>
         <translation>Hinweis: Log-Inhalt wurde gekürzt, um die Größenbegrenzung einzuhalten.</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2415"/>
+        <location filename="../gui/MainWindow.cpp" line="2535"/>
         <source>Diagnostics exported</source>
         <translation>Diagnose exportiert</translation>
     </message>

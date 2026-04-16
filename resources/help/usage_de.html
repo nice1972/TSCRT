@@ -16,6 +16,7 @@
   <li><a href="#logs">Protokolle</a></li>
   <li><a href="#security">Sicherheit</a></li>
   <li><a href="#profile">Profil importieren / exportieren</a></li>
+  <li><a href="#update">Update-Prüfung</a></li>
   <li><a href="#shortcuts">Tastenkürzel</a></li>
 </ul>
 
@@ -245,6 +246,33 @@
   <li><b>Datei &rarr; Profil exportieren&hellip;</b> &mdash; vollständig oder teilweise.</li>
   <li><b>Datei &rarr; Profil importieren&hellip;</b> &mdash; wird in das aktuelle Profil gemischt; Konflikte werden gemeldet.</li>
 </ul>
+
+<h2 id="update">Update-Prüfung</h2>
+<p>TSCRT prüft beim Start automatisch auf neue Versionen, indem es die <b>GitHub Releases API</b> abfragt. Es werden keine persönlichen Daten gesendet &mdash; nur eine einzige HTTP-GET-Anfrage an den öffentlichen Releases-Endpunkt.</p>
+
+<h3>Funktionsweise</h3>
+<ol>
+  <li>Beim Start sendet TSCRT eine Hintergrundanfrage an <code>api.github.com/repos/nice1972/TSCRT/releases/latest</code>.</li>
+  <li>Die Antwort enthält das neueste Release-Tag (z. B. <code>v1.0.10</code>).</li>
+  <li>TSCRT vergleicht es mit seiner einkompilierten Version (<code>TSCRT_VERSION</code>).</li>
+  <li>Wenn die Remote-Version <b>neuer</b> ist, erscheint ein Dialog:
+    <blockquote><b>Eine neue Version von TSCRT ist verfügbar: 1.0.10</b><br>(aktuell: 1.0.8)<br><br>Möchten Sie die Download-Seite öffnen?</blockquote>
+  </li>
+  <li>Ein Klick auf <b>Ja</b> öffnet die GitHub-Releases-Seite im Standardbrowser, wo Sie das Installationsprogramm für Ihre Plattform herunterladen können.</li>
+  <li>Ein Klick auf <b>Nein</b> schließt den Dialog; TSCRT läuft normal weiter.</li>
+</ol>
+
+<h3>Aktualisierung</h3>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+<tr><th>Plattform</th><th>Aktualisierungsverfahren</th></tr>
+<tr><td><b>Ubuntu / Debian</b></td><td><code>sudo apt install ./tscrt_&lt;version&gt;_amd64.deb</code> &mdash; überschreibt die vorherige Version.</td></tr>
+<tr><td><b>Windows</b></td><td>Führen Sie das neue <code>.exe</code>-Installationsprogramm aus; es ersetzt die bestehende Installation automatisch.</td></tr>
+<tr><td><b>macOS</b></td><td>Öffnen Sie die neue <code>.dmg</code> und ziehen Sie <code>tscrt_mac.app</code> nach <code>/Applications</code>, wodurch die alte Version ersetzt wird.</td></tr>
+</table>
+<p>Ihr Profil, Sitzungsprotokolle, Tab-Verknüpfungen und alle Benutzerdaten unter <code>~/.config/tscrt/</code> (Linux), <code>%APPDATA%\tscrt\</code> (Windows) oder <code>~/Library/Application Support/tscrt/</code> (macOS) bleiben bei Aktualisierungen <b>erhalten</b> &mdash; nur die Binärdatei wird ersetzt.</p>
+
+<h3>Offline- / eingeschränkte Umgebungen</h3>
+<p>Wenn die Netzwerkanfrage fehlschlägt (offline, DNS-Sperre, Proxy, Firewall), wird die Prüfung stillschweigend übersprungen. TSCRT blockiert den Start niemals, während auf eine Antwort gewartet wird.</p>
 
 <h2 id="shortcuts">Tastenkürzel</h2>
 <table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">

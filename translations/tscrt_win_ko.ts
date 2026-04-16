@@ -53,463 +53,473 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="324"/>
+        <location filename="../gui/MainWindow.cpp" line="344"/>
         <source>&amp;File</source>
         <translation>파일(&amp;F)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="326"/>
+        <location filename="../gui/MainWindow.cpp" line="346"/>
         <source>&amp;Close tab</source>
         <translation>탭 닫기(&amp;C)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="337"/>
+        <location filename="../gui/MainWindow.cpp" line="357"/>
         <source>&amp;Export</source>
         <translation>내보내기(&amp;E)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="338"/>
-        <location filename="../gui/MainWindow.cpp" line="349"/>
+        <location filename="../gui/MainWindow.cpp" line="358"/>
+        <location filename="../gui/MainWindow.cpp" line="369"/>
         <source>&amp;Full profile...</source>
         <translation>전체 프로파일(&amp;F)...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="340"/>
-        <location filename="../gui/MainWindow.cpp" line="351"/>
+        <location filename="../gui/MainWindow.cpp" line="360"/>
+        <location filename="../gui/MainWindow.cpp" line="371"/>
         <source>&amp;Sessions only...</source>
         <translation>세션만(&amp;S)...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="343"/>
-        <location filename="../gui/MainWindow.cpp" line="354"/>
+        <location filename="../gui/MainWindow.cpp" line="363"/>
+        <location filename="../gui/MainWindow.cpp" line="374"/>
         <source>S&amp;napshots only...</source>
         <translation>스냅샷만(&amp;N)...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="348"/>
+        <location filename="../gui/MainWindow.cpp" line="368"/>
         <source>&amp;Import</source>
         <translation>가져오기(&amp;I)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="361"/>
+        <location filename="../gui/MainWindow.cpp" line="381"/>
         <source>&amp;Logs</source>
         <translation>로그(&amp;L)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="363"/>
+        <location filename="../gui/MainWindow.cpp" line="383"/>
         <source>&amp;Open log folder</source>
         <translation>로그 폴더 열기(&amp;O)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="370"/>
+        <location filename="../gui/MainWindow.cpp" line="390"/>
         <source>&amp;Log settings...</source>
         <translation>로그 설정(&amp;L)...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="378"/>
+        <location filename="../gui/MainWindow.cpp" line="398"/>
         <source>E&amp;xit</source>
         <translation>종료(&amp;X)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="393"/>
+        <location filename="../gui/MainWindow.cpp" line="413"/>
         <source>&amp;Sessions</source>
         <translation>세션(&amp;S)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="395"/>
+        <location filename="../gui/MainWindow.cpp" line="415"/>
         <source>S&amp;napshots</source>
         <translation>스냅샷(&amp;N)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="397"/>
+        <location filename="../gui/MainWindow.cpp" line="417"/>
         <source>&amp;View</source>
         <translation>보기(&amp;V)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="400"/>
+        <location filename="../gui/MainWindow.cpp" line="420"/>
         <source>Show &amp;Command Line</source>
         <translation>명령줄 표시(&amp;C)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="402"/>
+        <location filename="../gui/MainWindow.cpp" line="422"/>
         <source>Show Action &amp;Buttons</source>
         <translation>액션 버튼 표시(&amp;B)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="404"/>
+        <location filename="../gui/MainWindow.cpp" line="424"/>
         <source>Show &amp;Status Bar</source>
         <translation>상태 표시줄 표시(&amp;S)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="484"/>
+        <location filename="../gui/MainWindow.cpp" line="504"/>
         <source>&amp;Full Screen	F11</source>
         <translation>전체 화면(&amp;F)	F11</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="490"/>
+        <location filename="../gui/MainWindow.cpp" line="510"/>
         <source>Se&amp;ttings</source>
         <translation>설정(&amp;T)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="491"/>
+        <location filename="../gui/MainWindow.cpp" line="511"/>
         <source>&amp;Preferences...</source>
         <translation>환경설정(&amp;P)...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="492"/>
+        <location filename="../gui/MainWindow.cpp" line="512"/>
         <source>Ctrl+,</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="496"/>
+        <location filename="../gui/MainWindow.cpp" line="516"/>
         <source>&amp;Language</source>
         <translation>언어(&amp;L)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="522"/>
+        <location filename="../gui/MainWindow.cpp" line="542"/>
         <source>&amp;Reload profile</source>
         <translation>프로파일 다시 읽기(&amp;R)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="523"/>
+        <location filename="../gui/MainWindow.cpp" line="543"/>
         <source>F5</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="534"/>
+        <location filename="../gui/MainWindow.cpp" line="554"/>
         <source>&amp;Help</source>
         <translation>도움말(&amp;H)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2315"/>
+        <location filename="../gui/MainWindow.cpp" line="2359"/>
         <source>About TSCRT</source>
         <translation>TSCRT 정보</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1193"/>
+        <location filename="../gui/MainWindow.cpp" line="1237"/>
         <source>(no sessions defined)</source>
         <translation>(정의된 세션 없음)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="530"/>
+        <location filename="../gui/MainWindow.cpp" line="550"/>
         <source>Profile reloaded.</source>
         <translation>프로파일을 다시 읽었습니다.</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="312"/>
-        <location filename="../gui/MainWindow.cpp" line="317"/>
+        <location filename="../gui/MainWindow.cpp" line="332"/>
+        <location filename="../gui/MainWindow.cpp" line="337"/>
         <source>Profile error</source>
         <translation>프로파일 오류</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="313"/>
+        <location filename="../gui/MainWindow.cpp" line="259"/>
+        <source>Update available</source>
+        <translation>업데이트 가능</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="260"/>
+        <source>A new version of TSCRT is available: &lt;b&gt;%1&lt;/b&gt;&lt;br&gt;(current: %2)&lt;br&gt;&lt;br&gt;Would you like to open the download page?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="333"/>
         <source>Cannot initialize profile directory.</source>
         <translation>프로파일 디렉터리를 초기화할 수 없습니다.</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="318"/>
+        <location filename="../gui/MainWindow.cpp" line="338"/>
         <source>Failed to load profile; defaults will be used.</source>
         <translation>프로파일 로드 실패. 기본값을 사용합니다.</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="330"/>
+        <location filename="../gui/MainWindow.cpp" line="350"/>
         <source>Ctrl+F4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="383"/>
+        <location filename="../gui/MainWindow.cpp" line="403"/>
         <source>&amp;Edit</source>
         <translation>편집(&amp;E)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="384"/>
+        <location filename="../gui/MainWindow.cpp" line="404"/>
         <source>&amp;Find...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="432"/>
+        <location filename="../gui/MainWindow.cpp" line="452"/>
         <source>Split Pane &amp;Horizontally</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="440"/>
+        <location filename="../gui/MainWindow.cpp" line="460"/>
         <source>Split Pane &amp;Vertically</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="448"/>
+        <location filename="../gui/MainWindow.cpp" line="468"/>
         <source>Close &amp;Pane</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="456"/>
+        <location filename="../gui/MainWindow.cpp" line="476"/>
         <source>&amp;Broadcast Input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="535"/>
+        <location filename="../gui/MainWindow.cpp" line="555"/>
         <source>&amp;Usage guide...</source>
         <translation>사용 설명서(&amp;U)...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="542"/>
+        <location filename="../gui/MainWindow.cpp" line="562"/>
         <source>&amp;Export diagnostics...</source>
         <translation>진단 정보 내보내기(&amp;E)...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="547"/>
+        <location filename="../gui/MainWindow.cpp" line="567"/>
         <source>&amp;About TSCRT...</source>
         <translation>TSCRT 정보(&amp;A)...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="554"/>
+        <location filename="../gui/MainWindow.cpp" line="574"/>
         <source>Session Manager</source>
         <translation>세션 관리자</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="610"/>
+        <location filename="../gui/MainWindow.cpp" line="630"/>
         <source>Ready · libssh2 %1 · libvterm %2.%3</source>
         <translation>준비됨 · libssh2 %1 · libvterm %2.%3</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="916"/>
+        <location filename="../gui/MainWindow.cpp" line="960"/>
         <source>Open</source>
         <translation>열기</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="918"/>
+        <location filename="../gui/MainWindow.cpp" line="962"/>
         <source>Rename...</source>
         <translation>이름 바꾸기...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="919"/>
+        <location filename="../gui/MainWindow.cpp" line="963"/>
         <source>Edit...</source>
         <translation>편집...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="920"/>
+        <location filename="../gui/MainWindow.cpp" line="964"/>
         <source>Delete</source>
         <translation>삭제</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="922"/>
+        <location filename="../gui/MainWindow.cpp" line="966"/>
         <source>Copy</source>
         <translation>복사</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="923"/>
-        <location filename="../gui/MainWindow.cpp" line="1061"/>
+        <location filename="../gui/MainWindow.cpp" line="967"/>
+        <location filename="../gui/MainWindow.cpp" line="1105"/>
         <source>Paste</source>
         <translation>붙여넣기</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="952"/>
+        <location filename="../gui/MainWindow.cpp" line="996"/>
         <source>Rename session</source>
         <translation>세션 이름 바꾸기</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="953"/>
+        <location filename="../gui/MainWindow.cpp" line="997"/>
         <source>New name:</source>
         <translation>새 이름:</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="957"/>
-        <location filename="../gui/MainWindow.cpp" line="1922"/>
+        <location filename="../gui/MainWindow.cpp" line="1001"/>
+        <location filename="../gui/MainWindow.cpp" line="1966"/>
         <source>Rename</source>
         <translation>이름 바꾸기</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="957"/>
-        <location filename="../gui/MainWindow.cpp" line="997"/>
+        <location filename="../gui/MainWindow.cpp" line="1001"/>
+        <location filename="../gui/MainWindow.cpp" line="1041"/>
         <source>Name cannot be empty.</source>
         <translation>이름이 비어 있을 수 없습니다.</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="968"/>
         <location filename="../gui/MainWindow.cpp" line="1012"/>
-        <location filename="../gui/MainWindow.cpp" line="1037"/>
-        <location filename="../gui/MainWindow.cpp" line="1091"/>
-        <location filename="../gui/MainWindow.cpp" line="2233"/>
+        <location filename="../gui/MainWindow.cpp" line="1056"/>
+        <location filename="../gui/MainWindow.cpp" line="1081"/>
+        <location filename="../gui/MainWindow.cpp" line="1135"/>
+        <location filename="../gui/MainWindow.cpp" line="2277"/>
         <source>Could not write profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="997"/>
+        <location filename="../gui/MainWindow.cpp" line="1041"/>
         <source>Edit</source>
         <translation>편집</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1024"/>
+        <location filename="../gui/MainWindow.cpp" line="1068"/>
         <source>Delete session</source>
         <translation>세션 삭제</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1025"/>
+        <location filename="../gui/MainWindow.cpp" line="1069"/>
         <source>Delete session &quot;%1&quot;?</source>
         <translation>세션 &quot;%1&quot;을(를) 삭제하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1052"/>
+        <location filename="../gui/MainWindow.cpp" line="1096"/>
         <source>Copied session &quot;%1&quot;.</source>
         <translation>세션 &quot;%1&quot;을(를) 복사했습니다.</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1062"/>
+        <location filename="../gui/MainWindow.cpp" line="1106"/>
         <source>Profile already holds the maximum number of sessions (%1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1140"/>
+        <location filename="../gui/MainWindow.cpp" line="1184"/>
         <source>SSH Sessions</source>
         <translation>SSH 세션</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1145"/>
+        <location filename="../gui/MainWindow.cpp" line="1189"/>
         <source>Serial Sessions</source>
         <translation>시리얼 세션</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1180"/>
+        <location filename="../gui/MainWindow.cpp" line="1224"/>
         <source>&amp;New</source>
         <translation>새로 만들기(&amp;N)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1181"/>
+        <location filename="../gui/MainWindow.cpp" line="1225"/>
         <source>Ctrl+Shift+N</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1185"/>
+        <location filename="../gui/MainWindow.cpp" line="1229"/>
         <source>&amp;Sessions...</source>
         <translation>세션 관리(&amp;S)...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1186"/>
+        <location filename="../gui/MainWindow.cpp" line="1230"/>
         <source>Ctrl+Shift+M</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1203"/>
+        <location filename="../gui/MainWindow.cpp" line="1247"/>
         <source>SSH · %1 (%2@%3:%4)</source>
         <translation>SSH · %1 (%2@%3:%4)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1209"/>
+        <location filename="../gui/MainWindow.cpp" line="1253"/>
         <source>Serial · %1 (%2 %3 baud)</source>
         <translation>시리얼 · %1 (%2 %3 baud)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1228"/>
+        <location filename="../gui/MainWindow.cpp" line="1272"/>
         <source>&amp;Run on current session</source>
         <translation>현재 세션에서 실행(&amp;R)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1230"/>
-        <location filename="../gui/MainWindow.cpp" line="1930"/>
+        <location filename="../gui/MainWindow.cpp" line="1274"/>
+        <location filename="../gui/MainWindow.cpp" line="1974"/>
         <source>(no snapshots defined)</source>
         <translation>(정의된 스냅샷 없음)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1238"/>
+        <location filename="../gui/MainWindow.cpp" line="1282"/>
         <source>Ctrl+Shift+S</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1250"/>
+        <location filename="../gui/MainWindow.cpp" line="1294"/>
         <source>&amp;Manage snapshots...</source>
         <translation>스냅샷 관리(&amp;M)...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1255"/>
+        <location filename="../gui/MainWindow.cpp" line="1299"/>
         <source>&amp;Automation rules...</source>
         <translation>자동화 규칙(&amp;A)...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1262"/>
+        <location filename="../gui/MainWindow.cpp" line="1306"/>
         <source>&amp;Browse snapshots...</source>
         <translation>스냅샷 탐색(&amp;B)...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1269"/>
+        <location filename="../gui/MainWindow.cpp" line="1313"/>
         <source>Open snapshot &amp;folder</source>
         <translation>스냅샷 폴더 열기(&amp;F)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1282"/>
-        <location filename="../gui/MainWindow.cpp" line="1300"/>
-        <location filename="../gui/MainWindow.cpp" line="1376"/>
-        <location filename="../gui/MainWindow.cpp" line="1675"/>
-        <location filename="../gui/MainWindow.cpp" line="2163"/>
-        <location filename="../gui/MainWindow.cpp" line="2181"/>
+        <location filename="../gui/MainWindow.cpp" line="1326"/>
+        <location filename="../gui/MainWindow.cpp" line="1344"/>
+        <location filename="../gui/MainWindow.cpp" line="1420"/>
+        <location filename="../gui/MainWindow.cpp" line="1719"/>
+        <location filename="../gui/MainWindow.cpp" line="2207"/>
+        <location filename="../gui/MainWindow.cpp" line="2225"/>
         <source>Could not write profile to:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1288"/>
-        <location filename="../gui/MainWindow.cpp" line="1306"/>
+        <location filename="../gui/MainWindow.cpp" line="1332"/>
+        <location filename="../gui/MainWindow.cpp" line="1350"/>
         <source>Snapshots saved.</source>
         <translation>스냅샷이 저장되었습니다.</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1355"/>
+        <location filename="../gui/MainWindow.cpp" line="1399"/>
         <source>Logs</source>
         <translation>로그</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1356"/>
+        <location filename="../gui/MainWindow.cpp" line="1400"/>
         <source>Log directory is not configured yet.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1364"/>
+        <location filename="../gui/MainWindow.cpp" line="1408"/>
         <source>Configured log directory is not writable — opened fallback: %1</source>
         <translation>설정된 로그 디렉터리에 쓸 수 없어 폴백 경로를 열었습니다: %1</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1381"/>
+        <location filename="../gui/MainWindow.cpp" line="1425"/>
         <source>Log settings saved.</source>
         <translation>로그 설정이 저장되었습니다.</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1389"/>
-        <location filename="../gui/MainWindow.cpp" line="1406"/>
-        <location filename="../gui/MainWindow.cpp" line="1411"/>
-        <location filename="../gui/MainWindow.cpp" line="1490"/>
-        <location filename="../gui/MainWindow.cpp" line="1495"/>
-        <location filename="../gui/MainWindow.cpp" line="1574"/>
-        <location filename="../gui/MainWindow.cpp" line="1579"/>
+        <location filename="../gui/MainWindow.cpp" line="1433"/>
+        <location filename="../gui/MainWindow.cpp" line="1450"/>
+        <location filename="../gui/MainWindow.cpp" line="1455"/>
+        <location filename="../gui/MainWindow.cpp" line="1534"/>
+        <location filename="../gui/MainWindow.cpp" line="1539"/>
+        <location filename="../gui/MainWindow.cpp" line="1618"/>
+        <location filename="../gui/MainWindow.cpp" line="1623"/>
         <source>Export</source>
         <translation>내보내기</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1390"/>
+        <location filename="../gui/MainWindow.cpp" line="1434"/>
         <source>Failed to flush the current profile before exporting.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1400"/>
+        <location filename="../gui/MainWindow.cpp" line="1444"/>
         <source>Export profile</source>
         <translation>프로파일 내보내기</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1401"/>
-        <location filename="../gui/MainWindow.cpp" line="1425"/>
-        <location filename="../gui/MainWindow.cpp" line="1477"/>
-        <location filename="../gui/MainWindow.cpp" line="1508"/>
-        <location filename="../gui/MainWindow.cpp" line="1557"/>
-        <location filename="../gui/MainWindow.cpp" line="1594"/>
+        <location filename="../gui/MainWindow.cpp" line="1445"/>
+        <location filename="../gui/MainWindow.cpp" line="1469"/>
+        <location filename="../gui/MainWindow.cpp" line="1521"/>
+        <location filename="../gui/MainWindow.cpp" line="1552"/>
+        <location filename="../gui/MainWindow.cpp" line="1601"/>
+        <location filename="../gui/MainWindow.cpp" line="1638"/>
         <source>TSCRT profile (*.profile);;All files (*)</source>
         <translation>TSCRT 프로파일 (*.profile);;모든 파일 (*)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1407"/>
+        <location filename="../gui/MainWindow.cpp" line="1451"/>
         <source>Could not copy profile to:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1412"/>
+        <location filename="../gui/MainWindow.cpp" line="1456"/>
         <source>Profile exported to:
 %1
 
@@ -517,20 +527,20 @@ Note: SSH and SMTP passwords are DPAPI-encrypted for the current Windows user an
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1418"/>
-        <location filename="../gui/MainWindow.cpp" line="1501"/>
-        <location filename="../gui/MainWindow.cpp" line="1587"/>
+        <location filename="../gui/MainWindow.cpp" line="1462"/>
+        <location filename="../gui/MainWindow.cpp" line="1545"/>
+        <location filename="../gui/MainWindow.cpp" line="1631"/>
         <source>Exported: %1</source>
         <translation>내보냄: %1</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1424"/>
-        <location filename="../gui/MainWindow.cpp" line="1428"/>
+        <location filename="../gui/MainWindow.cpp" line="1468"/>
+        <location filename="../gui/MainWindow.cpp" line="1472"/>
         <source>Import profile</source>
         <translation>프로파일 가져오기</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1429"/>
+        <location filename="../gui/MainWindow.cpp" line="1473"/>
         <source>This will replace your current profile with:
 %1
 
@@ -538,48 +548,48 @@ Open session tabs will keep running on the old profile; new tabs use the importe
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1442"/>
-        <location filename="../gui/MainWindow.cpp" line="1450"/>
-        <location filename="../gui/MainWindow.cpp" line="1513"/>
-        <location filename="../gui/MainWindow.cpp" line="1536"/>
-        <location filename="../gui/MainWindow.cpp" line="1544"/>
-        <location filename="../gui/MainWindow.cpp" line="1599"/>
-        <location filename="../gui/MainWindow.cpp" line="1639"/>
-        <location filename="../gui/MainWindow.cpp" line="1646"/>
+        <location filename="../gui/MainWindow.cpp" line="1486"/>
+        <location filename="../gui/MainWindow.cpp" line="1494"/>
+        <location filename="../gui/MainWindow.cpp" line="1557"/>
+        <location filename="../gui/MainWindow.cpp" line="1580"/>
+        <location filename="../gui/MainWindow.cpp" line="1588"/>
+        <location filename="../gui/MainWindow.cpp" line="1643"/>
+        <location filename="../gui/MainWindow.cpp" line="1683"/>
+        <location filename="../gui/MainWindow.cpp" line="1690"/>
         <source>Import</source>
         <translation>가져오기</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1443"/>
+        <location filename="../gui/MainWindow.cpp" line="1487"/>
         <source>Could not create backup at:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1451"/>
+        <location filename="../gui/MainWindow.cpp" line="1495"/>
         <source>Could not copy new profile to:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1463"/>
+        <location filename="../gui/MainWindow.cpp" line="1507"/>
         <source>Profile imported from: %1 (backup at %2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1476"/>
+        <location filename="../gui/MainWindow.cpp" line="1520"/>
         <source>Export sessions</source>
         <translation>세션 내보내기</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1491"/>
-        <location filename="../gui/MainWindow.cpp" line="1575"/>
+        <location filename="../gui/MainWindow.cpp" line="1535"/>
+        <location filename="../gui/MainWindow.cpp" line="1619"/>
         <source>Could not write subset profile to:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1496"/>
+        <location filename="../gui/MainWindow.cpp" line="1540"/>
         <source>Exported %1 session(s) to:
 %2
 
@@ -587,35 +597,35 @@ SSH passwords stored as DPAPI ciphertext will not decrypt on another Windows acc
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1507"/>
+        <location filename="../gui/MainWindow.cpp" line="1551"/>
         <source>Import sessions</source>
         <translation>세션 가져오기</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1514"/>
-        <location filename="../gui/MainWindow.cpp" line="1600"/>
+        <location filename="../gui/MainWindow.cpp" line="1558"/>
+        <location filename="../gui/MainWindow.cpp" line="1644"/>
         <source>Could not parse profile file:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1537"/>
-        <location filename="../gui/MainWindow.cpp" line="1640"/>
+        <location filename="../gui/MainWindow.cpp" line="1581"/>
+        <location filename="../gui/MainWindow.cpp" line="1684"/>
         <source>Could not write merged profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1545"/>
+        <location filename="../gui/MainWindow.cpp" line="1589"/>
         <source>Imported %1 new session(s); skipped %2 duplicate name(s).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1556"/>
+        <location filename="../gui/MainWindow.cpp" line="1600"/>
         <source>Export snapshots</source>
         <translation>스냅샷 내보내기</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1580"/>
+        <location filename="../gui/MainWindow.cpp" line="1624"/>
         <source>Exported %1 snapshot(s) and %2 rule(s) to:
 %3
 
@@ -623,164 +633,197 @@ The SMTP password is DPAPI-encrypted and will not decrypt on another Windows acc
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1593"/>
+        <location filename="../gui/MainWindow.cpp" line="1637"/>
         <source>Import snapshots</source>
         <translation>스냅샷 가져오기</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1647"/>
+        <location filename="../gui/MainWindow.cpp" line="1691"/>
         <source>Imported %1 snapshot(s) (%2 duplicates skipped) and %3 rule(s).%4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1649"/>
+        <location filename="../gui/MainWindow.cpp" line="1693"/>
         <source>
 SMTP settings were also imported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1656"/>
+        <location filename="../gui/MainWindow.cpp" line="1700"/>
         <source>Save session</source>
         <translation>세션 저장</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1657"/>
+        <location filename="../gui/MainWindow.cpp" line="1701"/>
         <source>Cannot save: profile already holds %1 sessions (max).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1709"/>
+        <location filename="../gui/MainWindow.cpp" line="1753"/>
         <source>Session &quot;%1&quot; saved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1748"/>
+        <location filename="../gui/MainWindow.cpp" line="1792"/>
         <source>SSH Password</source>
         <translation>SSH 비밀번호</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1749"/>
+        <location filename="../gui/MainWindow.cpp" line="1793"/>
         <source>Password for %1@%2:</source>
         <translation>%1@%2의 비밀번호:</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1788"/>
+        <location filename="../gui/MainWindow.cpp" line="1832"/>
         <source>Connecting to %1...</source>
         <translation>%1에 연결 중...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1791"/>
+        <location filename="../gui/MainWindow.cpp" line="1835"/>
         <source>Connected: %1</source>
         <translation>연결됨: %1</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1794"/>
+        <location filename="../gui/MainWindow.cpp" line="1838"/>
         <source>Session error</source>
         <translation>세션 오류</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1795"/>
+        <location filename="../gui/MainWindow.cpp" line="1839"/>
         <source>Error: %1</source>
         <translation>오류: %1</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1800"/>
+        <location filename="../gui/MainWindow.cpp" line="1844"/>
         <source>Disconnected: %1 (%2)</source>
         <translation>연결 끊김: %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1848"/>
-        <location filename="../gui/MainWindow.cpp" line="2512"/>
+        <location filename="../gui/MainWindow.cpp" line="1892"/>
+        <location filename="../gui/MainWindow.cpp" line="2632"/>
         <source>Close tab</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1946"/>
+        <location filename="../gui/MainWindow.cpp" line="1990"/>
         <source>Detach to New Window</source>
         <translation>새 창으로 분리</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1989"/>
-        <location filename="../gui/MainWindow.cpp" line="1995"/>
+        <location filename="../gui/MainWindow.cpp" line="2033"/>
+        <location filename="../gui/MainWindow.cpp" line="2039"/>
         <source>%1 (slot %2)</source>
         <translation>%1 (슬롯 %2)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2005"/>
+        <location filename="../gui/MainWindow.cpp" line="2049"/>
         <source>Unlink Tab (currently: %1)</source>
         <translation>탭 연결 해제 (현재: %1)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2007"/>
+        <location filename="../gui/MainWindow.cpp" line="2051"/>
         <source>Link Tab to Peer Tab...</source>
         <translation>다른 TSCRT의 탭과 연결...</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2188"/>
+        <location filename="../gui/MainWindow.cpp" line="2232"/>
         <source>Sessions saved.</source>
         <translation>세션이 저장되었습니다.</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2208"/>
-        <location filename="../gui/MainWindow.cpp" line="2212"/>
+        <location filename="../gui/MainWindow.cpp" line="2252"/>
+        <location filename="../gui/MainWindow.cpp" line="2256"/>
         <source>Edit button</source>
         <translation>버튼 편집</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2209"/>
+        <location filename="../gui/MainWindow.cpp" line="2253"/>
         <source>Label:</source>
         <translation>라벨:</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2213"/>
+        <location filename="../gui/MainWindow.cpp" line="2257"/>
         <source>Action (escape: \r \n \t \b \e \p \\):</source>
         <translation>액션 (이스케이프: \r \n \t \b \e \p \\):</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2319"/>
+        <location filename="../gui/MainWindow.cpp" line="2372"/>
         <source>&lt;h2&gt;TSCRT&lt;/h2&gt;&lt;p&gt;&lt;b&gt;Version %1&lt;/b&gt;&lt;br/&gt;Built %2&lt;/p&gt;&lt;p&gt;A terminal emulator for SSH2 and serial consoles.&lt;/p&gt;&lt;p style=&quot;color:#888;&quot;&gt;Qt %3 &amp;middot; libssh2 %4 &amp;middot; libvterm %5.%6&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2334"/>
+        <location filename="../gui/MainWindow.cpp" line="2395"/>
         <source>Copyright &amp;copy; 2026 TePSEG Co., Ltd. (Republic of Korea)&lt;br/&gt;Developer: &lt;a href=&quot;mailto:ygjeon@tepseg.com&quot;&gt;ygjeon@tepseg.com&lt;/a&gt;&lt;br/&gt;Released under the GNU General Public License (GPL).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2347"/>
-        <location filename="../gui/MainWindow.cpp" line="2380"/>
+        <location filename="../gui/MainWindow.cpp" line="2413"/>
+        <location filename="../gui/MainWindow.cpp" line="2437"/>
+        <location filename="../gui/MainWindow.cpp" line="2444"/>
+        <location filename="../gui/MainWindow.cpp" line="2452"/>
+        <source>Check for updates</source>
+        <translation>업데이트 확인</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="2425"/>
+        <source>Checking...</source>
+        <translation>확인 중...</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="2426"/>
+        <source>Connecting to GitHub...</source>
+        <translation>GitHub 에 연결 중...</translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="2433"/>
+        <source>&lt;b&gt;New version available: %1&lt;/b&gt;&lt;br&gt;&lt;a href=&quot;%2&quot;&gt;Open download page&lt;/a&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="2443"/>
+        <source>&lt;span style=&quot;color:green;&quot;&gt;&amp;#10003; You are running the latest version.&lt;/span&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="2450"/>
+        <source>&lt;span style=&quot;color:orange;&quot;&gt;Update check failed: %1&lt;/span&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/MainWindow.cpp" line="2467"/>
+        <location filename="../gui/MainWindow.cpp" line="2500"/>
         <source>Export diagnostics</source>
         <translation>진단 정보 내보내기</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2350"/>
+        <location filename="../gui/MainWindow.cpp" line="2470"/>
         <source>&lt;b&gt;The diagnostic bundle will include:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;App log (&lt;code&gt;tscrt_win.log&lt;/code&gt;): connection events, error messages&lt;/li&gt;&lt;li&gt;System info: OS, Qt / libssh2 versions, locale&lt;/li&gt;&lt;li&gt;Paths and selected environment variables (may contain your Windows username)&lt;/li&gt;&lt;li&gt;Crash dump file names (contents are NOT included)&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;The bundle will NOT include:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Passwords or SSH private keys&lt;/li&gt;&lt;li&gt;Your session profile (hosts, snapshots, automation rules)&lt;/li&gt;&lt;li&gt;Snapshot files or per-session terminal capture logs&lt;/li&gt;&lt;li&gt;Commands you typed or terminal output&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Review the generated &lt;code&gt;.txt.gz&lt;/code&gt; before sharing.&lt;/p&gt;</source>
         <translation>&lt;b&gt;진단 번들에 포함되는 항목:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;앱 로그(&lt;code&gt;tscrt_win.log&lt;/code&gt;): 접속 이벤트, 오류 메시지&lt;/li&gt;&lt;li&gt;시스템 정보: OS, Qt / libssh2 버전, 로케일&lt;/li&gt;&lt;li&gt;경로 및 일부 환경변수(Windows 사용자명이 포함될 수 있음)&lt;/li&gt;&lt;li&gt;크래시 덤프 파일 이름 (내용은 포함되지 않음)&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;포함되지 않는 항목:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;비밀번호 및 SSH 개인 키&lt;/li&gt;&lt;li&gt;세션 프로파일(호스트, 스냅샷, 자동화 규칙)&lt;/li&gt;&lt;li&gt;스냅샷 파일 및 세션별 터미널 캡처 로그&lt;/li&gt;&lt;li&gt;입력한 명령 또는 터미널 출력&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;공유 전 생성된 &lt;code&gt;.txt.gz&lt;/code&gt; 파일을 확인하세요.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2367"/>
+        <location filename="../gui/MainWindow.cpp" line="2487"/>
         <source>Continue</source>
         <translation>계속</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2382"/>
+        <location filename="../gui/MainWindow.cpp" line="2502"/>
         <source>Diagnostic bundle (*.txt.gz);;All files (*)</source>
         <translation>진단 번들 (*.txt.gz);;모든 파일 (*)</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2394"/>
+        <location filename="../gui/MainWindow.cpp" line="2514"/>
         <source>Export failed</source>
         <translation>내보내기 실패</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2395"/>
+        <location filename="../gui/MainWindow.cpp" line="2515"/>
         <source>Could not write diagnostic bundle:
 %1</source>
         <translation>진단 번들을 쓸 수 없습니다:
 %1</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2406"/>
+        <location filename="../gui/MainWindow.cpp" line="2526"/>
         <source>File: %1
 Uncompressed: %2
 Compressed: %3</source>
@@ -789,67 +832,68 @@ Compressed: %3</source>
 압축: %3</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2411"/>
+        <location filename="../gui/MainWindow.cpp" line="2531"/>
         <source>Note: log content was truncated to fit the size cap.</source>
         <translation>참고: 크기 제한을 맞추기 위해 로그 내용이 잘렸습니다.</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2415"/>
+        <location filename="../gui/MainWindow.cpp" line="2535"/>
         <source>Diagnostics exported</source>
         <translation>진단 정보 내보내기 완료</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="967"/>
         <location filename="../gui/MainWindow.cpp" line="1011"/>
-        <location filename="../gui/MainWindow.cpp" line="1036"/>
-        <location filename="../gui/MainWindow.cpp" line="1090"/>
-        <location filename="../gui/MainWindow.cpp" line="1281"/>
-        <location filename="../gui/MainWindow.cpp" line="1299"/>
-        <location filename="../gui/MainWindow.cpp" line="1375"/>
-        <location filename="../gui/MainWindow.cpp" line="1674"/>
-        <location filename="../gui/MainWindow.cpp" line="2162"/>
-        <location filename="../gui/MainWindow.cpp" line="2180"/>
-        <location filename="../gui/MainWindow.cpp" line="2232"/>
+        <location filename="../gui/MainWindow.cpp" line="1055"/>
+        <location filename="../gui/MainWindow.cpp" line="1080"/>
+        <location filename="../gui/MainWindow.cpp" line="1134"/>
+        <location filename="../gui/MainWindow.cpp" line="1325"/>
+        <location filename="../gui/MainWindow.cpp" line="1343"/>
+        <location filename="../gui/MainWindow.cpp" line="1419"/>
+        <location filename="../gui/MainWindow.cpp" line="1718"/>
+        <location filename="../gui/MainWindow.cpp" line="2206"/>
+        <location filename="../gui/MainWindow.cpp" line="2224"/>
+        <location filename="../gui/MainWindow.cpp" line="2276"/>
         <source>Save failed</source>
         <translation>저장 실패</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1923"/>
+        <location filename="../gui/MainWindow.cpp" line="1967"/>
         <source>Duplicate</source>
         <translation>복제</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1927"/>
+        <location filename="../gui/MainWindow.cpp" line="1971"/>
         <source>Run Snapshot</source>
         <translation>스냅샷 실행</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1944"/>
+        <location filename="../gui/MainWindow.cpp" line="1988"/>
         <source>Unpin</source>
         <translation>고정 해제</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="1944"/>
+        <location filename="../gui/MainWindow.cpp" line="1988"/>
         <source>Pin</source>
         <translation>고정</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2012"/>
+        <location filename="../gui/MainWindow.cpp" line="2056"/>
+        <location filename="../gui/MainWindow.cpp" line="2414"/>
         <source>Close</source>
         <translation>닫기</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2088"/>
+        <location filename="../gui/MainWindow.cpp" line="2132"/>
         <source>Rename Tab</source>
         <translation>탭 이름 바꾸기</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2088"/>
+        <location filename="../gui/MainWindow.cpp" line="2132"/>
         <source>Tab name:</source>
         <translation>탭 이름:</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="2170"/>
+        <location filename="../gui/MainWindow.cpp" line="2214"/>
         <source>Preferences saved.</source>
         <translation>환경설정이 저장되었습니다.</translation>
     </message>
