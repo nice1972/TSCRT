@@ -33,6 +33,20 @@ struct PeerTabInfo {
     QString session;
     int     slot = 0;
     QString title;
+    /// Per-process MainWindow id (>=1). Lets the link dialog distinguish
+    /// same-role tabs that live in different windows of the same process,
+    /// so "Detach to New Window" splits can still be paired via Tab Link.
+    /// Defaults to 0 for cross-process peer tabs (window grouping irrelevant).
+    int     window_id = 0;
+};
+
+struct PeerWindowInfo {
+    /// Per-process MainWindow id (matches PeerTabInfo::window_id).
+    int   window_id = 0;
+    /// Outer frame geometry in screen coordinates (suitable for setGeometry
+    /// after subtracting frameMargins, or for restoreGeometry-equivalent).
+    int   x = 0, y = 0, w = 0, h = 0;
+    bool  maximized = false;
 };
 
 class LinkBroker : public QObject {
@@ -57,11 +71,25 @@ public:
     QString selfUuid() const { return m_uuid; }
     QStringList connectedPeerUuids() const;
     QVector<PeerTabInfo> peerTabs(const QString &uuid) const;
+    /// Last list published via publishLocalTabs(). Used by the link
+    /// dialog so same-process tabs across multiple MainWindows can be
+    /// listed with the same monotone slot indices that peers see.
+    const QVector<PeerTabInfo> &localTabs() const { return m_localTabs; }
     char peerRole(const QString &uuid) const;
 
     /// Publish our local tab list to every connected peer.
     /// Windows call this whenever tabs are added/removed/renamed.
     void publishLocalTabs(const QVector<PeerTabInfo> &tabs);
+
+    /// Publish our local MainWindow geometry list. MainWindow calls this
+    /// from move/resize events (debounced) and after layout changes so
+    /// peers — and the workspace snapshot builder — always have a
+    /// recent picture of where every window sits on screen.
+    void publishLocalWindows(const QVector<PeerWindowInfo> &windows);
+
+    /// Cached window geometries.
+    const QVector<PeerWindowInfo> &localWindows() const { return m_localWindows; }
+    QVector<PeerWindowInfo> peerWindows(const QString &uuid) const;
 
     /// Ask peers to activate the tab bound to this pair_id.
     /// Swallowed if currently applying an inbound activation (echo guard).
@@ -107,15 +135,18 @@ private:
     void handleMessage(QLocalSocket *sock, const QByteArray &line);
     void sendHelloAndTabs(QLocalSocket *sock);
     QString encodeLocalTabs() const;
+    QString encodeLocalWindows() const;
 
-    QLocalServer                          *m_server = nullptr;
-    QString                                m_uuid;
-    QString                                m_socketName;
-    char                                   m_role    = 0;
-    QHash<QString, QLocalSocket *>         m_peers;     // uuid → socket
-    QHash<QString, QVector<PeerTabInfo>>   m_peerTabs;  // uuid → tabs
-    QHash<QString, char>                   m_peerRoles; // uuid → 'A'/'B'/0
-    QVector<PeerTabInfo>                   m_localTabs;
+    QLocalServer                            *m_server = nullptr;
+    QString                                  m_uuid;
+    QString                                  m_socketName;
+    char                                     m_role    = 0;
+    QHash<QString, QLocalSocket *>           m_peers;       // uuid → socket
+    QHash<QString, QVector<PeerTabInfo>>     m_peerTabs;    // uuid → tabs
+    QHash<QString, QVector<PeerWindowInfo>>  m_peerWindows; // uuid → windows
+    QHash<QString, char>                     m_peerRoles;   // uuid → 'A'/'B'/0
+    QVector<PeerTabInfo>                     m_localTabs;
+    QVector<PeerWindowInfo>                  m_localWindows;
     QSet<QString>                          m_dialing;
     QTimer                                 m_discoverTimer;
     int                                    m_suppressDepth = 0;

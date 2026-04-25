@@ -44,7 +44,7 @@
 #define WRITE_TTY(fd, buf, len) \
     do { if (write((fd), (buf), (len)) < 0) { /* ignore */ } } while(0)
 
-#define TSCRT_VERSION        "1.0.10"
+#define TSCRT_VERSION        "1.0.12"
 #define TSCRT_DIR_NAME       "tscrt"
 #define TSCRT_PROFILE_NAME   "tscrt.profile"
 #define TSCRT_LOG_DIR_NAME   "logs"
@@ -226,14 +226,23 @@ typedef struct {
  * which endpoint so a same-named session tab in both processes doesn't
  * cause spurious self-binding. Legacy links with role == 0 fall back to
  * ('A','B') at load time. */
+/* left_window_id / right_window_id disambiguate endpoints that share the
+ * same role (i.e. live in the same process) but in different MainWindow
+ * instances — this is how "Detach to New Window" splits can still be
+ * paired via Tab Link. 0 means "any window in the owning process" and
+ * matches the legacy cross-process behavior. Window IDs are assigned
+ * per-process at runtime, starting from 1, and are stable for the
+ * lifetime of the window (not across restarts). */
 typedef struct {
     char pair_id[MAX_PAIR_ID_LEN];      /* UUID without braces */
     char left_role;                     /* 'A' or 'B' */
     char left_session[MAX_NAME_LEN];
     int  left_slot;
+    int  left_window_id;                /* 0 = any window */
     char right_role;                    /* 'A' or 'B' */
     char right_session[MAX_NAME_LEN];
     int  right_slot;
+    int  right_window_id;               /* 0 = any window */
 } tab_link_t;
 
 typedef struct {

@@ -392,12 +392,16 @@ static int profile_read_file(profile_t *p, const char *path)
                 snprintf(lk->left_session, sizeof(lk->left_session), "%s", val);
             else if (strcmp(key, "left_slot") == 0)
                 lk->left_slot = atoi(val);
+            else if (strcmp(key, "left_window_id") == 0)
+                lk->left_window_id = atoi(val);
             else if (strcmp(key, "right_role") == 0)
                 lk->right_role = val[0] ? val[0] : 'B';
             else if (strcmp(key, "right_session") == 0)
                 snprintf(lk->right_session, sizeof(lk->right_session), "%s", val);
             else if (strcmp(key, "right_slot") == 0)
                 lk->right_slot = atoi(val);
+            else if (strcmp(key, "right_window_id") == 0)
+                lk->right_window_id = atoi(val);
         }
     }
 
@@ -614,7 +618,12 @@ static int profile_write_file(const profile_t *p, const char *path)
     }
 
     /* Tab links (cross-instance). One section per pair so we can keep
-     * endpoint metadata (role + session name + slot_index) readable. */
+     * endpoint metadata (role + session name + slot_index) readable.
+     * left_window_id / right_window_id are intentionally NOT serialized:
+     * window IDs are assigned per-process at runtime and would be stale
+     * on the next launch. The load-side parser still accepts those keys
+     * for forward compatibility, but on restart links default to 0 (any
+     * window) and same-process multi-window pairs must be re-established. */
     for (int i = 0; i < p->tab_link_count; i++) {
         const tab_link_t *lk = &p->tab_links[i];
         if (!lk->pair_id[0]) continue;

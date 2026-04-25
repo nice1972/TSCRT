@@ -275,13 +275,33 @@ QString LinkBroker::encodeLocalTabs() const
     QJsonArray arr;
     for (const PeerTabInfo &t : m_localTabs) {
         QJsonObject o;
-        o[QStringLiteral("session")] = t.session;
-        o[QStringLiteral("slot")]    = t.slot;
-        o[QStringLiteral("title")]   = t.title;
+        o[QStringLiteral("session")]   = t.session;
+        o[QStringLiteral("slot")]      = t.slot;
+        o[QStringLiteral("title")]     = t.title;
+        o[QStringLiteral("window_id")] = t.window_id;
         arr.append(o);
     }
     QJsonObject msg;
     msg[QStringLiteral("type")] = QStringLiteral("tabs");
+    msg[QStringLiteral("list")] = arr;
+    return QString::fromUtf8(QJsonDocument(msg).toJson(QJsonDocument::Compact));
+}
+
+QString LinkBroker::encodeLocalWindows() const
+{
+    QJsonArray arr;
+    for (const PeerWindowInfo &w : m_localWindows) {
+        QJsonObject o;
+        o[QStringLiteral("window_id")] = w.window_id;
+        o[QStringLiteral("x")]         = w.x;
+        o[QStringLiteral("y")]         = w.y;
+        o[QStringLiteral("w")]         = w.w;
+        o[QStringLiteral("h")]         = w.h;
+        o[QStringLiteral("max")]       = w.maximized;
+        arr.append(o);
+    }
+    QJsonObject msg;
+    msg[QStringLiteral("type")] = QStringLiteral("windows");
     msg[QStringLiteral("list")] = arr;
     return QString::fromUtf8(QJsonDocument(msg).toJson(QJsonDocument::Compact));
 }
@@ -296,6 +316,7 @@ void LinkBroker::sendHelloAndTabs(QLocalSocket *sock)
     sendJson(sock,
         QString::fromUtf8(QJsonDocument(hello).toJson(QJsonDocument::Compact)));
     sendJson(sock, encodeLocalTabs());
+    sendJson(sock, encodeLocalWindows());
 }
 
 void LinkBroker::handleMessage(QLocalSocket *sock, const QByteArray &line)
@@ -332,13 +353,32 @@ void LinkBroker::handleMessage(QLocalSocket *sock, const QByteArray &line)
         for (const QJsonValue &v : arr) {
             const QJsonObject o = v.toObject();
             PeerTabInfo t;
-            t.session = o.value(QStringLiteral("session")).toString();
-            t.slot    = o.value(QStringLiteral("slot")).toInt();
-            t.title   = o.value(QStringLiteral("title")).toString();
+            t.session   = o.value(QStringLiteral("session")).toString();
+            t.slot      = o.value(QStringLiteral("slot")).toInt();
+            t.title     = o.value(QStringLiteral("title")).toString();
+            t.window_id = o.value(QStringLiteral("window_id")).toInt();
             tabs.append(t);
         }
         m_peerTabs.insert(uuid, tabs);
         emit peerTabsChanged(uuid);
+    } else if (type == QStringLiteral("windows")) {
+        const QString uuid = sock->property("tscrtUuid").toString();
+        if (uuid.isEmpty()) return;
+        QVector<PeerWindowInfo> wins;
+        const QJsonArray arr = obj.value(QStringLiteral("list")).toArray();
+        wins.reserve(arr.size());
+        for (const QJsonValue &v : arr) {
+            const QJsonObject o = v.toObject();
+            PeerWindowInfo wi;
+            wi.window_id = o.value(QStringLiteral("window_id")).toInt();
+            wi.x         = o.value(QStringLiteral("x")).toInt();
+            wi.y         = o.value(QStringLiteral("y")).toInt();
+            wi.w         = o.value(QStringLiteral("w")).toInt();
+            wi.h         = o.value(QStringLiteral("h")).toInt();
+            wi.maximized = o.value(QStringLiteral("max")).toBool();
+            wins.append(wi);
+        }
+        m_peerWindows.insert(uuid, wins);
     } else if (type == QStringLiteral("activate_pair")) {
         const QString pairId = obj.value(QStringLiteral("pair_id")).toString();
         qInfo("LinkBroker: received activate_pair %s", qPrintable(pairId));
@@ -371,6 +411,7 @@ void LinkBroker::onPeerDisconnected()
     if (!uuid.isEmpty()) {
         m_peers.remove(uuid);
         m_peerTabs.remove(uuid);
+        m_peerWindows.remove(uuid);
         m_peerRoles.remove(uuid);
         emit peerDisconnected(uuid);
     }
@@ -398,6 +439,20 @@ void LinkBroker::publishLocalTabs(const QVector<PeerTabInfo> &tabs)
           int(tabs.size()), int(m_peers.size()));
     for (QLocalSocket *sock : m_peers)
         sendJson(sock, payload);
+}
+
+void LinkBroker::publishLocalWindows(const QVector<PeerWindowInfo> &windows)
+{
+    m_localWindows = windows;
+    if (m_peers.isEmpty()) return;
+    const QString payload = encodeLocalWindows();
+    for (QLocalSocket *sock : m_peers)
+        sendJson(sock, payload);
+}
+
+QVector<PeerWindowInfo> LinkBroker::peerWindows(const QString &uuid) const
+{
+    return m_peerWindows.value(uuid);
 }
 
 void LinkBroker::activatePair(const QString &pairId)

@@ -17,31 +17,55 @@ QString filePath(char role)
                 + QStringLiteral(".lst");
 }
 
-QStringList load(char role)
+QVector<Entry> loadEntries(char role)
 {
-    QStringList out;
+    QVector<Entry> out;
     QFile f(filePath(role));
     if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
         return out;
     QTextStream in(&f);
     in.setEncoding(QStringConverter::Utf8);
     while (!in.atEnd()) {
-        const QString line = in.readLine().trimmed();
-        if (!line.isEmpty())
-            out.append(line);
+        const QString line = in.readLine();
+        if (line.trimmed().isEmpty()) continue;
+        const int tab = line.indexOf(QLatin1Char('\t'));
+        if (tab < 0) {
+            out.append({ line.trimmed(), QString() });
+        } else {
+            out.append({ line.left(tab), line.mid(tab + 1) });
+        }
     }
     return out;
 }
 
-void save(char role, const QStringList &names)
+QStringList load(char role)
+{
+    QStringList names;
+    for (const Entry &e : loadEntries(role)) names.append(e.first);
+    return names;
+}
+
+void saveEntries(char role, const QVector<Entry> &entries)
 {
     QFile f(filePath(role));
     if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
         return;
     QTextStream out(&f);
     out.setEncoding(QStringConverter::Utf8);
-    for (const QString &n : names)
-        out << n << '\n';
+    for (const Entry &e : entries) {
+        if (e.second.isEmpty() || e.second == e.first)
+            out << e.first << '\n';
+        else
+            out << e.first << '\t' << e.second << '\n';
+    }
+}
+
+void save(char role, const QStringList &names)
+{
+    QVector<Entry> entries;
+    entries.reserve(names.size());
+    for (const QString &n : names) entries.append({ n, QString() });
+    saveEntries(role, entries);
 }
 
 void clear(char role)

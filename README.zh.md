@@ -16,9 +16,9 @@
 
 | 平台 | 文件 | 说明 |
 |------|------|------|
-| **Windows x64** | [tscrt_win-1.0.10-win64.exe](https://github.com/nice1972/TSCRT/releases/download/v1.0.10/tscrt_win-1.0.10-win64.exe) | NSIS 安装程序 |
-| **Ubuntu / Debian (amd64)** | [tscrt_1.0.10_amd64.deb](https://github.com/nice1972/TSCRT/releases/download/v1.0.10/tscrt_1.0.10_amd64.deb) | `sudo apt install ./tscrt_1.0.10_amd64.deb` |
-| **macOS (Universal)** | [tscrt_mac-1.0.10-universal.dmg](https://github.com/nice1972/TSCRT/releases/download/v1.0.10/tscrt_mac-1.0.10-universal.dmg) | 将 `tscrt_mac.app` 拖入 `/Applications` |
+| **Windows x64** | [tscrt_win-1.0.12-win64.exe](https://github.com/nice1972/TSCRT/releases/download/v1.0.12/tscrt_win-1.0.12-win64.exe) | NSIS 安装程序 |
+| **Ubuntu / Debian (amd64)** | [tscrt_1.0.12_amd64.deb](https://github.com/nice1972/TSCRT/releases/download/v1.0.12/tscrt_1.0.12_amd64.deb) | `sudo apt install ./tscrt_1.0.12_amd64.deb` |
+| **macOS (Universal)** | [tscrt_mac-1.0.12-universal.dmg](https://github.com/nice1972/TSCRT/releases/download/v1.0.12/tscrt_mac-1.0.12-universal.dmg) | 将 `tscrt_mac.app` 拖入 `/Applications` |
 
 ---
 

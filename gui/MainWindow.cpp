@@ -25,6 +25,8 @@
 #include "SnapshotsDialog.h"
 #include "SshSession.h"
 #include "TerminalWidget.h"
+#include "WorkspaceStore.h"
+#include "WorkspacesDialog.h"
 
 #include "profile.h"
 
@@ -63,10 +65,12 @@
 #include <QShortcut>
 #include <QTabBar>
 #include <QTabWidget>
+#include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QMap>
 #include <QSet>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
@@ -80,10 +84,34 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
+    static int s_nextWindowId = 1;
+    m_windowId = s_nextWindowId++;
     allWindows().append(this);
     setWindowTitle(QStringLiteral("TSCRT"));
     setAcceptDrops(true);
     resize(1100, 720);
+
+    // Debounced geometry publisher: every move/resize restarts the
+    // timer; on timeout we publish *all* windows of this process so
+    // peers (and the workspace builder) see a stable, post-drag value.
+    m_geomPublishTimer = new QTimer(this);
+    m_geomPublishTimer->setSingleShot(true);
+    m_geomPublishTimer->setInterval(150);
+    connect(m_geomPublishTimer, &QTimer::timeout, this, [] {
+        QVector<tscrt::PeerWindowInfo> wins;
+        for (MainWindow *w : MainWindow::allWindows()) {
+            tscrt::PeerWindowInfo wi;
+            wi.window_id = w->windowId();
+            const QRect g = w->frameGeometry();
+            wi.x = g.x();
+            wi.y = g.y();
+            wi.w = g.width();
+            wi.h = g.height();
+            wi.maximized = w->isMaximized();
+            wins.append(wi);
+        }
+        tscrt::LinkBroker::instance()->publishLocalWindows(wins);
+    });
 
     // -- Empty-state page (logo background) --
     m_emptyPage = new QWidget(this);
@@ -131,15 +159,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     setCentralWidget(m_central);
 
     // Ctrl+Alt+Left / Ctrl+Alt+Right: move between tabs without wrap-around.
+    // Use WindowShortcut (the default) so that each MainWindow's pair binds
+    // to its own m_tabs. ApplicationShortcut would collide as soon as a
+    // second window opens (Qt flags duplicates as ambiguous and silently
+    // fires neither).
     auto *prevTab = new QShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_Left), this);
-    prevTab->setContext(Qt::ApplicationShortcut);
+    prevTab->setContext(Qt::WindowShortcut);
     connect(prevTab, &QShortcut::activated, this, [this] {
         const int i = m_tabs->currentIndex();
         if (i > 0)
             m_tabs->setCurrentIndex(i - 1);
     });
     auto *nextTab = new QShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_Right), this);
-    nextTab->setContext(Qt::ApplicationShortcut);
+    nextTab->setContext(Qt::WindowShortcut);
     connect(nextTab, &QShortcut::activated, this, [this] {
         const int i = m_tabs->currentIndex();
         if (i >= 0 && i < m_tabs->count() - 1)
@@ -147,7 +179,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     });
 
     auto *fsToggle = new QShortcut(QKeySequence(Qt::Key_F11), this);
-    fsToggle->setContext(Qt::ApplicationShortcut);
+    fsToggle->setContext(Qt::WindowShortcut);
     connect(fsToggle, &QShortcut::activated,
             this, &MainWindow::toggleFullScreen);
 
@@ -193,31 +225,52 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     });
     connect(broker, &tscrt::LinkBroker::linksReceived,
             this, [this](const QJsonArray &list) {
-        // Adopt the peer's link table. Only apply if we don't already
-        // have the same data — avoids pointless refresh storms.
-        const int newCount = std::min((int)list.size(), MAX_TAB_LINKS);
-        bool changed = (newCount != m_profile.tab_link_count);
-        if (!changed) {
-            for (int i = 0; i < newCount && !changed; ++i) {
-                const QJsonObject o = list.at(i).toObject();
-                const tab_link_t &lk = m_profile.tab_links[i];
-                if (o.value(QStringLiteral("pair_id")).toString()
-                        != QString::fromLocal8Bit(lk.pair_id) ||
-                    o.value(QStringLiteral("left_session")).toString()
-                        != QString::fromLocal8Bit(lk.left_session) ||
-                    o.value(QStringLiteral("left_slot")).toInt() != lk.left_slot ||
-                    o.value(QStringLiteral("right_session")).toString()
-                        != QString::fromLocal8Bit(lk.right_session) ||
-                    o.value(QStringLiteral("right_slot")).toInt() != lk.right_slot)
-                    changed = true;
-            }
+        // Adopt the peer's link table for the *cross-process* slice only.
+        // Our own same-process pairs (left/right window_id both > 0) are
+        // never broadcast, so a peer's update must not erase them. Snapshot
+        // ours, then merge: peer-supplied entries first, our local-only
+        // entries appended afterward.
+        QVector<tab_link_t> localOnly;
+        for (int i = 0; i < m_profile.tab_link_count; ++i) {
+            const tab_link_t &lk = m_profile.tab_links[i];
+            if (lk.left_window_id > 0 && lk.right_window_id > 0
+                && lk.left_role == lk.right_role)
+                localOnly.append(lk);
+        }
+
+        const int peerCount = (int)list.size();
+
+        // Cheap "did anything change?" check against the cross-process
+        // slice we currently hold (skip the local-only entries).
+        QVector<int> crossIdx;
+        for (int i = 0; i < m_profile.tab_link_count; ++i) {
+            const tab_link_t &lk = m_profile.tab_links[i];
+            const bool isLocal = lk.left_window_id > 0 && lk.right_window_id > 0
+                                  && lk.left_role == lk.right_role;
+            if (!isLocal) crossIdx.append(i);
+        }
+        bool changed = (crossIdx.size() != peerCount);
+        for (int i = 0; i < peerCount && !changed; ++i) {
+            const QJsonObject o = list.at(i).toObject();
+            const tab_link_t &lk = m_profile.tab_links[crossIdx[i]];
+            if (o.value(QStringLiteral("pair_id")).toString()
+                    != QString::fromLocal8Bit(lk.pair_id) ||
+                o.value(QStringLiteral("left_session")).toString()
+                    != QString::fromLocal8Bit(lk.left_session) ||
+                o.value(QStringLiteral("left_slot")).toInt() != lk.left_slot ||
+                o.value(QStringLiteral("right_session")).toString()
+                    != QString::fromLocal8Bit(lk.right_session) ||
+                o.value(QStringLiteral("right_slot")).toInt() != lk.right_slot)
+                changed = true;
         }
         if (!changed) return;
 
         memset(m_profile.tab_links, 0, sizeof(m_profile.tab_links));
-        for (int i = 0; i < newCount; ++i) {
+        int writeIdx = 0;
+        const int peerWrite = std::min(peerCount, (int)MAX_TAB_LINKS);
+        for (int i = 0; i < peerWrite; ++i, ++writeIdx) {
             const QJsonObject o = list.at(i).toObject();
-            tab_link_t &lk = m_profile.tab_links[i];
+            tab_link_t &lk = m_profile.tab_links[writeIdx];
             snprintf(lk.pair_id, sizeof(lk.pair_id), "%s",
                      o.value(QStringLiteral("pair_id")).toString()
                          .toLocal8Bit().constData());
@@ -234,7 +287,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
                          .toLocal8Bit().constData());
             lk.right_slot = o.value(QStringLiteral("right_slot")).toInt();
         }
-        m_profile.tab_link_count = newCount;
+        for (const tab_link_t &lk : localOnly) {
+            if (writeIdx >= MAX_TAB_LINKS) break;
+            m_profile.tab_links[writeIdx++] = lk;
+        }
+        m_profile.tab_link_count = writeIdx;
         profile_save(&m_profile);
         propagateProfileLinksToOtherWindows();
         refreshLinkState();
@@ -278,6 +335,18 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     QMainWindow::keyPressEvent(event);
+}
+
+void MainWindow::moveEvent(QMoveEvent *ev)
+{
+    QMainWindow::moveEvent(ev);
+    if (m_geomPublishTimer) m_geomPublishTimer->start();
+}
+
+void MainWindow::resizeEvent(QResizeEvent *ev)
+{
+    QMainWindow::resizeEvent(ev);
+    if (m_geomPublishTimer) m_geomPublishTimer->start();
 }
 
 void MainWindow::saveSettings()
@@ -667,8 +736,38 @@ void MainWindow::onCurrentTabChanged(int index)
 
     tscrt::LinkBroker *broker = tscrt::LinkBroker::instance();
     for (auto it = m_pairBindings.begin(); it != m_pairBindings.end(); ++it) {
-        if (it.value().data() == tab)
-            broker->activatePair(it.key());
+        if (it.value().data() != tab) continue;
+        const QString &pid = it.key();
+
+        // Decide whether this pair is same-process (resolved by walking
+        // allWindows()) or cross-process (delegated to the broker).
+        // Same-process iff both window_id fields are non-zero AND both
+        // endpoints share role — that combination is only ever produced
+        // by the local branch of LinkDialog.
+        const tab_link_t *lk = nullptr;
+        for (int i = 0; i < m_profile.tab_link_count; ++i) {
+            if (QString::fromLocal8Bit(m_profile.tab_links[i].pair_id) == pid) {
+                lk = &m_profile.tab_links[i];
+                break;
+            }
+        }
+        const bool localPair = lk
+            && lk->left_window_id > 0 && lk->right_window_id > 0
+            && lk->left_role == lk->right_role;
+        if (localPair) {
+            const int myWid    = this->windowId();
+            const int otherWid = (lk->left_window_id == myWid)
+                                     ? lk->right_window_id
+                                     : lk->left_window_id;
+            for (MainWindow *w : MainWindow::allWindows()) {
+                if (w != this && w->windowId() == otherWid) {
+                    w->activateLocalTabForPair(pid);
+                    break;
+                }
+            }
+        } else {
+            broker->activatePair(pid);
+        }
     }
 }
 
@@ -685,9 +784,10 @@ static QVector<tscrt::PeerTabInfo> collectAllLocalTabs()
             auto *tab = qobject_cast<tscrt::SessionTab *>(tabs->widget(i));
             if (!tab) continue;
             tscrt::PeerTabInfo info;
-            info.session = tab->displayName();
-            info.slot    = slotCounter[info.session]++;
-            info.title   = tabs->tabText(i);
+            info.session   = tab->displayName();
+            info.slot      = slotCounter[info.session]++;
+            info.title     = tabs->tabText(i);
+            info.window_id = w->windowId();
             out.append(info);
         }
     }
@@ -697,6 +797,10 @@ static QVector<tscrt::PeerTabInfo> collectAllLocalTabs()
 void MainWindow::refreshLinkState()
 {
     tscrt::LinkBroker::instance()->publishLocalTabs(collectAllLocalTabs());
+    // Also push current window geometries so peers see them right away;
+    // the debounced moveEvent path handles drag updates while the user
+    // is interacting, but tab/layout-driven changes need an immediate push.
+    if (m_geomPublishTimer) m_geomPublishTimer->start(0);
     saveRoleLayout();
 
     m_pairBindings.clear();
@@ -731,25 +835,40 @@ void MainWindow::refreshLinkState()
         // Back-compat: legacy links without roles default to (A,B).
         const char lr = lk.left_role  ? lk.left_role  : 'A';
         const char rr = lk.right_role ? lk.right_role : 'B';
+        // Safety net for malformed links: same-role with no window
+        // disambiguator could only have been written by a previous
+        // role-detection race (two 'A' processes). Bind nothing
+        // rather than self-pair tabs in this window.
+        if (lr == rr && lk.left_window_id == 0 && lk.right_window_id == 0) {
+            qInfo("  link %s: skipped (malformed: same role %c, no window_id)",
+                  qPrintable(pid), lr);
+            continue;
+        }
         bool bound = false;
+        // window_id constraints: 0 means "any window"; non-zero must match
+        // the current MainWindow so same-role multi-window pairs only
+        // bind their designated endpoint.
+        const int myWid = this->windowId();
+        const bool leftWidOk  = (lk.left_window_id  == 0 || lk.left_window_id  == myWid);
+        const bool rightWidOk = (lk.right_window_id == 0 || lk.right_window_id == myWid);
         for (const auto &e : local) {
             const QString &s = e.second.first;
             const int      sl = e.second.second;
-            const bool matchLeft  = (lr == myRole && s == L && sl == lk.left_slot);
-            const bool matchRight = (rr == myRole && s == R && sl == lk.right_slot);
+            const bool matchLeft  = (lr == myRole && s == L && sl == lk.left_slot  && leftWidOk);
+            const bool matchRight = (rr == myRole && s == R && sl == lk.right_slot && rightWidOk);
             if (matchLeft || matchRight) {
                 m_pairBindings.insert(pid, e.first);
-                qInfo("  link %s: bound to '%s' slot %d (%s side)",
+                qInfo("  link %s: bound to '%s' slot %d (%s side, wid=%d)",
                       qPrintable(pid), qPrintable(s), sl,
-                      matchLeft ? "left" : "right");
+                      matchLeft ? "left" : "right", myWid);
                 bound = true;
                 break;
             }
         }
         if (!bound)
-            qInfo("  link %s: NO match (want %c/%s/%d or %c/%s/%d)",
-                  qPrintable(pid), lr, qPrintable(L), lk.left_slot,
-                  rr, qPrintable(R), lk.right_slot);
+            qInfo("  link %s: NO match (want %c/%s/%d/wid=%d or %c/%s/%d/wid=%d)",
+                  qPrintable(pid), lr, qPrintable(L), lk.left_slot,  lk.left_window_id,
+                  rr, qPrintable(R), lk.right_slot, lk.right_window_id);
     }
 
     // Decorate each tab bound to a link with a small chain-link glyph so
@@ -796,8 +915,11 @@ void MainWindow::activateLocalTabForPair(const QString &pairId)
     if (idx < 0) return;
     tscrt::LinkBrokerSuppress guard;
     m_tabs->setCurrentIndex(idx);
-    activateWindow();
-    raise();
+    // Intentionally no activateWindow()/raise() here. The companion tab
+    // gets synced in the background; the user's active window — and
+    // mouse focus — must stay where they are. Stealing focus here was
+    // causing the cursor to jump to the other instance whenever Ctrl+
+    // Alt+Arrow switched a paired tab.
 }
 
 void MainWindow::broadcastCurrentLinks() const
@@ -805,6 +927,13 @@ void MainWindow::broadcastCurrentLinks() const
     QJsonArray arr;
     for (int i = 0; i < m_profile.tab_link_count; ++i) {
         const tab_link_t &lk = m_profile.tab_links[i];
+        // Skip same-process pairs: window_ids are only meaningful inside
+        // the owning process, and these links are resolved locally without
+        // any peer involvement. Broadcasting them would just create dead
+        // entries in peer profiles.
+        if (lk.left_window_id > 0 && lk.right_window_id > 0
+            && lk.left_role == lk.right_role)
+            continue;
         QJsonObject o;
         o[QStringLiteral("pair_id")]       = QString::fromLocal8Bit(lk.pair_id);
         o[QStringLiteral("left_role")]     =
@@ -844,34 +973,65 @@ void MainWindow::saveRoleLayout() const
 
     const char role = tscrt::LinkBroker::instance()->selfRole();
     if (!role) return;
-    QStringList names;
+    QVector<tscrt::TabLayout::Entry> entries;
     for (MainWindow *w : MainWindow::allWindows()) {
         QTabWidget *tabs = w->tabWidget();
         if (!tabs) continue;
         for (int i = 0; i < tabs->count(); ++i) {
             auto *tab = qobject_cast<tscrt::SessionTab *>(tabs->widget(i));
-            if (tab) names.append(tab->displayName());
+            if (!tab) continue;
+            const QString session = tab->displayName();
+            const QString title   = tabs->tabText(i);
+            entries.append({ session, (title == session) ? QString() : title });
         }
     }
-    tscrt::TabLayout::save(role, names);
+    tscrt::TabLayout::saveEntries(role, entries);
 }
 
 void MainWindow::autoRestoreLayout()
 {
     const char role = tscrt::LinkBroker::instance()->selfRole();
     if (!role) {
+        // Single-process mode: still honour a workspace if the user
+        // saved one — selfRole==0 simply matches the role==0 instance.
+        const QString last = tscrt::WorkspaceStore::lastName();
+        if (!last.isEmpty()) {
+            const QJsonObject ws = tscrt::WorkspaceStore::load(last);
+            if (!ws.isEmpty()) applyWorkspaceForSelf(ws);
+        }
         m_layoutReadyToSave = true;
         return;
+    }
+
+    // Workspace-driven restore takes precedence over the legacy
+    // layout_<role>.lst path. The workspace already encodes every
+    // instance's tab list and links, so we reopen tabs from it and
+    // skip the per-role .lst load below.
+    const QString lastWs = tscrt::WorkspaceStore::lastName();
+    bool restoredFromWorkspace = false;
+    if (!lastWs.isEmpty()) {
+        const QJsonObject ws = tscrt::WorkspaceStore::load(lastWs);
+        if (!ws.isEmpty()) {
+            applyWorkspaceForSelf(ws);
+            restoredFromWorkspace = true;
+        }
     }
 
     // Re-open tabs in the order they were last saved for this role. Load
     // the list FIRST (before openSessionByIndex triggers refreshLinkState)
     // so the subsequent empty-save can't clobber our source of truth.
-    const QStringList names = tscrt::TabLayout::load(role);
-    for (const QString &name : names) {
+    QVector<tscrt::TabLayout::Entry> entries;
+    if (!restoredFromWorkspace)
+        entries = tscrt::TabLayout::loadEntries(role);
+    for (const tscrt::TabLayout::Entry &e : entries) {
+        const QString &session = e.first;
+        const QString &title   = e.second;
         for (int i = 0; i < m_profile.session_count; ++i) {
-            if (QString::fromLocal8Bit(m_profile.sessions[i].name) == name) {
+            if (QString::fromLocal8Bit(m_profile.sessions[i].name) == session) {
+                const int beforeCount = m_tabs->count();
                 openSessionByIndex(i);
+                if (!title.isEmpty() && m_tabs->count() > beforeCount)
+                    m_tabs->setTabText(beforeCount, title);
                 break;
             }
         }
@@ -922,6 +1082,239 @@ void MainWindow::autoRestoreLayout()
             });
         }
     }
+}
+
+QJsonObject MainWindow::buildWorkspaceSnapshot() const
+{
+    auto *broker = tscrt::LinkBroker::instance();
+
+    auto encodeTabs = [](const QVector<tscrt::PeerTabInfo> &tabs) {
+        QJsonArray arr;
+        for (const tscrt::PeerTabInfo &t : tabs) {
+            QJsonObject o;
+            o[QStringLiteral("session")]   = t.session;
+            o[QStringLiteral("slot")]      = t.slot;
+            o[QStringLiteral("title")]     = t.title;
+            o[QStringLiteral("window_id")] = t.window_id;
+            arr.append(o);
+        }
+        return arr;
+    };
+    auto encodeWindows = [](const QVector<tscrt::PeerWindowInfo> &windows) {
+        QJsonArray arr;
+        for (const tscrt::PeerWindowInfo &w : windows) {
+            QJsonObject o;
+            o[QStringLiteral("window_id")] = w.window_id;
+            o[QStringLiteral("x")]         = w.x;
+            o[QStringLiteral("y")]         = w.y;
+            o[QStringLiteral("w")]         = w.w;
+            o[QStringLiteral("h")]         = w.h;
+            o[QStringLiteral("max")]       = w.maximized;
+            arr.append(o);
+        }
+        return arr;
+    };
+
+    // For our own process, query the live MainWindow list directly
+    // instead of relying on the broker cache — guarantees the snapshot
+    // captures the geometry the user sees right now, even if a debounced
+    // publish is still pending.
+    QVector<tscrt::PeerWindowInfo> selfWindows;
+    for (MainWindow *w : MainWindow::allWindows()) {
+        tscrt::PeerWindowInfo wi;
+        wi.window_id = w->windowId();
+        const QRect g = w->frameGeometry();
+        wi.x = g.x();
+        wi.y = g.y();
+        wi.w = g.width();
+        wi.h = g.height();
+        wi.maximized = w->isMaximized();
+        selfWindows.append(wi);
+    }
+
+    QJsonArray instances;
+    {
+        QJsonObject me;
+        if (broker->selfRole())
+            me[QStringLiteral("role")] =
+                QString(QChar::fromLatin1(broker->selfRole()));
+        me[QStringLiteral("uuid")]    = broker->selfUuid();
+        me[QStringLiteral("tabs")]    = encodeTabs(broker->localTabs());
+        me[QStringLiteral("windows")] = encodeWindows(selfWindows);
+        instances.append(me);
+    }
+    for (const QString &uuid : broker->connectedPeerUuids()) {
+        QJsonObject inst;
+        const char r = broker->peerRole(uuid);
+        if (r) inst[QStringLiteral("role")] = QString(QChar::fromLatin1(r));
+        inst[QStringLiteral("uuid")]    = uuid;
+        inst[QStringLiteral("tabs")]    = encodeTabs(broker->peerTabs(uuid));
+        inst[QStringLiteral("windows")] = encodeWindows(broker->peerWindows(uuid));
+        instances.append(inst);
+    }
+
+    QJsonArray links;
+    for (int i = 0; i < m_profile.tab_link_count; ++i) {
+        const tab_link_t &lk = m_profile.tab_links[i];
+        QJsonObject o;
+        o[QStringLiteral("pair_id")]         = QString::fromLocal8Bit(lk.pair_id);
+        o[QStringLiteral("left_role")]       =
+            QString(QChar::fromLatin1(lk.left_role  ? lk.left_role  : 'A'));
+        o[QStringLiteral("left_session")]    = QString::fromLocal8Bit(lk.left_session);
+        o[QStringLiteral("left_slot")]       = lk.left_slot;
+        o[QStringLiteral("left_window_id")]  = lk.left_window_id;
+        o[QStringLiteral("right_role")]      =
+            QString(QChar::fromLatin1(lk.right_role ? lk.right_role : 'B'));
+        o[QStringLiteral("right_session")]   = QString::fromLocal8Bit(lk.right_session);
+        o[QStringLiteral("right_slot")]      = lk.right_slot;
+        o[QStringLiteral("right_window_id")] = lk.right_window_id;
+        links.append(o);
+    }
+
+    QJsonObject root;
+    root[QStringLiteral("version")]    = 1;
+    root[QStringLiteral("instances")]  = instances;
+    root[QStringLiteral("tab_links")]  = links;
+    return root;
+}
+
+void MainWindow::applyWorkspaceForSelf(const QJsonObject &workspace)
+{
+    const char selfRole = tscrt::LinkBroker::instance()->selfRole();
+    const QJsonArray instances = workspace.value(QStringLiteral("instances")).toArray();
+
+    // Pick the instance whose role matches ours. With selfRole==0 the
+    // first instance with no role is taken (single-process mode). The
+    // very first matching entry wins — peer instances are only restored
+    // by their own processes.
+    QJsonObject myInst;
+    for (const QJsonValue &v : instances) {
+        const QJsonObject o = v.toObject();
+        const QString rs = o.value(QStringLiteral("role")).toString();
+        const char r = rs.isEmpty() ? 0 : rs.at(0).toLatin1();
+        if (r == selfRole) { myInst = o; break; }
+    }
+    if (myInst.isEmpty()) return;
+
+    const QJsonArray tabsArr = myInst.value(QStringLiteral("tabs")).toArray();
+    if (tabsArr.isEmpty()) return;
+
+    // Group tabs by their captured window_id. windowId 0 (single-window
+    // mode at save time) collapses into a single group too.
+    QMap<int, QJsonArray> groupedTabs;
+    for (const QJsonValue &v : tabsArr) {
+        const QJsonObject o = v.toObject();
+        const int wid = o.value(QStringLiteral("window_id")).toInt();
+        groupedTabs[wid].append(o);
+    }
+
+    // Index captured window geometry by snapshot-time window_id so we
+    // can re-apply it to the matching live MainWindow further below.
+    QHash<int, QJsonObject> winGeomByOldId;
+    for (const QJsonValue &v : myInst.value(QStringLiteral("windows")).toArray()) {
+        const QJsonObject o = v.toObject();
+        winGeomByOldId.insert(o.value(QStringLiteral("window_id")).toInt(), o);
+    }
+    auto applyGeom = [&winGeomByOldId](MainWindow *w, int oldWid) {
+        const auto it = winGeomByOldId.constFind(oldWid);
+        if (it == winGeomByOldId.constEnd()) return;
+        const QJsonObject g = it.value();
+        const int x = g.value(QStringLiteral("x")).toInt();
+        const int y = g.value(QStringLiteral("y")).toInt();
+        const int wd = g.value(QStringLiteral("w")).toInt();
+        const int h = g.value(QStringLiteral("h")).toInt();
+        if (g.value(QStringLiteral("max")).toBool()) {
+            // Move first so the maximize lands on the intended monitor,
+            // then maximize. Skip resize — Qt picks the screen size.
+            if (wd > 0 && h > 0) w->setGeometry(x, y, wd, h);
+            w->showMaximized();
+        } else if (wd > 0 && h > 0) {
+            w->setGeometry(x, y, wd, h);
+        }
+    };
+
+    auto openTabsInWindow = [this](MainWindow *win, const QJsonArray &tabs) {
+        for (const QJsonValue &v : tabs) {
+            const QJsonObject o = v.toObject();
+            const QString session = o.value(QStringLiteral("session")).toString();
+            const QString title   = o.value(QStringLiteral("title")).toString();
+            for (int i = 0; i < win->m_profile.session_count; ++i) {
+                if (QString::fromLocal8Bit(win->m_profile.sessions[i].name) == session) {
+                    const int beforeCount = win->tabWidget()->count();
+                    win->openSessionByIndex(i);
+                    // openSessionByIndex appends; restore the user-chosen
+                    // tab name on top of the default-derived one.
+                    if (!title.isEmpty() && title != session
+                        && win->tabWidget()->count() > beforeCount) {
+                        win->tabWidget()->setTabText(beforeCount, title);
+                    }
+                    break;
+                }
+            }
+        }
+        Q_UNUSED(this);
+    };
+
+    // First group → this window. Remaining groups → fresh detached windows.
+    // Track old→new windowId so tab_links can be remapped to whatever
+    // m_windowId counter values were assigned at construction.
+    QHash<int, int> oldToNewWid;
+    auto it = groupedTabs.constBegin();
+    if (it != groupedTabs.constEnd()) {
+        oldToNewWid.insert(it.key(), this->windowId());
+        applyGeom(this, it.key());
+        openTabsInWindow(this, it.value());
+        ++it;
+    }
+    for (; it != groupedTabs.constEnd(); ++it) {
+        auto *win = new MainWindow;
+        win->setAttribute(Qt::WA_DeleteOnClose);
+        // Apply geometry *before* show() so the window appears in the
+        // right place on the first paint instead of jumping there.
+        applyGeom(win, it.key());
+        win->show();
+        oldToNewWid.insert(it.key(), win->windowId());
+        openTabsInWindow(win, it.value());
+    }
+
+    // Adopt tab_links. Self-side window_id values are remapped onto the
+    // new window IDs; peer-side values are left alone (the peer process
+    // remaps its own slice when it starts).
+    const QJsonArray linksArr = workspace.value(QStringLiteral("tab_links")).toArray();
+    memset(m_profile.tab_links, 0, sizeof(m_profile.tab_links));
+    int n = std::min((int)linksArr.size(), (int)MAX_TAB_LINKS);
+    for (int i = 0; i < n; ++i) {
+        const QJsonObject o = linksArr.at(i).toObject();
+        tab_link_t &lk = m_profile.tab_links[i];
+        snprintf(lk.pair_id, sizeof(lk.pair_id), "%s",
+                 o.value(QStringLiteral("pair_id")).toString().toLocal8Bit().constData());
+        const QString lr = o.value(QStringLiteral("left_role")).toString();
+        lk.left_role = lr.isEmpty() ? 'A' : lr.at(0).toLatin1();
+        snprintf(lk.left_session, sizeof(lk.left_session), "%s",
+                 o.value(QStringLiteral("left_session")).toString().toLocal8Bit().constData());
+        lk.left_slot       = o.value(QStringLiteral("left_slot")).toInt();
+        lk.left_window_id  = o.value(QStringLiteral("left_window_id")).toInt();
+        const QString rr = o.value(QStringLiteral("right_role")).toString();
+        lk.right_role = rr.isEmpty() ? 'B' : rr.at(0).toLatin1();
+        snprintf(lk.right_session, sizeof(lk.right_session), "%s",
+                 o.value(QStringLiteral("right_session")).toString().toLocal8Bit().constData());
+        lk.right_slot       = o.value(QStringLiteral("right_slot")).toInt();
+        lk.right_window_id  = o.value(QStringLiteral("right_window_id")).toInt();
+        // Remap our own side's window_id from snapshot-time to runtime.
+        if (lk.left_role == selfRole && lk.left_window_id > 0) {
+            const auto it2 = oldToNewWid.constFind(lk.left_window_id);
+            lk.left_window_id = (it2 != oldToNewWid.constEnd()) ? it2.value() : 0;
+        }
+        if (lk.right_role == selfRole && lk.right_window_id > 0) {
+            const auto it2 = oldToNewWid.constFind(lk.right_window_id);
+            lk.right_window_id = (it2 != oldToNewWid.constEnd()) ? it2.value() : 0;
+        }
+    }
+    m_profile.tab_link_count = n;
+    profile_save(&m_profile);
+    propagateProfileLinksToOtherWindows();
+    refreshLinkState();
+    broadcastCurrentLinks();
 }
 
 void MainWindow::updateCentralView()
@@ -1230,6 +1623,53 @@ void MainWindow::rebuildSessionsMenu()
     mgrAct->setShortcut(QKeySequence(tr("Ctrl+Shift+M")));
     connect(mgrAct, &QAction::triggered, this, &MainWindow::showSessionManagerDialog);
     m_sessionsMenu->addAction(mgrAct);
+
+    m_sessionsMenu->addSeparator();
+
+    auto *saveWsAct = new QAction(tr("Save &Workspace..."), this);
+    connect(saveWsAct, &QAction::triggered, this, [this] {
+        const QString last = tscrt::WorkspaceStore::lastName();
+        bool ok = false;
+        const QString name = QInputDialog::getText(this,
+            tr("Save Workspace"),
+            tr("Save the current multi-instance layout and tab links as:"),
+            QLineEdit::Normal,
+            last.isEmpty() ? tr("default") : last, &ok).trimmed();
+        if (!ok || name.isEmpty()) return;
+        if (tscrt::WorkspaceStore::exists(name)) {
+            const auto reply = QMessageBox::question(this, tr("Overwrite?"),
+                tr("Workspace '%1' already exists. Overwrite?").arg(name),
+                QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+            if (reply != QMessageBox::Yes) return;
+        }
+        if (!tscrt::WorkspaceStore::save(name, buildWorkspaceSnapshot())) {
+            QMessageBox::warning(this, tr("Save failed"),
+                tr("Could not write the workspace file."));
+            return;
+        }
+        tscrt::WorkspaceStore::setLastName(name);
+        statusBar()->showMessage(
+            tr("Workspace '%1' saved.").arg(name), 2500);
+    });
+    m_sessionsMenu->addAction(saveWsAct);
+
+    auto *manageWsAct = new QAction(tr("Manage Wor&kspaces..."), this);
+    connect(manageWsAct, &QAction::triggered, this, [this] {
+        tscrt::WorkspacesDialog dlg(this);
+        if (dlg.exec() != QDialog::Accepted) return;
+        if (dlg.pickedAction() == tscrt::WorkspacesDialog::Load) {
+            const QString name = dlg.pickedName();
+            const QJsonObject ws = tscrt::WorkspaceStore::load(name);
+            if (ws.isEmpty()) {
+                QMessageBox::warning(this, tr("Load failed"),
+                    tr("Could not read workspace '%1'.").arg(name));
+                return;
+            }
+            tscrt::WorkspaceStore::setLastName(name);
+            applyWorkspaceForSelf(ws);
+        }
+    });
+    m_sessionsMenu->addAction(manageWsAct);
 
     m_sessionsMenu->addSeparator();
 
@@ -2021,19 +2461,22 @@ void MainWindow::onTabBarContextMenu(const QPoint &pos)
     QString existingLinkPartner;
     const char ctxRole = tscrt::LinkBroker::instance()->selfRole();
     if (linkLocalSlot >= 0) {
+        const int myWid = this->windowId();
         for (int i = 0; i < m_profile.tab_link_count; ++i) {
             const tab_link_t &lk = m_profile.tab_links[i];
             const QString L = QString::fromLocal8Bit(lk.left_session);
             const QString R = QString::fromLocal8Bit(lk.right_session);
             const char lr = lk.left_role  ? lk.left_role  : 'A';
             const char rr = lk.right_role ? lk.right_role : 'B';
-            if (lr == ctxRole && L == linkLocal && lk.left_slot == linkLocalSlot) {
+            const bool leftWidOk  = (lk.left_window_id  == 0 || lk.left_window_id  == myWid);
+            const bool rightWidOk = (lk.right_window_id == 0 || lk.right_window_id == myWid);
+            if (lr == ctxRole && L == linkLocal && lk.left_slot == linkLocalSlot && leftWidOk) {
                 existingLinkIdx = i;
                 existingLinkPartner =
                     tr("%1 (slot %2)").arg(R).arg(lk.right_slot);
                 break;
             }
-            if (rr == ctxRole && R == linkLocal && lk.right_slot == linkLocalSlot) {
+            if (rr == ctxRole && R == linkLocal && lk.right_slot == linkLocalSlot && rightWidOk) {
                 existingLinkIdx = i;
                 existingLinkPartner =
                     tr("%1 (slot %2)").arg(L).arg(lk.left_slot);
@@ -2070,15 +2513,37 @@ void MainWindow::onTabBarContextMenu(const QPoint &pos)
     } else if (chosen == actDetach) {
         detachToNewWindow(index);
     } else if (actLink && chosen == actLink) {
-        tscrt::LinkDialog dlg(linkLocal, linkLocalSlot, this);
+        tscrt::LinkDialog dlg(linkLocal, linkLocalSlot, this->windowId(), this);
         if (dlg.exec() == QDialog::Accepted
             && m_profile.tab_link_count < MAX_TAB_LINKS) {
-            const QString peerSession = dlg.pickedSession();
-            const int     peerSlot    = dlg.pickedSlot();
-            char          peerRole    = dlg.pickedPeerRole();
-            const char    myRole      =
+            const QString peerSession   = dlg.pickedSession();
+            const int     peerSlot      = dlg.pickedSlot();
+            const int     peerWindowId  = dlg.pickedWindowId();
+            char          peerRole      = dlg.pickedPeerRole();
+            const char    myRole        =
                 tscrt::LinkBroker::instance()->selfRole();
-            if (!peerRole) peerRole = (myRole == 'A') ? 'B' : 'A';
+            // Same-process pair: both endpoints share role and we keep
+            // window_ids on both sides to disambiguate which MainWindow
+            // owns each tab. Cross-process pair: opposite roles, no
+            // window_ids (0 = any window in the owning process).
+            const bool localPair = (peerWindowId > 0);
+            if (localPair) {
+                peerRole = myRole ? myRole : 'A';
+            } else if (!peerRole) {
+                peerRole = (myRole == 'A') ? 'B' : 'A';
+            }
+            // Reject the cross-process variant where both ends share role
+            // and have no window disambiguator. That state is only ever
+            // produced by a role-detection race (two processes both think
+            // they're 'A'), and the link would silently bind tabs of the
+            // same process together via the wrong code path.
+            if (!localPair && peerRole == myRole && myRole != 0) {
+                QMessageBox::warning(this, tr("Cannot link"),
+                    tr("The other TSCRT instance reports the same role as "
+                       "this one. Restart one of the instances so they "
+                       "negotiate distinct roles before linking tabs."));
+                return;
+            }
             if (!peerSession.isEmpty()) {
                 tab_link_t *lk = &m_profile.tab_links[m_profile.tab_link_count++];
                 memset(lk, 0, sizeof(*lk));
@@ -2090,10 +2555,12 @@ void MainWindow::onTabBarContextMenu(const QPoint &pos)
                 snprintf(lk->left_session,  sizeof(lk->left_session),  "%s",
                          linkLocal.toLocal8Bit().constData());
                 lk->left_slot = linkLocalSlot;
+                lk->left_window_id  = localPair ? this->windowId() : 0;
                 lk->right_role = peerRole;
                 snprintf(lk->right_session, sizeof(lk->right_session), "%s",
                          peerSession.toLocal8Bit().constData());
                 lk->right_slot = peerSlot;
+                lk->right_window_id = localPair ? peerWindowId : 0;
                 profile_save(&m_profile);
                 propagateProfileLinksToOtherWindows();
                 refreshLinkState();

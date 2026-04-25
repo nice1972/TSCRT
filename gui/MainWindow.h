@@ -9,6 +9,7 @@
 #include "tscrt.h"
 
 #include <QHash>
+#include <QJsonObject>
 #include <QList>
 #include <QMainWindow>
 #include <QPair>
@@ -40,6 +41,8 @@ protected:
     bool eventFilter(QObject *obj, QEvent *ev) override;
     void dragEnterEvent(QDragEnterEvent *ev) override;
     void dropEvent(QDropEvent *ev) override;
+    void moveEvent(QMoveEvent *ev) override;
+    void resizeEvent(QResizeEvent *ev) override;
 
 public slots:
     void openSessionByIndex(int profileIndex);
@@ -67,6 +70,11 @@ public:
 
     /// Global list of live MainWindows (for cross-window drag).
     static QList<MainWindow *> &allWindows();
+
+    /// Per-process window identifier (>=1, monotonically assigned at
+    /// construction). Used by Tab Link to disambiguate same-role
+    /// endpoints that live in different MainWindow instances.
+    int windowId() const { return m_windowId; }
 
 private:
     bool appendSessionToProfile(session_entry_t entry);
@@ -158,12 +166,32 @@ private:
     // chance to open the previously-persisted tabs.
     bool m_layoutReadyToSave = false;
 
+    // Per-process window identifier (>=1). See windowId().
+    int  m_windowId = 0;
+
+    // Debounce timer that publishes window geometry to LinkBroker after
+    // the user stops moving / resizing the window for ~150 ms.
+    class QTimer *m_geomPublishTimer = nullptr;
+
 public:
     /// Recompute pair_id -> SessionTab bindings by matching every
     /// profile tab_link against the current tab layout, and publish this
     /// process's tab list to the LinkBroker so peers can discover it.
     /// Call after any tab add/remove/rename/move.
     void refreshLinkState();
+
+    /// Build a JSON workspace snapshot of the entire cluster: every
+    /// connected TSCRT process's role/tabs (via LinkBroker's cached peer
+    /// state) plus the current tab_links table. Suitable for persisting
+    /// via WorkspaceStore and later restoring with applyWorkspaceForSelf().
+    QJsonObject buildWorkspaceSnapshot() const;
+
+    /// Apply the slice of a workspace snapshot that matches *this*
+    /// process's role: open the captured tabs, fan extra window_id groups
+    /// out into fresh MainWindow instances, and adopt the snapshot's
+    /// tab_links (with self-side window_id fields remapped onto the new
+    /// windows).
+    void applyWorkspaceForSelf(const QJsonObject &workspace);
 
 private:
     void activateLocalTabForPair(const QString &pairId);
