@@ -16,9 +16,9 @@
 
 | Платформа | Файл | Примечания |
 |-----------|------|------------|
-| **Windows x64** | [tscrt_win-1.0.12-win64.exe](https://github.com/nice1972/TSCRT/releases/download/v1.0.12/tscrt_win-1.0.12-win64.exe) | Установщик NSIS |
-| **Ubuntu / Debian (amd64)** | [tscrt_1.0.12_amd64.deb](https://github.com/nice1972/TSCRT/releases/download/v1.0.12/tscrt_1.0.12_amd64.deb) | `sudo apt install ./tscrt_1.0.12_amd64.deb` |
-| **macOS (Universal)** | [tscrt_mac-1.0.12-universal.dmg](https://github.com/nice1972/TSCRT/releases/download/v1.0.12/tscrt_mac-1.0.12-universal.dmg) | Перетащить `tscrt_mac.app` в `/Applications` |
+| **Windows x64** | [tscrt_win-1.0.14-win64.exe](https://github.com/nice1972/TSCRT/releases/download/v1.0.14/tscrt_win-1.0.14-win64.exe) | Установщик NSIS |
+| **Ubuntu / Debian (amd64)** | [tscrt_1.0.14_amd64.deb](https://github.com/nice1972/TSCRT/releases/download/v1.0.14/tscrt_1.0.14_amd64.deb) | `sudo apt install ./tscrt_1.0.14_amd64.deb` |
+| **macOS (Universal)** | [tscrt_mac-1.0.14-universal.dmg](https://github.com/nice1972/TSCRT/releases/download/v1.0.14/tscrt_mac-1.0.14-universal.dmg) | Перетащить `tscrt_mac.app` в `/Applications` |
 
 ---
 
