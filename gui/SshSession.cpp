@@ -47,7 +47,13 @@ SshSession::~SshSession()
     stop();
     if (m_thread.isRunning()) {
         m_thread.quit();
-        m_thread.wait(2000);
+        if (!m_thread.wait(5000)) {
+            // Worker still hung (e.g. stuck in getaddrinfo, which we
+            // can't interrupt cleanly). Better to terminate it than to
+            // let ~QThread() qFatal the whole process.
+            m_thread.terminate();
+            m_thread.wait();
+        }
     }
 }
 
@@ -61,10 +67,23 @@ void SshSession::start()
 
 void SshSession::stop()
 {
-    {
-        QMutexLocker lock(&m_outMutex);
-        m_stopRequested = true;
+    QMutexLocker lock(&m_outMutex);
+    m_stopRequested = true;
+    // Force-close the socket so a blocking ::connect() / poll() on the
+    // worker thread returns with an error instead of sitting in TCP SYN
+    // retransmit for ~21s. Without this, ~SshSession() times out and
+    // ~QThread() then qFatal's the process.
+#ifdef _WIN32
+    if (m_sock != INVALID_SOCKET) {
+        closesocket(m_sock);
+        m_sock = INVALID_SOCKET;
     }
+#else
+    if (m_sock >= 0) {
+        ::close(m_sock);
+        m_sock = -1;
+    }
+#endif
 }
 
 void SshSession::sendBytes(const QByteArray &data)
@@ -104,11 +123,12 @@ bool SshSession::connectSocket(QString *err)
         return false;
     }
 
-    m_sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 #ifdef _WIN32
-    if (m_sock == INVALID_SOCKET) {
+    SOCKET sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (sock == INVALID_SOCKET) {
 #else
-    if (m_sock < 0) {
+    int sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (sock < 0) {
 #endif
         freeaddrinfo(res);
         *err = QStringLiteral("socket() failed");
@@ -116,25 +136,47 @@ bool SshSession::connectSocket(QString *err)
     }
 
     int nodelay = 1;
-    setsockopt(m_sock, IPPROTO_TCP, TCP_NODELAY,
+    setsockopt(sock, IPPROTO_TCP, TCP_NODELAY,
                reinterpret_cast<const char *>(&nodelay), sizeof(nodelay));
 
     if (m_tcpKeepalive) {
         int ka = 1;
-        setsockopt(m_sock, SOL_SOCKET, SO_KEEPALIVE,
+        setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE,
                    reinterpret_cast<const char *>(&ka), sizeof(ka));
+    }
+
+    // Publish the socket under the mutex so a concurrent stop() can
+    // close it to interrupt connect(). If stop already ran, bail.
+    {
+        QMutexLocker lock(&m_outMutex);
+        if (m_stopRequested) {
+#ifdef _WIN32
+            closesocket(sock);
+#else
+            ::close(sock);
+#endif
+            freeaddrinfo(res);
+            *err = QStringLiteral("connect aborted");
+            return false;
+        }
+        m_sock = sock;
     }
 
     if (::connect(m_sock, res->ai_addr, (int)res->ai_addrlen) != 0) {
         freeaddrinfo(res);
+        QMutexLocker lock(&m_outMutex);
 #ifdef _WIN32
         *err = QStringLiteral("connect() failed: %1").arg(WSAGetLastError());
-        closesocket(m_sock);
-        m_sock = INVALID_SOCKET;
+        if (m_sock != INVALID_SOCKET) {
+            closesocket(m_sock);
+            m_sock = INVALID_SOCKET;
+        }
 #else
         *err = QStringLiteral("connect() failed: %1").arg(QString::fromLocal8Bit(strerror(errno)));
-        ::close(m_sock);
-        m_sock = -1;
+        if (m_sock >= 0) {
+            ::close(m_sock);
+            m_sock = -1;
+        }
 #endif
         return false;
     }
@@ -437,17 +479,22 @@ void SshSession::cleanup()
         libssh2_session_free(m_session);
         m_session = nullptr;
     }
+    {
+        QMutexLocker lock(&m_outMutex);
 #ifdef _WIN32
-    if (m_sock != INVALID_SOCKET) {
-        closesocket(m_sock);
-        m_sock = INVALID_SOCKET;
-    }
-    WSACleanup();
+        if (m_sock != INVALID_SOCKET) {
+            closesocket(m_sock);
+            m_sock = INVALID_SOCKET;
+        }
 #else
-    if (m_sock >= 0) {
-        ::close(m_sock);
-        m_sock = -1;
+        if (m_sock >= 0) {
+            ::close(m_sock);
+            m_sock = -1;
+        }
+#endif
     }
+#ifdef _WIN32
+    WSACleanup();
 #endif
 }
 
